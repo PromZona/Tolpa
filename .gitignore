@@ -1,0 +1,11 @@
+# game build
+build
+
+# script files
+*.bat
+
+# savings from bash
+*.ash_history
+
+# vs code
+.vscode
