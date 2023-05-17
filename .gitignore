@@ -1,5 +1,5 @@
-# game build
-build
+# build
+cmake-build-debug
 
 # script files
 *.bat
@@ -9,3 +9,6 @@ build
 
 # vs code
 .vscode
+
+# JetBrains
+.idea
