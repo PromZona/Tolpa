@@ -3,13 +3,9 @@
 #include <string>
 #include "EntityManager.hpp"
 #include "Entity.hpp"
+#include "PositionComponent.h"
 
-struct Position
-{
-    int x, y;
-};
-
-Game::Game()
+Game::Game() : m_entityManager(EntityManager::Instance()), m_renderer()
 {
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -24,11 +20,10 @@ Game::~Game()
 
 void Game::Start()
 {
-    auto& manager = EntityManager::Instance();
-    auto& entity = manager.CreateEntity(std::string("Player"));
+    auto& entity = m_entityManager.CreateEntity(std::string("Player"));
     auto& pos = entity.AddComponent<Position>();
-    pos.x = 20;
-    pos.y = 30;
+    pos.x = 5;
+    pos.y = 5;
 
     while (!WindowShouldClose()) {
         Input();
@@ -44,13 +39,16 @@ void Game::Input()
 
 void Game::Update()
 {
-    
+    auto& positions = m_entityManager.GetComponents<Position>();
+
+    float deltaTime = GetFrameTime();
+    for (auto& pos : positions)
+    {
+        pos.x += 1;
+    }
 }
 
 void Game::Render()
 {
-    BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("test", 0, 0, 14, BLACK);
-    EndDrawing();
+    m_renderer.Render();
 }

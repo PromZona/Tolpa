@@ -34,6 +34,12 @@ public:
     }
 
     template <typename ComponentType>
+    std::vector<ComponentType>& GetComponents()
+    {
+        return GetComponentStorage<ComponentType>();
+    }
+
+    template <typename ComponentType>
     ComponentType& GetComponent(int componentId)
     {
         return GetComponentStorage<ComponentType>()[componentId];
