@@ -23,7 +23,7 @@ void Renderer::Render()
 
         for (auto& pos : positions)
         {
-            DrawCircle(pos.x, pos.y, 2, RED);
+            DrawCircle(pos.x, pos.y, 20, RED);
         }
     EndDrawing();
 }
