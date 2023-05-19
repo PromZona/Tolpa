@@ -1,26 +1,55 @@
+#pragma once
+
 #include <vector>
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <typeindex>
+#include <concepts>
 
 class Entity;
-class Component;
+
 
 class EntityManager
 {
 public:
-    EntityManager();
+    static EntityManager& Instance()
+    {
+        static EntityManager instance;
+        return instance;
+    }
+
     ~EntityManager();
 
-    std::shared_ptr<Entity> CreateEntity(int id, String name);
+    Entity& CreateEntity(std::string name);
     void DeleteEntity(int id);
 
-    template<class T>
-    void AddComponent<T>(std::shared_ptr<T> component);
-    template<class T>
-    std::shared_ptr<T> GetComponent<T>(int entityId);
-private:
-    std::vector<std::shared_ptr<Entity>> entities;
-    std::unordered_map<std::type_index, std::shared_ptr<Component>> componentsByTypeIndex;
-}
+    template <typename ComponentType>
+    ComponentType& CreateComponent(int& componentId)
+    {
+        auto& storage = GetComponentStorage<ComponentType>();
+        storage.emplace_back(ComponentType{});
+        componentId = storage.size();
+        return storage.back();
+    }
 
+    template <typename ComponentType>
+    ComponentType& GetComponent(int componentId)
+    {
+        return GetComponentStorage<ComponentType>()[componentId];
+    }
+
+private:
+    EntityManager();
+    static EntityManager& instance;
+
+    int current_entity_index = 0;
+    std::vector<Entity> entities;
+
+    template<typename Component>
+    std::vector<Component>& GetComponentStorage()
+    {
+        static std::vector<Component> components;
+        return components;
+    }
+};

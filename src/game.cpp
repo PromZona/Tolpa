@@ -1,5 +1,14 @@
 #include "game.hpp"
 
+#include <string>
+#include "EntityManager.hpp"
+#include "Entity.hpp"
+
+struct Position
+{
+    int x, y;
+};
+
 Game::Game()
 {
     const int screenWidth = 800;
@@ -15,8 +24,13 @@ Game::~Game()
 
 void Game::Start()
 {
-    while (!WindowShouldClose())
-    {
+    auto& manager = EntityManager::Instance();
+    auto& entity = manager.CreateEntity(std::string("Player"));
+    auto& pos = entity.AddComponent<Position>();
+    pos.x = 20;
+    pos.y = 30;
+
+    while (!WindowShouldClose()) {
         Input();
         Update();
         Render();
