@@ -1,11 +1,11 @@
 #include "game.hpp"
 
-#include <string>
 #include "EntityManager.hpp"
 #include "Entity.hpp"
-#include "PositionComponent.hpp"
 
-Game::Game() : m_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance())
+#include "Controllers/MovementController.hpp"
+
+Game::Game() : m_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
 {
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -20,10 +20,7 @@ Game::~Game()
 
 void Game::Start()
 {
-    auto& entity = m_entityManager.CreateEntity(std::string("Player"));
-    auto& pos = entity.AddComponent<Position>();
-    pos.x = 5;
-    pos.y = 5;
+    InitializeControllers();
 
     while (!WindowShouldClose()) {
         Input();
@@ -39,16 +36,18 @@ void Game::Input()
 
 void Game::Update()
 {
-    auto& positions = m_entityManager.GetComponents<Position>();
-
     float deltaTime = GetFrameTime();
-    for (auto& pos : positions)
+    for (auto& controller : m_controllers)
     {
-        pos.x += 1;
+        controller->Tick(deltaTime);
     }
 }
 
 void Game::Render()
 {
     m_renderer.Render();
+}
+
+void Game::InitializeControllers() {
+    m_controllers.emplace_back(std::make_unique<MovementController>());
 }

@@ -2,7 +2,7 @@
 #include "raylib.h"
 
 #include "EntityManager.hpp"
-#include "PositionComponent.hpp"
+#include "Components/MovementComponent.hpp"
 
 Renderer::Renderer()
 {
@@ -16,14 +16,13 @@ Renderer::~Renderer()
 void Renderer::Render()
 {
     auto& entityManager = EntityManager::Instance();
-    auto& positions = entityManager.GetComponents<Position>();
+    auto& movements = entityManager.GetComponents<MovementComponent>();
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawText("test", 0, 0, 14, BLACK);
-
-        for (auto& pos : positions)
+        DrawFPS(5, 5);
+        for (auto& mov : movements)
         {
-            DrawCircle(pos.x, pos.y, 20, RED);
+            DrawCircle(mov.Position.x, mov.Position.y, 20, RED);
         }
     EndDrawing();
 }
