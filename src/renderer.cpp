@@ -2,7 +2,7 @@
 #include "raylib.h"
 
 #include "EntityManager.hpp"
-#include "PositionComponent.h"
+#include "PositionComponent.hpp"
 
 Renderer::Renderer()
 {

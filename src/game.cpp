@@ -3,9 +3,9 @@
 #include <string>
 #include "EntityManager.hpp"
 #include "Entity.hpp"
-#include "PositionComponent.h"
+#include "PositionComponent.hpp"
 
-Game::Game() : m_entityManager(EntityManager::Instance()), m_renderer()
+Game::Game() : m_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance())
 {
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -34,7 +34,7 @@ void Game::Start()
 
 void Game::Input()
 {
-
+    m_inputManager.Update();
 }
 
 void Game::Update()

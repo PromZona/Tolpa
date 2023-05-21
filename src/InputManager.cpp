@@ -1,0 +1,24 @@
+#include "InputManager.hpp"
+
+#include <raylib.h>
+#include "EntityManager.hpp"
+#include "Entity.hpp"
+
+#include "PositionComponent.hpp"
+
+InputManager::InputManager() : m_entityManager(EntityManager::Instance()) {}
+InputManager::~InputManager() = default;
+
+void InputManager::Update(){
+    int keyPressed = 0;
+    while ((keyPressed = GetKeyPressed()) != 0)
+    {
+        if (keyPressed == KEY_W)
+        {
+            auto& newEntity = m_entityManager.CreateEntity("Object");
+            auto& component = newEntity.AddComponent<Position>();
+            component.x = 10;
+            component.y = 10;
+        }
+    }
+}
