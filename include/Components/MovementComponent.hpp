@@ -1,10 +1,10 @@
 #pragma once
 
-#include "raymath.h"
+#include "raylib.h"
 
 struct MovementComponent
 {
-    Vector2 Position;
+    int PositionComponentIndex;
     Vector2 Direction;
     float Speed;
 };
