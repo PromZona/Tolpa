@@ -10,8 +10,8 @@ EntityManager::~EntityManager() = default;
 
 Entity& EntityManager::CreateEntity(std::string name)
 {
-    current_entity_index++;
     entities.emplace_back(current_entity_index, std::move(name));
+    current_entity_index++;
     return entities.back();
 }
 
@@ -25,5 +25,9 @@ void EntityManager::DeleteEntity(int id)
             break;
         }
     }
+}
+
+Entity& EntityManager::GetEntity(int id) {
+    return entities[id];
 }
 

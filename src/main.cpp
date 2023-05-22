@@ -1,8 +1,6 @@
 #include "game.hpp"
 int main(void)
 {
-    Game* game = new Game();
-    game->Start();
-    delete game;
+    Game::Instance().Start();
     return 0;
 }

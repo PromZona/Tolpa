@@ -4,6 +4,9 @@
 #include "Entity.hpp"
 
 #include "Controllers/MovementController.hpp"
+#include "Controllers/UnitGoalController.hpp"
+
+Game& Game::m_instance = Game::Instance();
 
 Game::Game() : m_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
 {
@@ -48,6 +51,19 @@ void Game::Render()
     m_renderer.Render();
 }
 
-void Game::InitializeControllers() {
+void Game::InitializeControllers()
+{
     m_controllers.emplace_back(std::make_unique<MovementController>());
+    m_controllers.emplace_back(std::make_unique<UnitGoalController>());
 }
+
+std::vector<int> &Game::GetUnits()
+{
+    return m_instance.m_units;
+}
+
+std::vector<int> &Game::GetCities()
+{
+    return m_instance.m_cities;
+}
+

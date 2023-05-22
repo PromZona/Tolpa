@@ -16,7 +16,8 @@ void MovementController::Tick(float deltaTime) {
 
     for (auto& moveComp : movementComponents)
     {
-        auto transform = transformComponents[moveComp.PositionComponentIndex];
-        transform.Position = Vector2Add(transform.Position, Vector2Scale(moveComp.Direction, moveComp.Speed * deltaTime));
+        auto& transform = transformComponents[moveComp.PositionComponentIndex];
+        Vector2 result =  Vector2Add(transform.Position, Vector2Scale(moveComp.Direction, moveComp.Speed * deltaTime));
+        transform.Position = result;
     }
 }

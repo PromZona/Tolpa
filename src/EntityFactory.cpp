@@ -7,6 +7,8 @@
 #include "Components/MovementComponent.hpp"
 #include "Components/RenderComponent.hpp"
 
+#include "game.hpp"
+#include "Components/GoalComponent.hpp"
 
 Entity& EntityFactory::CreateUnit() {
     auto& entityManager = EntityManager::Instance();
@@ -26,6 +28,10 @@ Entity& EntityFactory::CreateUnit() {
     movementComponent.Direction = {0, 0};
     movementComponent.Speed = 20.0f;
 
+    auto& goalComponent = unit.AddComponent<GoalComponent>();
+    goalComponent.IsActive = false;
+
+    Game::Instance().GetUnits().push_back(unit.id);
     return unit;
 }
 
@@ -42,5 +48,6 @@ Entity& EntityFactory::CreateCity() {
     renderComponent.Radius = 8;
     renderComponent.Color = RED;
 
+    Game::Instance().GetCities().push_back(city.id);
     return city;
 }

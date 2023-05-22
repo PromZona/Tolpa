@@ -21,6 +21,7 @@ public:
     ~EntityManager();
 
     Entity& CreateEntity(std::string name);
+    Entity& GetEntity(int id);
     void DeleteEntity(int id);
 
     template <typename ComponentType>
