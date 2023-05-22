@@ -3,6 +3,7 @@
 
 #include "EntityManager.hpp"
 #include "Components/MovementComponent.hpp"
+#include "Components/RenderComponent.hpp"
 
 Renderer::Renderer()
 {
@@ -16,13 +17,15 @@ Renderer::~Renderer()
 void Renderer::Render()
 {
     auto& entityManager = EntityManager::Instance();
+    auto& renders = entityManager.GetComponents<RenderComponent>();
     auto& movements = entityManager.GetComponents<MovementComponent>();
     BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawFPS(5, 5);
-        for (auto& mov : movements)
+        for (auto& rendComp : renders)
         {
-            DrawCircle(mov.Position.x, mov.Position.y, 20, RED);
+            auto& moveComp = movements[rendComp.TransformComponentIndex];
+            DrawCircle((int)moveComp.Position.x, (int)moveComp.Position.y, rendComp.Radius, rendComp.Color);
         }
     EndDrawing();
 }

@@ -28,7 +28,7 @@ public:
     {
         auto& storage = GetComponentStorage<ComponentType>();
         storage.emplace_back(ComponentType{});
-        componentId = storage.size();
+        componentId = storage.size() - 1;
         return storage.back();
     }
 
