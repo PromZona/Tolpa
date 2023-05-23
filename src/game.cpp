@@ -57,6 +57,7 @@ void Game::InitializeControllers()
     m_controllers.emplace_back(std::make_unique<UnitGoalController>());
 }
 
+<<<<<<< Updated upstream
 std::vector<int> &Game::GetUnits()
 {
     return m_instance.m_units;
@@ -66,4 +67,6 @@ std::vector<int> &Game::GetCities()
 {
     return m_instance.m_cities;
 }
+=======
+>>>>>>> Stashed changes
 

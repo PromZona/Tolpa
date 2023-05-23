@@ -7,6 +7,7 @@
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "Entity.hpp"
+#include "GameState.h"
 
 class EntityManager;
 
@@ -22,8 +23,12 @@ public:
     ~Game();
     void Start();
 
+<<<<<<< Updated upstream
     static std::vector<int>& GetUnits();
     static std::vector<int>& GetCities();
+=======
+	GameState State;
+>>>>>>> Stashed changes
 private:
     Game();
     static Game& m_instance;
@@ -37,8 +42,12 @@ private:
     InputManager m_inputManager;
     EntityManager& m_entityManager;
 
+<<<<<<< Updated upstream
     std::vector<std::unique_ptr<IController>> m_controllers;
 
     std::vector<int> m_units;
     std::vector<int> m_cities;
+=======
+	std::vector<std::unique_ptr<IController>> m_controllers;
+>>>>>>> Stashed changes
 };

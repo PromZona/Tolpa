@@ -10,9 +10,16 @@
 #include "game.hpp"
 #include "Components/GoalComponent.hpp"
 
+<<<<<<< Updated upstream
 Entity& EntityFactory::CreateUnit() {
     auto& entityManager = EntityManager::Instance();
     auto& unit = entityManager.CreateEntity("Unit");
+=======
+Entity& EntityFactory::CreateParty()
+{
+	auto& entityManager = EntityManager::Instance();
+	auto& unit = entityManager.CreateEntity("party");
+>>>>>>> Stashed changes
 
     int transformIndex;
     auto& transformComponent = unit.AddComponent<TransformComponent>(transformIndex);
@@ -31,8 +38,13 @@ Entity& EntityFactory::CreateUnit() {
     auto& goalComponent = unit.AddComponent<GoalComponent>();
     goalComponent.IsActive = false;
 
+<<<<<<< Updated upstream
     Game::Instance().GetUnits().push_back(unit.id);
     return unit;
+=======
+	Game::Instance().State.parties.push_back(unit.id);
+	return unit;
+>>>>>>> Stashed changes
 }
 
 Entity& EntityFactory::CreateCity() {
@@ -48,6 +60,29 @@ Entity& EntityFactory::CreateCity() {
     renderComponent.Radius = 8;
     renderComponent.Color = RED;
 
+<<<<<<< Updated upstream
     Game::Instance().GetCities().push_back(city.id);
     return city;
+=======
+	Game::Instance().State.cities.push_back(city.id);
+	return city;
+}
+
+Entity& EntityFactory::CreateLair()
+{
+	auto& entityManager = EntityManager::Instance();
+	auto& city = entityManager.CreateEntity("Lair");
+
+	int transformIndex;
+	auto& transformComponent = city.AddComponent<TransformComponent>(transformIndex);
+	transformComponent.Position = { 0, 0 };
+
+	auto& renderComponent = city.AddComponent<RenderComponent>();
+	renderComponent.TransformComponentIndex = transformIndex;
+	renderComponent.Radius = 8;
+	renderComponent.Color = PURPLE;
+
+	Game::Instance().State.lairs.push_back(city.id);
+	return city;
+>>>>>>> Stashed changes
 }
