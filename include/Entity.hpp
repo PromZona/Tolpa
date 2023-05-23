@@ -9,41 +9,43 @@
 class Entity
 {
 public:
-    int id;
-    std::string name;
+	int id;
+	std::string name;
 
-    Entity(int id, std::string name) : id(id), name(std::move(name)){}
-    ~Entity() = default;
+	Entity(int id, std::string name) : id(id), name(std::move(name))
+	{
+	}
+	~Entity() = default;
 
-    template<class T>
-    T& AddComponent()
-    {
-        int _;
-        return AddComponent<T>(_);
-    }
+	template<class T>
+	T& AddComponent()
+	{
+		int _;
+		return AddComponent<T>(_);
+	}
 
-    template<class T>
-    T& AddComponent(int& componentIdOut)
-    {
-        auto& entityManager = EntityManager::Instance();
-        int componentId;
-        auto& result = entityManager.CreateComponent<T>(componentId);
-        componentIdOut = componentId;
+	template<class T>
+	T& AddComponent(int& componentIdOut)
+	{
+		auto& entityManager = EntityManager::Instance();
+		int componentId;
+		auto& result = entityManager.CreateComponent<T>(componentId);
+		componentIdOut = componentId;
 
-        componentToId[std::type_index(typeid(T))] = componentId;
-        return result;
-    }
+		componentToId[std::type_index(typeid(T))] = componentId;
+		return result;
+	}
 
-    template<class T>
-    T& GetComponent()
-    {
-        auto& entityManager = EntityManager::Instance();
-        return entityManager.GetComponent<T>(componentToId[std::type_index(typeid(T))]);
-    }
+	template<class T>
+	T& GetComponent()
+	{
+		auto& entityManager = EntityManager::Instance();
+		return entityManager.GetComponent<T>(componentToId[std::type_index(typeid(T))]);
+	}
 
-    void DeleteAllComponents();
+	void DeleteAllComponents();
 
 private:
-    std::unordered_map<std::type_index, int> componentToId;
+	std::unordered_map<std::type_index, int> componentToId;
 };
 

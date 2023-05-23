@@ -4,8 +4,9 @@
 
 class Entity;
 
-class EntityFactory {
+class EntityFactory
+{
 public:
-    static Entity& CreateUnit();
-    static Entity& CreateCity();
+	static Entity& CreateUnit();
+	static Entity& CreateCity();
 };

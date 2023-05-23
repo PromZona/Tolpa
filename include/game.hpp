@@ -13,32 +13,32 @@ class EntityManager;
 class Game
 {
 public:
-    static Game& Instance()
-    {
-        static Game m_instance;
-        return m_instance;
-    }
+	static Game& Instance()
+	{
+		static Game m_instance;
+		return m_instance;
+	}
 
-    ~Game();
-    void Start();
+	~Game();
+	void Start();
 
-    static std::vector<int>& GetUnits();
-    static std::vector<int>& GetCities();
+	std::vector<int>& GetUnits();
+	std::vector<int>& GetCities();
 private:
-    Game();
-    static Game& m_instance;
+	Game();
+	static Game& m_instance;
 
-    void Input();
-    void Update();
-    void Render();
-    void InitializeControllers();
+	void Input();
+	void Update();
+	void Render();
+	void InitializeControllers();
 
-    Renderer m_renderer;
-    InputManager m_inputManager;
-    EntityManager& m_entityManager;
+	Renderer m_renderer;
+	InputManager m_inputManager;
+	EntityManager& m_entityManager;
 
-    std::vector<std::unique_ptr<IController>> m_controllers;
+	std::vector<std::unique_ptr<IController>> m_controllers;
 
-    std::vector<int> m_units;
-    std::vector<int> m_cities;
+	std::vector<int> m_units;
+	std::vector<int> m_cities;
 };

@@ -1,5 +1,6 @@
 #include "Entity.hpp"
 
-void Entity::DeleteAllComponents() {
+void Entity::DeleteAllComponents()
+{
 
 }

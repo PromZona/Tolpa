@@ -16,32 +16,33 @@
 UnitGoalController::UnitGoalController() = default;
 UnitGoalController::~UnitGoalController() = default;
 
-void UnitGoalController::Tick(float deltaTime) {
-    auto& entityManager = EntityManager::Instance();
-    auto& units = Game::Instance().GetUnits();
-    auto& cities = Game::Instance().GetCities();
+void UnitGoalController::Tick(float deltaTime)
+{
+	auto& entityManager = EntityManager::Instance();
+	auto& units = Game::Instance().GetUnits();
+	auto& cities = Game::Instance().GetCities();
 
-    for (auto& unitId : units)
-    {
-        auto& unit = entityManager.GetEntity(unitId);
-        auto& goalComp = unit.GetComponent<GoalComponent>();
-        auto& movementComp = unit.GetComponent<MovementComponent>();
-        auto& transformComp = unit.GetComponent<TransformComponent>();
+	for (auto& unitId : units)
+	{
+		auto& unit = entityManager.GetEntity(unitId);
+		auto& goalComp = unit.GetComponent<GoalComponent>();
+		auto& movementComp = unit.GetComponent<MovementComponent>();
+		auto& transformComp = unit.GetComponent<TransformComponent>();
 
-        if (Vector2Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
-        {
-            goalComp.IsActive = false;
-        }
+		if (Vector2Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
+		{
+			goalComp.IsActive = false;
+		}
 
-        if (!goalComp.IsActive)
-        {
-            int cityId = cities[GetRandomValue(0, cities.size() - 1)];
-            Vector2 cityPosition = entityManager.GetEntity(cityId).GetComponent<TransformComponent>().Position;
+		if (!goalComp.IsActive)
+		{
+			int cityId = cities[GetRandomValue(0, cities.size() - 1)];
+			Vector2 cityPosition = entityManager.GetEntity(cityId).GetComponent<TransformComponent>().Position;
 
-            goalComp.GoalPosition = cityPosition;
-            goalComp.IsActive = true;
+			goalComp.GoalPosition = cityPosition;
+			goalComp.IsActive = true;
 
-            movementComp.Direction = Vector2Normalize(Vector2Subtract(cityPosition, transformComp.Position));
-        }
-    }
+			movementComp.Direction = Vector2Normalize(Vector2Subtract(cityPosition, transformComp.Position));
+		}
+	}
 }

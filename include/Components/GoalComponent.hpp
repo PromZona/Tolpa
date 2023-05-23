@@ -2,7 +2,8 @@
 
 #include "raylib.h"
 
-struct GoalComponent {
-    Vector2 GoalPosition;
-    bool IsActive;
+struct GoalComponent
+{
+	Vector2 GoalPosition;
+	bool IsActive;
 };
