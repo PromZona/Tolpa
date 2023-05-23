@@ -20,16 +20,23 @@ void InputManager::Update()
 		if (keyPressed == KEY_W)
 		{
 			auto mousePos = GetMousePosition();
-			auto& unit = EntityFactory::CreateUnit();
+			auto& unit = EntityFactory::CreateParty();
 			unit.GetComponent<TransformComponent>().Position = mousePos;
 			continue;
 		}
-
+    
 		if (keyPressed == KEY_E)
 		{
 			auto mousePos = GetMousePosition();
 			auto& city = EntityFactory::CreateCity();
 			city.GetComponent<TransformComponent>().Position = mousePos;
+			continue;
+		}
+		if (keyPressed == KEY_R)
+		{
+			auto mousePos = GetMousePosition();
+			auto& lair = EntityFactory::CreateLair();
+			lair.GetComponent<TransformComponent>().Position = mousePos;
 			continue;
 		}
 	}

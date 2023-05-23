@@ -7,6 +7,7 @@ class Entity;
 class EntityFactory
 {
 public:
-	static Entity& CreateUnit();
+	static Entity& CreateParty();
 	static Entity& CreateCity();
+	static Entity& CreateLair();
 };

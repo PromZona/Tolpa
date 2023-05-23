@@ -7,6 +7,7 @@
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "Entity.hpp"
+#include "GameState.h"
 
 class EntityManager;
 
@@ -22,8 +23,7 @@ public:
 	~Game();
 	void Start();
 
-	std::vector<int>& GetUnits();
-	std::vector<int>& GetCities();
+	GameState State;
 private:
 	Game();
 	static Game& m_instance;
@@ -38,7 +38,4 @@ private:
 	EntityManager& m_entityManager;
 
 	std::vector<std::unique_ptr<IController>> m_controllers;
-
-	std::vector<int> m_units;
-	std::vector<int> m_cities;
 };
