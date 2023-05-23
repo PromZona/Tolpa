@@ -4,7 +4,7 @@
 
 struct MovementComponent
 {
-    int PositionComponentIndex;
-    Vector2 Direction;
-    float Speed;
+	int PositionComponentIndex;
+	Vector2 Direction;
+	float Speed;
 };

@@ -16,19 +16,6 @@
 UnitGoalController::UnitGoalController() = default;
 UnitGoalController::~UnitGoalController() = default;
 
-<<<<<<< Updated upstream
-void UnitGoalController::Tick(float deltaTime) {
-    auto& entityManager = EntityManager::Instance();
-    auto& units = Game::Instance().GetUnits();
-    auto& cities = Game::Instance().GetCities();
-
-    for (auto& unitId : units)
-    {
-        auto& unit = entityManager.GetEntity(unitId);
-        auto& goalComp = unit.GetComponent<GoalComponent>();
-        auto& movementComp = unit.GetComponent<MovementComponent>();
-        auto& transformComp = unit.GetComponent<TransformComponent>();
-=======
 void UnitGoalController::Tick(float deltaTime)
 {
 	auto& entityManager = EntityManager::Instance();
@@ -41,7 +28,6 @@ void UnitGoalController::Tick(float deltaTime)
 		auto& goalComp = unit.GetComponent<GoalComponent>();
 		auto& movementComp = unit.GetComponent<MovementComponent>();
 		auto& transformComp = unit.GetComponent<TransformComponent>();
->>>>>>> Stashed changes
 
         if (Vector2Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
         {

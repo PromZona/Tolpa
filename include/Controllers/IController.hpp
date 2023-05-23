@@ -1,7 +1,10 @@
 #pragma once
 
-class IController {
+class IController
+{
 public:
-    virtual ~IController() {}
-    virtual void Tick(float deltaTime) = 0;
+	virtual ~IController()
+	{
+	}
+	virtual void Tick(float deltaTime) = 0;
 };

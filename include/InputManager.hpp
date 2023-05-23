@@ -2,12 +2,13 @@
 
 class EntityManager;
 
-class InputManager{
+class InputManager
+{
 public:
-    InputManager();
-    ~InputManager();
+	InputManager();
+	~InputManager();
 
-    void Update();
+	void Update();
 private:
-    EntityManager& m_entityManager;
+	EntityManager& m_entityManager;
 };

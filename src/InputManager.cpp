@@ -7,31 +7,11 @@
 
 #include "Components/TransformComponent.hpp"
 
-InputManager::InputManager() : m_entityManager(EntityManager::Instance()) {}
+InputManager::InputManager() : m_entityManager(EntityManager::Instance())
+{
+}
 InputManager::~InputManager() = default;
 
-<<<<<<< Updated upstream
-void InputManager::Update(){
-    int keyPressed = 0;
-    while ((keyPressed = GetKeyPressed()) != 0)
-    {
-        if (keyPressed == KEY_W)
-        {
-            auto mousePos = GetMousePosition();
-            auto& unit = EntityFactory::CreateUnit();
-            unit.GetComponent<TransformComponent>().Position = mousePos;
-            continue;
-        }
-
-        if (keyPressed == KEY_E)
-        {
-            auto mousePos = GetMousePosition();
-            auto& city = EntityFactory::CreateCity();
-            city.GetComponent<TransformComponent>().Position = mousePos;
-            continue;
-        }
-    }
-=======
 void InputManager::Update()
 {
 	int keyPressed = 0;
@@ -44,7 +24,7 @@ void InputManager::Update()
 			unit.GetComponent<TransformComponent>().Position = mousePos;
 			continue;
 		}
-
+    
 		if (keyPressed == KEY_E)
 		{
 			auto mousePos = GetMousePosition();
@@ -52,7 +32,6 @@ void InputManager::Update()
 			city.GetComponent<TransformComponent>().Position = mousePos;
 			continue;
 		}
-
 		if (keyPressed == KEY_R)
 		{
 			auto mousePos = GetMousePosition();
@@ -61,5 +40,4 @@ void InputManager::Update()
 			continue;
 		}
 	}
->>>>>>> Stashed changes
 }

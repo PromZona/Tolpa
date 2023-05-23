@@ -14,40 +14,28 @@ class EntityManager;
 class Game
 {
 public:
-    static Game& Instance()
-    {
-        static Game m_instance;
-        return m_instance;
-    }
+	static Game& Instance()
+	{
+		static Game m_instance;
+		return m_instance;
+	}
 
-    ~Game();
-    void Start();
+	~Game();
+	void Start();
 
-<<<<<<< Updated upstream
-    static std::vector<int>& GetUnits();
-    static std::vector<int>& GetCities();
-=======
 	GameState State;
->>>>>>> Stashed changes
 private:
-    Game();
-    static Game& m_instance;
+	Game();
+	static Game& m_instance;
 
-    void Input();
-    void Update();
-    void Render();
-    void InitializeControllers();
+	void Input();
+	void Update();
+	void Render();
+	void InitializeControllers();
 
-    Renderer m_renderer;
-    InputManager m_inputManager;
-    EntityManager& m_entityManager;
+	Renderer m_renderer;
+	InputManager m_inputManager;
+	EntityManager& m_entityManager;
 
-<<<<<<< Updated upstream
-    std::vector<std::unique_ptr<IController>> m_controllers;
-
-    std::vector<int> m_units;
-    std::vector<int> m_cities;
-=======
 	std::vector<std::unique_ptr<IController>> m_controllers;
->>>>>>> Stashed changes
 };

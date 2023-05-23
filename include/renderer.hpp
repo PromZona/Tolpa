@@ -3,8 +3,8 @@
 class Renderer
 {
 public:
-    Renderer();
-    ~Renderer();
+	Renderer();
+	~Renderer();
 
-    void Render();
+	void Render();
 };
