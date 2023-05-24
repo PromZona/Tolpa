@@ -8,10 +8,10 @@
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
+Game::Game() : m_scene_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
 {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1280;
+    const int screenHeight = 1024;
     InitWindow(screenWidth, screenHeight, "Tolpa");
     SetTargetFPS(60);
 }
@@ -24,12 +24,15 @@ Game::~Game()
 void Game::Start()
 {
     InitializeControllers();
+    InitializeScene();
 
     while (!WindowShouldClose()) {
         Input();
         Update();
         Render();
     }
+
+    m_scene_renderer.ClearScene();
 }
 
 void Game::Input()
@@ -48,13 +51,24 @@ void Game::Update()
 
 void Game::Render()
 {
-    m_renderer.Render();
+    m_scene_renderer.RenderScene();
 }
 
 void Game::InitializeControllers()
 {
     m_controllers.emplace_back(std::make_unique<MovementController>());
     m_controllers.emplace_back(std::make_unique<UnitGoalController>());
+}
+
+void Game::InitializeScene()
+{
+    m_scene_renderer.InitializeCamera();
+    
+    //test
+    DisableCursor();
+
+    m_scene_renderer.RenderModel("../resources/3d_objects/landscape.glb", "../resources/3d_objects/landscape.png", {0.0f, 0.0f, 0.0f});
+    m_scene_renderer.RenderModel("../resources/3d_objects/water.glb", "../resources/3d_objects/r.png", {0.0f, 1.9f, 0.0f});
 }
 
 std::vector<int> &Game::GetUnits()

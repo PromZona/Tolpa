@@ -9,6 +9,18 @@ cmake-build-debug
 
 # vs code
 .vscode
+.vs
 
 # JetBrains
 .idea
+
+# build directory
+build/
+
+# recources (can be too big)
+resources/3d_objects/
+.glb
+.obj
+.mtl
+.jpg
+.png

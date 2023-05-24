@@ -14,7 +14,7 @@ void InputManager::Update(){
     int keyPressed = 0;
     while ((keyPressed = GetKeyPressed()) != 0)
     {
-        if (keyPressed == KEY_W)
+        if (keyPressed == KEY_O)
         {
             auto mousePos = GetMousePosition();
             auto& unit = EntityFactory::CreateUnit();
@@ -22,7 +22,7 @@ void InputManager::Update(){
             continue;
         }
 
-        if (keyPressed == KEY_E)
+        if (keyPressed == KEY_P)
         {
             auto mousePos = GetMousePosition();
             auto& city = EntityFactory::CreateCity();

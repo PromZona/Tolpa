@@ -3,7 +3,7 @@
 #include <vector>
 #include "raylib.h"
 
-#include "renderer.hpp"
+#include "3DScene_Renderer.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "Entity.hpp"
@@ -32,8 +32,9 @@ private:
     void Update();
     void Render();
     void InitializeControllers();
+    void InitializeScene();
 
-    Renderer m_renderer;
+    Scene_Renderer m_scene_renderer;
     InputManager m_inputManager;
     EntityManager& m_entityManager;
 
