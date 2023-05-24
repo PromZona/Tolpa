@@ -17,7 +17,7 @@ cmake-build-debug
 # build directory
 build/
 
-# recources (can be too big)
+# resources (can be too big)
 resources/3d_objects/
 .glb
 .obj

@@ -64,11 +64,8 @@ void Game::InitializeScene()
 {
     m_scene_renderer.InitializeCamera();
     
-    //test
-    DisableCursor();
-
-    m_scene_renderer.RenderModel("../resources/3d_objects/landscape.glb", "../resources/3d_objects/landscape.png", {0.0f, 0.0f, 0.0f});
-    m_scene_renderer.RenderModel("../resources/3d_objects/water.glb", "../resources/3d_objects/r.png", {0.0f, 1.9f, 0.0f});
+    m_scene_renderer.RenderModel("../resources/3d_objects/landscape.glb", "../resources/3d_objects/landscape.png", {0.0f, 0.0f, 0.0f}, std::string("Land"));
+    m_scene_renderer.RenderModel("../resources/3d_objects/water.glb", "../resources/3d_objects/r.png", {0.0f, 1.9f / 2 * m_scene_renderer.m_model_render_scale, 0.0f}, std::string("Ocean"));
 }
 
 std::vector<int> &Game::GetUnits()
