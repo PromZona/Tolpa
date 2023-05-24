@@ -62,13 +62,24 @@ void Game::InitializeScene()
 {
     m_sceneRenderer.InitializeCamera();
     
-    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/landscape.glb", 
-                                                   "../resources/3d_objects/landscape.png",
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+
+    //TODO: Move Somewhere else ---------------------------------------------------------------------------------
+    m_sceneRenderer.m_shader_light = LoadShader("../resources/shaders/lighting.vs",
+                                "../resources/shaders/lighting.fs");
+
+    m_sceneRenderer.m_ambient_loc = GetShaderLocation(m_sceneRenderer.m_shader_light, "ambient");
+    float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+    SetShaderValue(m_sceneRenderer.m_shader_light, m_sceneRenderer.m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
+
+    m_sceneRenderer.m_light = CreateLight(LIGHT_POINT, {0, 25, 0}, Vector3Zero(), RED, m_sceneRenderer.m_shader_light);
+    //TODO: Move Somewhere else ---------------------------------------------------------------------------------
+
+    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/voxland.glb", 
+                                                   "../resources/3d_objects/voxland.png",
                                                    TERRAIN, {0.0f, 0.0f, 0.0f}, "Land"));
 
-    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/water.glb", 
-                                                   "../resources/3d_objects/water.png",
-                                                   TERRAIN, {0.0f, 0.95f, 0.0f}, "Water"));
+    m_sceneRenderer.ApplyLightingShaderToObjects(&m_sceneManager);
 }
 
 std::vector<int> &Game::GetUnits()

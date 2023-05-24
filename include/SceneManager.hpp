@@ -19,4 +19,5 @@ public:
 private:
     // Stores all game objects present on this scene
     std::vector<GameObject*> m_scene_objects;
+
 };
