@@ -4,6 +4,7 @@
 #include "raylib.h"
 
 #include "3DScene_Renderer.hpp"
+#include "SceneManager.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "Entity.hpp"
@@ -34,7 +35,8 @@ private:
     void InitializeControllers();
     void InitializeScene();
 
-    Scene_Renderer m_scene_renderer;
+    SceneRenderer m_sceneRenderer;
+    SceneManager m_sceneManager;
     InputManager m_inputManager;
     EntityManager& m_entityManager;
 

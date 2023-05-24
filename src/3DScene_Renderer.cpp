@@ -4,29 +4,10 @@
 #include "../include/Components/RenderComponent.hpp"
 #include "../include/Components/TransformComponent.hpp"
 
-Scene_Renderer::Scene_Renderer() = default;
-Scene_Renderer::~Scene_Renderer() = default;
+SceneRenderer::SceneRenderer() = default;
+SceneRenderer::~SceneRenderer() = default;
 
-RenderedModel::RenderedModel(std::string path_model, std::string path_texture, Vector3 position, std::string name)
-{
-    this->m_name = name;
-    this->m_model = LoadModel(path_model.c_str());
-    this->m_texture = LoadTexture(path_texture.c_str());
-    this->m_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = this->m_texture;
-
-    this->m_position = position;
-
-    this->BBox = GetMeshBoundingBox(m_model.meshes[0]);
-    printf("rendered: %s\n", this->m_name);
-}
-
-RenderedModel::~RenderedModel()
-{
-    UnloadTexture(this->m_texture);
-    UnloadModel(this->m_model);
-}
-
-void Scene_Renderer::InitializeCamera()
+void SceneRenderer::InitializeCamera()
 {
     m_camera = { 0 };
     m_camera.position = {18.0f, 21.0f, 18.0f};
@@ -36,22 +17,7 @@ void Scene_Renderer::InitializeCamera()
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
-void Scene_Renderer::RenderModel(std::string path_model, std::string path_texture, Vector3 position, std::string name)
-{
-    m_scene_models.push_back(new RenderedModel(path_model, path_texture, position, name));
-}
-
-void Scene_Renderer::ClearScene()
-{
-    for (size_t i = 0; i < m_scene_models.size(); i++)
-    {
-        delete(m_scene_models[i]);
-    }
-
-    m_scene_models.clear();
-}
-
-void Scene_Renderer::RenderCursorRayCollision()
+void SceneRenderer::RenderCursorRayCollision(SceneManager* scene_manager)
 {
     m_cursor_collision_detector.m_collision = {0};
     m_cursor_collision_detector.m_collision.distance = FLT_MAX;
@@ -63,35 +29,30 @@ void Scene_Renderer::RenderCursorRayCollision()
 
     m_cursor_collision_detector.m_mesh_hit_info = {0};
 
-    for (size_t i = 0; i < m_scene_models.size(); i++)
+    for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
     {
         // Check for collision with Binding box first
-        RayCollision box_hit_info = GetRayCollisionBox(m_cursor_collision_detector.m_ray, m_scene_models[i]->BBox);
+        RayCollision box_hit_info = GetRayCollisionBox(m_cursor_collision_detector.m_ray,
+                                                       scene_manager->GetSceneObject(i)->GetObjectModel()->BBox);
 
         if (box_hit_info.hit && box_hit_info.distance < m_cursor_collision_detector.m_collision.distance)
-            for (int m = 0; m < m_scene_models[i]->m_model.meshCount; m++)
+            for (int m = 0; m < scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.meshCount; m++)
             {
                 m_cursor_collision_detector.m_mesh_hit_info = GetRayCollisionMesh(m_cursor_collision_detector.m_ray, 
-                                                                                m_scene_models[i]->m_model.meshes[m],
-                                                                                m_scene_models[i]->m_model.transform);
+                                                            scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.meshes[m],
+                                                            scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.transform);
                 
                 
                 if (m_cursor_collision_detector.m_mesh_hit_info.hit)
                 {
-                    m_cursor_collision_detector.m_mesh_hit_info.point.x += m_scene_models[i]->m_position.x;
-                    m_cursor_collision_detector.m_mesh_hit_info.point.y += m_scene_models[i]->m_position.y;
-                    m_cursor_collision_detector.m_mesh_hit_info.point.z += m_scene_models[i]->m_position.z;
-
-                    //m_cursor_collision_detector.m_collision.point.x += m_scene_models[i]->m_position.x;
-                    //m_cursor_collision_detector.m_collision.point.y += m_scene_models[i]->m_position.y;
-                    //m_cursor_collision_detector.m_collision.point.z += m_scene_models[i]->m_position.z;
-                
-                    if ((!m_cursor_collision_detector.m_collision.hit) || (m_cursor_collision_detector.m_collision.distance > m_cursor_collision_detector.m_mesh_hit_info.distance))
+                    if ((!m_cursor_collision_detector.m_collision.hit) || 
+                    (m_cursor_collision_detector.m_collision.distance > m_cursor_collision_detector.m_mesh_hit_info.distance))
+                    {
                         m_cursor_collision_detector.m_collision = m_cursor_collision_detector.m_mesh_hit_info;
+                    }
 
                     break;
                 }
-
             }
 
         if (m_cursor_collision_detector.m_mesh_hit_info.hit)
@@ -116,7 +77,7 @@ void Scene_Renderer::RenderCursorRayCollision()
     }
 }
 
-void Scene_Renderer::RenderScene()
+void SceneRenderer::RenderScene(SceneManager* scene_manager)
 {
     UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
     
@@ -140,13 +101,15 @@ void Scene_Renderer::RenderScene()
             DrawCircle((int)transform.Position.x, (int)transform.Position.y, rendComp.Radius, rendComp.Color);
         }
         
-        for (size_t i = 0; i < m_scene_models.size(); i++)
+        for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
         {
-            DrawModel(m_scene_models[i]->m_model, m_scene_models[i]->m_position, m_model_render_scale, WHITE);
+            DrawModel(scene_manager->GetSceneObject(i)->GetObjectModel()->m_model,
+                      scene_manager->GetSceneObject(i)->GetObjectPosition(),
+                      m_model_render_scale, WHITE);
         }
         
         // Check if cursor ray collides with any mesh on the screen
-        RenderCursorRayCollision();
+        RenderCursorRayCollision(scene_manager);
 
         EndMode3D();
 

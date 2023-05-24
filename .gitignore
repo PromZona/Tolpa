@@ -18,9 +18,8 @@ cmake-build-debug
 build/
 
 # resources (can be too big)
-resources/3d_objects/
-.glb
-.obj
-.mtl
-.jpg
-.png
+*.glb
+*.obj
+*.mtl
+*.jpg
+*.png

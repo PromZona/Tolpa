@@ -8,7 +8,7 @@
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_scene_renderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
+Game::Game() : m_sceneManager(), m_sceneRenderer(), m_inputManager(), m_entityManager(EntityManager::Instance()), m_controllers()
 {
     const int screenWidth = 1280;
     const int screenHeight = 1024;
@@ -31,8 +31,6 @@ void Game::Start()
         Update();
         Render();
     }
-
-    m_scene_renderer.ClearScene();
 }
 
 void Game::Input()
@@ -51,7 +49,7 @@ void Game::Update()
 
 void Game::Render()
 {
-    m_scene_renderer.RenderScene();
+    m_sceneRenderer.RenderScene(&m_sceneManager);
 }
 
 void Game::InitializeControllers()
@@ -62,10 +60,15 @@ void Game::InitializeControllers()
 
 void Game::InitializeScene()
 {
-    m_scene_renderer.InitializeCamera();
+    m_sceneRenderer.InitializeCamera();
     
-    m_scene_renderer.RenderModel("../resources/3d_objects/landscape.glb", "../resources/3d_objects/landscape.png", {0.0f, 0.0f, 0.0f}, std::string("Land"));
-    m_scene_renderer.RenderModel("../resources/3d_objects/water.glb", "../resources/3d_objects/r.png", {0.0f, 1.9f / 2 * m_scene_renderer.m_model_render_scale, 0.0f}, std::string("Ocean"));
+    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/landscape.glb", 
+                                                   "../resources/3d_objects/landscape.png",
+                                                   TERRAIN, {0.0f, 0.0f, 0.0f}, "Land"));
+
+    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/water.glb", 
+                                                   "../resources/3d_objects/water.png",
+                                                   TERRAIN, {0.0f, 0.95f, 0.0f}, "Water"));
 }
 
 std::vector<int> &Game::GetUnits()
