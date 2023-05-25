@@ -14,7 +14,7 @@ SceneRenderer::~SceneRenderer()
 void SceneRenderer::InitializeCamera()
 {
     m_camera = { 0 };
-    m_camera.position = {-10.0f, 28.0f, -1.0f};
+    m_camera.position = {10.0f, 10.0f, 10.0f};
     m_camera.target = {0.0f, 0.0f, 0.0f};
     m_camera.up = {0.0f, 1.0f, 0.0f};
     m_camera.fovy = 60.0f;
@@ -145,7 +145,7 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
     UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
     
     // Camera always focused on center
-    m_camera.target = m_light.position;
+    m_camera.target = {0.0f, 0.0f, 0.0f};
 
     float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
     SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
@@ -169,7 +169,7 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
         {
             DrawModel(scene_manager->GetSceneObject(i)->GetObjectModel()->m_model,
                       scene_manager->GetSceneObject(i)->GetObjectPosition(),
-                      m_model_render_scale, WHITE);
+                      1.0f, WHITE);
         }
 
         // Check if cursor ray collides with any mesh on the screen

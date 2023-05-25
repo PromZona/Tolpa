@@ -9,7 +9,6 @@ ObjectModel::ObjectModel()
 ObjectModel::ObjectModel(std::string path_model, std::string path_texture)
 {
     this->m_model = LoadModel(path_model.c_str());
-    this->m_texture = LoadTexture(path_texture.c_str());
     this->m_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = this->m_texture;
     this->BBox = GetMeshBoundingBox(m_model.meshes[0]);
 }

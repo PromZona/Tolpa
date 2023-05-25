@@ -81,11 +81,11 @@ void Game::InitializeScene()
     float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f}; // Function below doesnt eat these raw values for some reason
     SetShaderValue(m_sceneRenderer.m_shader_light, m_sceneRenderer.m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
 
-    m_sceneRenderer.m_light = CreateLight(LIGHT_POINT, {0, 22, 0}, Vector3Zero(), ORANGE, m_sceneRenderer.m_shader_light);
+    m_sceneRenderer.m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), WHITE, m_sceneRenderer.m_shader_light);
     //TODO: Move Somewhere else ---------------------------------------------------------------------------------
 
-    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/voxland.glb", 
-                                                   "../resources/3d_objects/voxland.png",
+    m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/landscape.glb", 
+                                                   "../resources/3d_objects/landscape.png",
                                                    TERRAIN, {0.0f, 0.0f, 0.0f}, "Land"));
 
     m_sceneRenderer.ApplyLightingShaderToObjects(&m_sceneManager);
