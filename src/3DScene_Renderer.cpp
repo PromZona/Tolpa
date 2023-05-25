@@ -14,7 +14,7 @@ SceneRenderer::~SceneRenderer()
 void SceneRenderer::InitializeCamera()
 {
     m_camera = { 0 };
-    m_camera.position = {60.0f, 60.0f, -64.0f};
+    m_camera.position = {-10.0f, 28.0f, -1.0f};
     m_camera.target = {0.0f, 0.0f, 0.0f};
     m_camera.up = {0.0f, 1.0f, 0.0f};
     m_camera.fovy = 60.0f;
@@ -25,7 +25,10 @@ void SceneRenderer::ApplyLightingShaderToObjects(SceneManager* scene_manager)
 {
     for (int i = 0; i < scene_manager->CountSceneObjects(); i++)
     {
-        scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materials[0].shader = m_shader_light;
+        for (int m = 0; m < scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materialCount; m++)
+            scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materials[1].shader = m_shader_light;
+        
+        printf("Material count: %d\n", scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materialCount);
     }
 }
 
@@ -93,40 +96,26 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
 {
     Light light = { 0 };
 
-    if (lightsCount < MAX_LIGHTS)
-    {
-        light.enabled = true;
-        light.type = type;
-        light.position = position;
-        light.target = target;
-        light.color = color;
+    light.enabled = true;
+    light.type = type;
+    light.position = position;
+    light.target = target;
+    light.color = color;
 
-        // TODO: Below code doesn't look good to me, 
-        // it assumes a specific shader naming and structure
-        // Probably this implementation could be improved
-        char enabledName[32] = "lights[x].enabled\0";
-        char typeName[32] = "lights[x].type\0";
-        char posName[32] = "lights[x].position\0";
-        char targetName[32] = "lights[x].target\0";
-        char colorName[32] = "lights[x].color\0";
-        
-        // Set location name [x] depending on lights count
-        enabledName[7] = '0' + lightsCount;
-        typeName[7] = '0' + lightsCount;
-        posName[7] = '0' + lightsCount;
-        targetName[7] = '0' + lightsCount;
-        colorName[7] = '0' + lightsCount;
+    // For setting uniform values in fragment shader
+    char enabledName[32] = "sc_light.enabled\0";
+    char typeName[32] = "sc_light.type\0";
+    char posName[32] = "sc_light.position\0";
+    char targetName[32] = "sc_light.target\0";
+    char colorName[32] = "sc_light.color\0";
+    
+    light.enabledLoc = GetShaderLocation(shader, enabledName);
+    light.typeLoc = GetShaderLocation(shader, typeName);
+    light.posLoc = GetShaderLocation(shader, posName);
+    light.targetLoc = GetShaderLocation(shader, targetName);
+    light.colorLoc = GetShaderLocation(shader, colorName);
 
-        light.enabledLoc = GetShaderLocation(shader, enabledName);
-        light.typeLoc = GetShaderLocation(shader, typeName);
-        light.posLoc = GetShaderLocation(shader, posName);
-        light.targetLoc = GetShaderLocation(shader, targetName);
-        light.colorLoc = GetShaderLocation(shader, colorName);
-
-        UpdateLightValues(shader, light);
-        
-        lightsCount++;
-    }
+    UpdateLightValues(shader, light);
 
     return light;
 }
@@ -156,14 +145,15 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
     UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
     
     // Camera always focused on center
-    m_camera.target = {0.0f, 0.0f, 0.0f};
-
-    auto& entityManager = EntityManager::Instance();
-    auto& renders = entityManager.GetComponents<RenderComponent>();
-    auto& transforms = entityManager.GetComponents<TransformComponent>();
+    m_camera.target = m_light.position;
 
     float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
     SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+
+    if (IsKeyPressed(KEY_B))
+        m_light.enabled = !m_light.enabled;
+
+    UpdateLightValues(m_shader_light, m_light);
 
     BeginDrawing();
     
@@ -172,14 +162,8 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
 
         BeginMode3D(m_camera);
 
-        for (auto& rendComp : renders)
-        {
-            auto& transform = transforms[rendComp.TransformComponentIndex];
-            DrawCircle((int)transform.Position.x, (int)transform.Position.y, rendComp.Radius, rendComp.Color);
-        }
-        
         // Light sphere
-        DrawSphereEx(m_light.position, 1.0f, 8, 8, m_light.color);
+        DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
 
         for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
         {
@@ -187,7 +171,7 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
                       scene_manager->GetSceneObject(i)->GetObjectPosition(),
                       m_model_render_scale, WHITE);
         }
-        
+
         // Check if cursor ray collides with any mesh on the screen
         RenderCursorRayCollision(scene_manager);
 

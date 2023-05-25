@@ -65,14 +65,23 @@ void Game::InitializeScene()
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     //TODO: Move Somewhere else ---------------------------------------------------------------------------------
+    if (IsShaderReady(m_sceneRenderer.m_shader_light))
+        printf("shader ready\n");
+    else
+        printf("shader not ready\n");
+
     m_sceneRenderer.m_shader_light = LoadShader("../resources/shaders/lighting.vs",
-                                "../resources/shaders/lighting.fs");
+                                                "../resources/shaders/lighting.fs");
+
+    m_sceneRenderer.m_shader_light.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(m_sceneRenderer.m_shader_light, "viewPos");
+    //m_sceneRenderer.m_shader_light.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(m_sceneRenderer.m_shader_light, "matModel");
 
     m_sceneRenderer.m_ambient_loc = GetShaderLocation(m_sceneRenderer.m_shader_light, "ambient");
-    float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+    
+    float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f}; // Function below doesnt eat these raw values for some reason
     SetShaderValue(m_sceneRenderer.m_shader_light, m_sceneRenderer.m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
 
-    m_sceneRenderer.m_light = CreateLight(LIGHT_POINT, {0, 25, 0}, Vector3Zero(), RED, m_sceneRenderer.m_shader_light);
+    m_sceneRenderer.m_light = CreateLight(LIGHT_POINT, {0, 22, 0}, Vector3Zero(), ORANGE, m_sceneRenderer.m_shader_light);
     //TODO: Move Somewhere else ---------------------------------------------------------------------------------
 
     m_sceneManager.AddObjectToScene(new GameObject("../resources/3d_objects/voxland.glb", 
