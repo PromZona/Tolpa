@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.11) # FetchContent is available in 3.11+
+project(Testing)
+
 set(GTEST_VERSION 4.5.0)
 find_package(googletest ${GTEST_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT googletest_FOUND)
@@ -20,14 +23,19 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(testing_ecs
+add_executable(${PROJECT_NAME}
         main_test.cpp
         ComponentVector_test.cpp
-        Archetype_test.cpp)
+        ECS_test.cpp)
 target_link_libraries(
-        testing_ecs
+        ${PROJECT_NAME}
         GTest::gtest_main
         raylib
+        TolpaLib
 )
+target_include_directories(${PROJECT_NAME}
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
 include(GoogleTest)
-gtest_discover_tests(testing_ecs)
+gtest_discover_tests(${PROJECT_NAME})
