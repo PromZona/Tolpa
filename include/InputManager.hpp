@@ -1,7 +1,5 @@
 #pragma once
 
-class EntityManager;
-
 class InputManager
 {
 public:
@@ -10,5 +8,4 @@ public:
 
 	void Update();
 private:
-	EntityManager& m_entityManager;
 };

@@ -11,7 +11,4 @@ public:
 	~MovementController() override;
 
 	void Tick(float deltaTime);
-
-private:
-	EntityManager& m_entityManager;
 };

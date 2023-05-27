@@ -6,6 +6,6 @@ class UnitGoalController : public IController
 {
 public:
 	UnitGoalController();
-	~UnitGoalController();
+	~UnitGoalController() override;
 	void Tick(float deltaTime);
 };
