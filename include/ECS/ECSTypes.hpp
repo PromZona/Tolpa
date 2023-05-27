@@ -1,4 +1,9 @@
 #pragma once
 
+#include <bitset>
+
 using EntityId = unsigned int;
-using ArchetypeId = unsigned int; // Bitmask?
+
+const int MAX_COMPONENTS = 64;
+
+using ArchetypeId = std::bitset<MAX_COMPONENTS>;

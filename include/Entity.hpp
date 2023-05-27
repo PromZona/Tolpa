@@ -3,9 +3,10 @@
 #include <string>
 #include <memory>
 #include <utility>
+#include <typeindex>
+#include <unordered_map>
 
-#include "EntityManager.hpp"
-
+// TODO: Delete Entity and support new ECS
 class Entity
 {
 public:
@@ -25,8 +26,9 @@ public:
 	}
 
 	template<class T>
-	T& AddComponent(int& componentIdOut)
+	T AddComponent(int& componentIdOut)
 	{
+		/*
 		auto& entityManager = EntityManager::Instance();
 		int componentId;
 		auto& result = entityManager.CreateComponent<T>(componentId);
@@ -34,13 +36,15 @@ public:
 
 		componentToId[std::type_index(typeid(T))] = componentId;
 		return result;
+		*/
+		return T();
 	}
 
 	template<class T>
 	T& GetComponent()
 	{
-		auto& entityManager = EntityManager::Instance();
-		return entityManager.GetComponent<T>(componentToId[std::type_index(typeid(T))]);
+		// auto& entityManager = EntityManager::Instance();
+		// return entityManager.GetComponent<T>(componentToId[std::type_index(typeid(T))]);
 	}
 
 	void DeleteAllComponents();
