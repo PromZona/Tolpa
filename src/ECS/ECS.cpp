@@ -72,3 +72,18 @@ void ECS::CheckEntity(const EntityId& entity)
 	}
 }
 
+std::vector<std::shared_ptr<Archetype>> ECS::GetRequiredArchetypes(const ArchetypeId requiredArchetypes)
+{
+	std::vector<std::shared_ptr<Archetype>> result;
+
+	for (auto& pair : m_archetypes)
+	{
+		if ((requiredArchetypes & pair.first) == requiredArchetypes)
+		{
+			result.push_back(pair.second);
+		}
+	}
+
+	return result;
+}
+

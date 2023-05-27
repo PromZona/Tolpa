@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "Archetype.hpp"
 #include "ECSTypes.hpp"
+#include "System.hpp"
 
 class ECS
 {
@@ -33,7 +34,7 @@ public:
 	}
 
 	template<class T>
-	std::unique_ptr<T> GetComponent(const EntityId& entityId)
+	T* GetComponent(const EntityId& entityId)
 	{
 		CheckEntity(entityId);
 
@@ -61,6 +62,15 @@ public:
 		newArchetype->MoveComponentsFromOldArchetype(entityCurrentArchetype, entityId);
 		m_entityToArchetype[entityId] = newArchetype;
 	}
+
+	template<class ComponentT>
+	void RegisterComponentInSystem(System& system)
+	{
+		int componentBit = GetOrCreateComponentBit(std::type_index(typeid(ComponentT)));
+		system.Archetype.set(componentBit);
+	}
+
+	std::vector<std::shared_ptr<Archetype>> GetRequiredArchetypes(ArchetypeId requiredArchetypes);
 
 private:
 	EntityId m_availableEntityId = 0;

@@ -3,13 +3,11 @@
 #include <vector>
 #include "raylib.h"
 
+#include "ECS/ECS.hpp"
 #include "renderer.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
-#include "Entity.hpp"
 #include "GameState.h"
-
-class EntityManager;
 
 class Game
 {
@@ -23,6 +21,7 @@ public:
 	~Game();
 	void Start();
 
+	ECS& GetECS();
 	GameState State;
 private:
 	Game();
@@ -35,7 +34,7 @@ private:
 
 	Renderer m_renderer;
 	InputManager m_inputManager;
-	EntityManager& m_entityManager;
+	ECS m_ECS;
 
 	std::vector<std::unique_ptr<IController>> m_controllers;
 };

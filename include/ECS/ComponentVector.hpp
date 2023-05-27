@@ -41,7 +41,7 @@ public:
 		m_componentToEntityId[index] = entity;
 	}
 
-	std::unique_ptr<T> GetComponent(const EntityId& entity)
+	T* GetComponent(const EntityId& entity)
 	{
 		if (m_entityToComponentIndex.find(entity) == m_entityToComponentIndex.end())
 		{
@@ -49,7 +49,7 @@ public:
 			return nullptr;
 		}
 
-		return std::make_unique<T>(m_components[m_entityToComponentIndex[entity]]);
+		return &m_components[m_entityToComponentIndex[entity]];
 	}
 
 	void RemoveComponent(const EntityId& entity)

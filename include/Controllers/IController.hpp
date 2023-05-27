@@ -1,6 +1,8 @@
 #pragma once
 
-class IController
+#include "ECS/System.hpp"
+
+class IController : public System
 {
 public:
 	virtual ~IController()

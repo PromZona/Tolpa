@@ -6,6 +6,4 @@ struct RenderComponent
 {
 	Color Color;
 	float Radius;
-
-	int TransformComponentIndex;
 };

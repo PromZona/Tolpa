@@ -1,6 +1,8 @@
 #pragma once
 
-class Renderer
+#include "ECS/System.hpp"
+
+class Renderer : public System
 {
 public:
 	Renderer();

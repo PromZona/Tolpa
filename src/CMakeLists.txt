@@ -27,14 +27,16 @@ endif()
 
 add_subdirectory(ECS)
 
-add_library(${PROJECT_NAME} SHARED
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+
+add_library(${PROJECT_NAME} STATIC
         game.cpp
-        Entity.cpp
         EntityFactory.cpp
         InputManager.cpp
         renderer.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)
+
 
 # Set include directories for library
 target_include_directories(${PROJECT_NAME}

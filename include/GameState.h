@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
+#include "ECS/ECSTypes.hpp"
 
 struct GameState
 {
-	std::vector<int> cities;
-	std::vector<int> parties;
-	std::vector<int> lairs;
+	std::vector<EntityId> cities;
+	std::vector<EntityId> parties;
+	std::vector<EntityId> lairs;
 };

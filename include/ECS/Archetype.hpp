@@ -70,7 +70,7 @@ private:
 	}
 
 	template<class T>
-	std::unique_ptr<T> GetComponent(const EntityId& entity)
+	T* GetComponent(const EntityId& entity)
 	{
 		auto componentTypeIndex = std::type_index(typeid(T));
 		if (m_componentVectors.find(componentTypeIndex) == m_componentVectors.end())
