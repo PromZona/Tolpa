@@ -70,13 +70,13 @@ private:
 	}
 
 	template<class T>
-	T& GetComponent(const EntityId& entity)
+	std::unique_ptr<T> GetComponent(const EntityId& entity)
 	{
 		auto componentTypeIndex = std::type_index(typeid(T));
 		if (m_componentVectors.find(componentTypeIndex) == m_componentVectors.end())
 		{
 			TraceLog(LOG_WARNING, "Failed to get Component: archetype[%d] does not have component[%s]", m_archetypeId.to_ulong(), typeid(T).name());
-			throw std::out_of_range("Can not return component of the given type");
+			return nullptr;
 		}
 		return std::static_pointer_cast<ComponentVector<T>>(m_componentVectors[componentTypeIndex])->GetComponent(entity);
 	}

@@ -10,10 +10,10 @@ TEST(ComponentVectorTest, AddAndGetComponent)
 	ComponentVector<CompVecTestComponent> comp;
 
 	comp.AddComponent(entity, CompVecTestComponent{3, 5});
-	auto& result = comp.GetComponent(entity);
+	auto result = comp.GetComponent(entity);
 
-	EXPECT_EQ(result.x, 3);
-	EXPECT_EQ(result.y, 5);
+	EXPECT_EQ(result->x, 3);
+	EXPECT_EQ(result->y, 5);
 }
 
 TEST(ComponentVectorTest, GetVectorWithIteration)
@@ -37,7 +37,7 @@ TEST(ComponentVectorTest, RemoveOneComponent)
 	ComponentVector<CompVecTestComponent> comp;
 	comp.AddComponent(entity, CompVecTestComponent{0, 0});
 	comp.RemoveComponent(entity);
-	EXPECT_THROW(comp.GetComponent(entity), std::out_of_range);
+	EXPECT_EQ(comp.GetComponent(entity), nullptr);
 }
 
 TEST(ComponentVectorTest, RemoveMiddleComponent)
@@ -49,8 +49,8 @@ TEST(ComponentVectorTest, RemoveMiddleComponent)
 	comp.RemoveComponent(1);
 	comp.AddComponent(4, CompVecTestComponent{4, 4});
 
-	EXPECT_EQ(comp.GetComponent(0).x, 0);
-	EXPECT_EQ(comp.GetComponent(2).x, 2);
-	EXPECT_EQ(comp.GetComponent(4).x, 4);
-	EXPECT_THROW(comp.GetComponent(1), std::out_of_range);
+	EXPECT_EQ(comp.GetComponent(0)->x, 0);
+	EXPECT_EQ(comp.GetComponent(2)->x, 2);
+	EXPECT_EQ(comp.GetComponent(4)->x, 4);
+	EXPECT_EQ(comp.GetComponent(1), nullptr);
 }

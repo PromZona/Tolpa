@@ -13,6 +13,7 @@ EntityId ECS::CreateEntity()
 
 void ECS::DeleteEntity(const EntityId& entityId)
 {
+	// TODO: Delete all components in archetype
 	m_entityToArchetype.erase(entityId);
 }
 
@@ -46,7 +47,7 @@ void ECS::PrintInfo()
 	TraceLog(LOG_INFO, "[ECS] Components To Bit");
 	for (auto& data : m_componentTypeToBit)
 	{
-		TraceLog(LOG_INFO, "\t %s -> %d", data.first.name(), data.second);
+		TraceLog(LOG_INFO, "\t %s[%d] -> %d", data.first.name(), data.first.hash_code(), data.second);
 	}
 
 	TraceLog(LOG_INFO, "[ECS] Entity To Archetype");
@@ -59,6 +60,15 @@ void ECS::PrintInfo()
 	for (auto& data : m_archetypes)
 	{
 		data.second->PrintInfo();
+	}
+}
+
+void ECS::CheckEntity(const EntityId& entity)
+{
+	if (m_entityToArchetype.find(entity) == m_entityToArchetype.end())
+	{
+		TraceLog(LOG_WARNING, "Failed to get unregistered Entity[%d]", entity);
+		throw std::out_of_range("Failed to find entity");
 	}
 }
 

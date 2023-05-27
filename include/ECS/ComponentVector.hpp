@@ -41,15 +41,15 @@ public:
 		m_componentToEntityId[index] = entity;
 	}
 
-	T& GetComponent(const EntityId& entity)
+	std::unique_ptr<T> GetComponent(const EntityId& entity)
 	{
 		if (m_entityToComponentIndex.find(entity) == m_entityToComponentIndex.end())
 		{
-			TraceLog(LOG_WARNING, "Failed to get component: Entity[%d] has not component[%s]", entity, typeid(T).name());
-			throw std::out_of_range("Entity does not have required component");
+			TraceLog(LOG_WARNING, "Failed to get component: Entity[%d] has no component[%s]", entity, typeid(T).name());
+			return nullptr;
 		}
 
-		return m_components[m_entityToComponentIndex[entity]];
+		return std::make_unique<T>(m_components[m_entityToComponentIndex[entity]]);
 	}
 
 	void RemoveComponent(const EntityId& entity)
@@ -83,7 +83,7 @@ public:
 	{
 		auto comp = GetComponent(entity);
 		std::shared_ptr<ComponentVector<T>> ptr = std::static_pointer_cast<ComponentVector<T>>(newVector);
-		ptr->AddComponent(entity, comp);
+		ptr->AddComponent(entity,*comp);
 		RemoveComponent(entity);
 	}
 
@@ -94,17 +94,17 @@ public:
 
 	void PrintInfo() override
 	{
-		TraceLog(LOG_INFO, "\t\t[ComponentVec] Component Vector %d", m_componentBit);
+		TraceLog(LOG_INFO, "\t\t[ComponentVec] Bit: %d. Count %d", m_componentBit, m_components.size());
 		for (auto& data : m_entityToComponentIndex)
 		{
-			TraceLog(LOG_INFO, "\t\t\t %d -> %d", data.first, data.second);
+			TraceLog(LOG_INFO, "\t\t\t%d -> %d [Entity -> ComponentId]", data.first, data.second);
 		}
 	}
 
 	std::shared_ptr<IComponentVector> CreateEmptyClone() const
 	{
 		// Returns an empty ComponentVector that matches this one's type
-		return std::make_shared<ComponentVector<T>>();
+		return std::make_shared<ComponentVector<T>>(m_componentBit);
 	}
 
 private:

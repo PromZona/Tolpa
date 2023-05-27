@@ -13,41 +13,53 @@ public:
 	EntityId CreateEntity();
 	void DeleteEntity(const EntityId& entityId);
 	void PrintInfo();
+	void CheckEntity(const EntityId& entity);
 
 	template<class T>
-	void AddComponentToEntity(const EntityId& entityId, T component)
+	void AddComponent(const EntityId& entityId, T component)
 	{
-		if (m_entityToArchetype.find(entityId) == m_entityToArchetype.end())
-		{
-			TraceLog(LOG_WARNING, "Failed to add Component to unregistered Entity[%d]", entityId);
-			throw std::out_of_range("Failed to find entity");
-		}
-		auto entityCurrentArchetype = m_entityToArchetype[entityId];
+		CheckEntity(entityId);
 
+		auto entityCurrentArchetype = m_entityToArchetype[entityId];
 		auto archetypeId = entityCurrentArchetype->GetId();
 		int componentBit = GetOrCreateComponentBit(std::type_index(typeid(T)));
+
 		archetypeId.set(componentBit);
 		auto newArchetype = GetOrCreateArchetype(archetypeId);
-		newArchetype->AddComponent(entityId, component, componentBit);
+
+		newArchetype->AddComponent<T>(entityId, component, componentBit);
 		newArchetype->MoveComponentsFromOldArchetype(entityCurrentArchetype, entityId);
 		m_entityToArchetype[entityId] = newArchetype;
 	}
 
 	template<class T>
-	T& GetComponent(const EntityId& entityId)
+	std::unique_ptr<T> GetComponent(const EntityId& entityId)
 	{
+		CheckEntity(entityId);
+
 		if (m_entityToArchetype.find(entityId) == m_entityToArchetype.end())
 		{
 			TraceLog(LOG_WARNING, "Failed to return Component of unregistered Entity[%d]", entityId);
-			throw std::out_of_range("Failed to find entity");
+			return nullptr;
 		}
 		return m_entityToArchetype[entityId]->GetComponent<T>(entityId);
 	}
 
 	template<class T>
-	void DeleteComponentFromEntity(const EntityId& entityId)
+	void RemoveComponent(const EntityId& entityId)
 	{
+		CheckEntity(entityId);
 
+		auto entityCurrentArchetype = m_entityToArchetype[entityId];
+		auto archetypeId = entityCurrentArchetype->GetId();
+		int componentBit = GetOrCreateComponentBit(std::type_index(typeid(T)));
+
+		archetypeId.set(componentBit, false);
+		auto newArchetype = GetOrCreateArchetype(archetypeId);
+
+		entityCurrentArchetype->RemoveComponent<T>(entityId);
+		newArchetype->MoveComponentsFromOldArchetype(entityCurrentArchetype, entityId);
+		m_entityToArchetype[entityId] = newArchetype;
 	}
 
 private:
