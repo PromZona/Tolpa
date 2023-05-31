@@ -3,7 +3,7 @@
 #include <vector>
 #include "raylib.h"
 
-#include "3DScene_Renderer.hpp"
+#include "SceneRenderer.hpp"
 #include "SceneManager.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"

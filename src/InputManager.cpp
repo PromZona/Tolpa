@@ -18,7 +18,7 @@ void InputManager::Update(){
         {
             auto mousePos = GetMousePosition();
             auto& unit = EntityFactory::CreateUnit();
-            unit.GetComponent<TransformComponent>().Position = mousePos;
+            //unit.GetComponent<TransformComponent>().Position = mousePos;
             continue;
         }
 
@@ -26,7 +26,7 @@ void InputManager::Update(){
         {
             auto mousePos = GetMousePosition();
             auto& city = EntityFactory::CreateCity();
-            city.GetComponent<TransformComponent>().Position = mousePos;
+            //city.GetComponent<TransformComponent>().Position = mousePos;
             continue;
         }
     }

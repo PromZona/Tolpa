@@ -6,6 +6,7 @@
 #include "Components/TransformComponent.hpp"
 #include "Components/MovementComponent.hpp"
 #include "Components/RenderComponent.hpp"
+#include "Components/ModelComponent.hpp"
 
 #include "game.hpp"
 #include "Components/GoalComponent.hpp"

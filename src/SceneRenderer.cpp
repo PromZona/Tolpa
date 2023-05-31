@@ -1,8 +1,4 @@
-#include "../include/3DScene_Renderer.hpp"
-
-#include "../include/EntityManager.hpp"
-#include "../include/Components/RenderComponent.hpp"
-#include "../include/Components/TransformComponent.hpp"
+#include "../include/SceneRenderer.hpp"
 
 SceneRenderer::SceneRenderer(){}
 
@@ -21,19 +17,39 @@ void SceneRenderer::InitializeCamera()
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
+void SceneRenderer::InitializeLighting()
+{
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+
+    m_shader_light = LoadShader("../resources/shaders/lighting.vs",
+                                                "../resources/shaders/lighting.fs");
+
+    m_shader_light.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(m_shader_light, "viewPos");
+    m_ambient_loc = GetShaderLocation(m_shader_light, "ambient");
+    
+    float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f}; // Function below doesnt eat these raw values for some reason
+    SetShaderValue(m_shader_light, m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
+
+    m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), WHITE, m_shader_light);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
 void SceneRenderer::ApplyLightingShaderToObjects(SceneManager* scene_manager)
 {
+    /*
     for (int i = 0; i < scene_manager->CountSceneObjects(); i++)
     {
         for (int m = 0; m < scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materialCount; m++)
             scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materials[1].shader = m_shader_light;
         
         printf("Material count: %d\n", scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materialCount);
-    }
+    }*/
 }
 
+// ----------------------------------------------------------------------------------------------------------------------
 void SceneRenderer::RenderCursorRayCollision(SceneManager* scene_manager)
 {
+    /*
     m_cursor_collision_detector.m_collision = {0};
     m_cursor_collision_detector.m_collision.distance = FLT_MAX;
     m_cursor_collision_detector.m_collision.hit = false;
@@ -90,6 +106,7 @@ void SceneRenderer::RenderCursorRayCollision(SceneManager* scene_manager)
 
         DrawLine3D(m_cursor_collision_detector.m_collision.point, normal_end, RED);
     }
+    */
 }
 
 Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
@@ -157,7 +174,7 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
 
     BeginDrawing();
     
-        ClearBackground(BLUE);
+        ClearBackground(BLACK);
         DrawFPS(5, 5);
 
         BeginMode3D(m_camera);
@@ -165,12 +182,10 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
         // Light sphere
         DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
 
-        for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
-        {
-            DrawModel(scene_manager->GetSceneObject(i)->GetObjectModel()->m_model,
-                      scene_manager->GetSceneObject(i)->GetObjectPosition(),
-                      1.0f, WHITE);
-        }
+        //for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
+        //{
+            // Draw scene objects
+        //}
 
         // Check if cursor ray collides with any mesh on the screen
         RenderCursorRayCollision(scene_manager);
@@ -181,23 +196,23 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
     {
         int ypos = 70;
 
-        DrawText(TextFormat("Distance: %3.2f", m_cursor_collision_detector.m_collision.distance), 10, ypos, 10, BLACK);
+        DrawText(TextFormat("Distance: %3.2f", m_cursor_collision_detector.m_collision.distance), 10, ypos, 10, WHITE);
 
         DrawText(TextFormat("Hit Pos: %3.2f %3.2f %3.2f",
                             m_cursor_collision_detector.m_collision.point.x,
                             m_cursor_collision_detector.m_collision.point.y,
-                            m_cursor_collision_detector.m_collision.point.z), 10, ypos + 15, 10, BLACK);
+                            m_cursor_collision_detector.m_collision.point.z), 10, ypos + 15, 10, WHITE);
 
         DrawText(TextFormat("Hit Norm: %3.2f %3.2f %3.2f",
                             m_cursor_collision_detector.m_collision.normal.x,
                             m_cursor_collision_detector.m_collision.normal.y,
-                            m_cursor_collision_detector.m_collision.normal.z), 10, ypos + 30, 10, BLACK);
+                            m_cursor_collision_detector.m_collision.normal.z), 10, ypos + 30, 10, WHITE);
     }
 
     DrawText(TextFormat("Camera Pos: %3.2f %3.2f %3.2f",
                         m_camera.position.x,
                         m_camera.position.y,
-                        m_camera.position.z), 10, 70 + 45, 10, BLACK);
+                        m_camera.position.z), 10, 70 + 45, 10, WHITE);
     
     EndDrawing();
 }

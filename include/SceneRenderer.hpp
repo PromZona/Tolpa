@@ -67,6 +67,8 @@ public:
 
     void InitializeCamera();
 
+    void InitializeLighting();
+
     void RenderCursorRayCollision(SceneManager* scene_manager);
 
     void ApplyLightingShaderToObjects(SceneManager* scene_manager);
