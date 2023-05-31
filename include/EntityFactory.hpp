@@ -1,11 +1,14 @@
 #pragma once
 
 #include <string>
+#include "ECS/ECSTypes.hpp"
 
-class Entity;
+class ECS;
 
-class EntityFactory {
+class EntityFactory
+{
 public:
-    static Entity& CreateUnit();
-    static Entity& CreateCity();
+	static EntityId CreateParty();
+	static EntityId CreateCity();
+	static EntityId CreateLair();
 };

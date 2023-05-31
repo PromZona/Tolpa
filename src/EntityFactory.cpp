@@ -1,7 +1,6 @@
 #include "EntityFactory.hpp"
 
-#include "EntityManager.hpp"
-#include "Entity.hpp"
+#include "ECS/ECSTypes.hpp"
 
 #include "Components/TransformComponent.hpp"
 #include "Components/MovementComponent.hpp"
@@ -11,44 +10,41 @@
 #include "game.hpp"
 #include "Components/GoalComponent.hpp"
 
-Entity& EntityFactory::CreateUnit() {
-    auto& entityManager = EntityManager::Instance();
-    auto& unit = entityManager.CreateEntity("Unit");
 
-    int transformIndex;
-    auto& transformComponent = unit.AddComponent<TransformComponent>(transformIndex);
-    transformComponent.Position = {0, 0};
+EntityId EntityFactory::CreateParty()
+{
+	auto& ecs = Game::Instance().GetECS();
+	auto unit = ecs.CreateEntity();
 
-    auto& renderComponent = unit.AddComponent<RenderComponent>();
-    renderComponent.TransformComponentIndex = transformIndex;
-    renderComponent.Radius = 4;
-    renderComponent.Color = GREEN;
+    ecs.AddComponent<TransformComponent>(unit, {{0, 0}});
+	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
+	ecs.AddComponent<MovementComponent>(unit, {{0, 0}, 20.0f});
+	ecs.AddComponent<GoalComponent>(unit, {{0, 0}, false});
 
-    auto& movementComponent = unit.AddComponent<MovementComponent>();
-    movementComponent.PositionComponentIndex = transformIndex;
-    movementComponent.Direction = {0, 0};
-    movementComponent.Speed = 20.0f;
-
-    auto& goalComponent = unit.AddComponent<GoalComponent>();
-    goalComponent.IsActive = false;
-
-    Game::Instance().GetUnits().push_back(unit.id);
-    return unit;
+	Game::Instance().State.parties.push_back(unit);
+	return unit;
 }
 
-Entity& EntityFactory::CreateCity() {
-    auto& entityManager = EntityManager::Instance();
-    auto& city = entityManager.CreateEntity("City");
+EntityId EntityFactory::CreateCity()
+{
+	auto& ecs = Game::Instance().GetECS();
+	auto city = ecs.CreateEntity();
 
-    int transformIndex;
-    auto& transformComponent = city.AddComponent<TransformComponent>(transformIndex);
-    transformComponent.Position = {0, 0};
+	ecs.AddComponent<TransformComponent>(city, {{0, 0}});
+	ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 
-    auto& renderComponent = city.AddComponent<RenderComponent>();
-    renderComponent.TransformComponentIndex = transformIndex;
-    renderComponent.Radius = 8;
-    renderComponent.Color = RED;
+	Game::Instance().State.cities.push_back(city);
+	return city;
+}
 
-    Game::Instance().GetCities().push_back(city.id);
-    return city;
+EntityId EntityFactory::CreateLair()
+{
+	auto& ecs = Game::Instance().GetECS();
+	auto city = ecs.CreateEntity();
+
+	ecs.AddComponent<TransformComponent>(city, {{0, 0}});
+	ecs.AddComponent<RenderComponent>(city, {PURPLE, 8.0f});
+
+	Game::Instance().State.lairs.push_back(city);
+	return city;
 }

@@ -3,45 +3,38 @@
 #include <vector>
 #include "raylib.h"
 
-#include "SceneRenderer.hpp"
-#include "SceneManager.hpp"
+#include "ECS/ECS.hpp"
+#include "renderer.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
-#include "Entity.hpp"
-
-class EntityManager;
+#include "GameState.h"
 
 class Game
 {
 public:
-    static Game& Instance()
-    {
-        static Game m_instance;
-        return m_instance;
-    }
+	static Game& Instance()
+	{
+		static Game m_instance;
+		return m_instance;
+	}
 
-    ~Game();
-    void Start();
+	~Game();
+	void Start();
 
-    static std::vector<int>& GetUnits();
-    static std::vector<int>& GetCities();
+	ECS& GetECS();
+	GameState State;
 private:
-    Game();
-    static Game& m_instance;
+	Game();
+	static Game& m_instance;
 
-    void Input();
-    void Update();
-    void Render();
-    void InitializeControllers();
-    void InitializeScene();
+	void Input();
+	void Update();
+	void Render();
+	void InitializeControllers();
 
-    SceneRenderer m_sceneRenderer;
-    SceneManager m_sceneManager;
-    InputManager m_inputManager;
-    EntityManager& m_entityManager;
+	Renderer m_renderer;
+	InputManager m_inputManager;
+	ECS m_ECS;
 
-    std::vector<std::unique_ptr<IController>> m_controllers;
-
-    std::vector<int> m_units;
-    std::vector<int> m_cities;
+	std::vector<std::unique_ptr<IController>> m_controllers;
 };

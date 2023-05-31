@@ -4,13 +4,11 @@
 
 class EntityManager;
 
-class MovementController : public IController {
+class MovementController : public IController
+{
 public:
-    MovementController();
-    ~MovementController() override;
+	MovementController();
+	~MovementController() override;
 
-    void Tick(float deltaTime);
-
-private:
-    EntityManager& m_entityManager;
+	void Tick(float deltaTime);
 };

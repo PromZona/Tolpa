@@ -2,9 +2,8 @@
 
 #include "raylib.h"
 
-struct RenderComponent {
-    Color Color;
-    float Radius;
-
-    int TransformComponentIndex;
+struct RenderComponent
+{
+	Color Color;
+	float Radius;
 };
