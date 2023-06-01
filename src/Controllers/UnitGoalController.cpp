@@ -19,6 +19,9 @@ void UnitGoalController::Tick(float deltaTime)
 	auto& ecs = Game::Instance().GetECS();
 	auto& cities = Game::Instance().State.cities;
 
+	if (cities.empty())
+		return;
+
 	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
 
 	for (auto archetype : archetypes)
