@@ -4,6 +4,6 @@
 
 struct RenderComponent
 {
-	Color Color;
+	Color color;
 	float Radius;
 };
