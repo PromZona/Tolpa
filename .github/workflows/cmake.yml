@@ -38,5 +38,5 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
         cmake --build . --target Testing -j 4
-        ctest -C ${{env.BUILD_TYPE}}
+        Testing --gtest_color=no
 
