@@ -47,3 +47,17 @@ EntityId EntityFactory::CreateLair()
 	Game::Instance().State.lairs.push_back(city);
 	return city;
 }
+
+EntityId EntityFactory::CreateEnemy()
+{
+	auto& ecs = Game::Instance().GetECS();
+	auto unit = ecs.CreateEntity();
+
+	ecs.AddComponent<TransformComponent>(unit, {{0, 0}});
+	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
+	ecs.AddComponent<MovementComponent>(unit, {{0, 0}, 20.0f});
+	ecs.AddComponent<GoalComponent>(unit, {{0, 0}, false});
+
+	Game::Instance().State.enemies.push_back(unit);
+	return unit;
+}

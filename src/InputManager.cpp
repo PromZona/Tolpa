@@ -16,6 +16,19 @@ void InputManager::Update()
 	int keyPressed = 0;
 	while ((keyPressed = GetKeyPressed()) != 0)
 	{
+		if (keyPressed == KEY_Q)
+		{
+			auto& lairs = Game::Instance().State.lairs;
+			if (lairs.empty())
+				continue;
+			auto unit = EntityFactory::CreateEnemy();
+
+			auto& ecs = Game::Instance().GetECS();
+			auto lairPos = ecs.GetComponent<TransformComponent>(lairs[GetRandomValue(0, lairs.size() - 1)])->Position;
+			ecs.GetComponent<TransformComponent>(unit)->Position = lairPos;
+			continue;
+		}
+
 		if (keyPressed == KEY_W)
 		{
 			auto mousePos = GetMousePosition();
