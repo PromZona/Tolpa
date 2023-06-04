@@ -11,4 +11,5 @@ public:
 	static EntityId CreateParty();
 	static EntityId CreateCity();
 	static EntityId CreateLair();
+	static EntityId CreateEnemy();
 };
