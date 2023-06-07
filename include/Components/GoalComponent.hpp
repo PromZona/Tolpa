@@ -4,6 +4,6 @@
 
 struct GoalComponent
 {
-	Vector2 GoalPosition;
+	Vector3 GoalPosition;
 	bool IsActive;
 };

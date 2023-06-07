@@ -4,6 +4,6 @@
 
 struct MovementComponent
 {
-	Vector2 Direction;
+	Vector3 Direction;
 	float Speed;
 };

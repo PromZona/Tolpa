@@ -4,5 +4,5 @@
 
 struct TransformComponent
 {
-	Vector2 Position;
+	Vector3 Position;
 };

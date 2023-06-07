@@ -25,10 +25,9 @@ Game::~Game()
 void Game::Start()
 {
     InitializeControllers();
-    InitializeScene();
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_renderer);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_renderer);
-
+	
 	while (!WindowShouldClose())
 	{
 		Input();
@@ -53,7 +52,7 @@ void Game::Update()
 
 void Game::Render()
 {
-    m_sceneRenderer.RenderScene(&m_sceneManager);
+    m_renderer.Render();
 }
 
 void Game::InitializeControllers()
@@ -71,13 +70,15 @@ void Game::InitializeControllers()
 	m_controllers.emplace_back(std::make_unique<UnitGoalController>(unitGoalController));
 }
 
+/*
 void Game::InitializeScene()
 {
     m_sceneRenderer.InitializeCamera();
     m_sceneRenderer.InitializeLighting();
 }
+*/
 
-std::vector<int> &Game::GetUnits()
+ECS& Game::GetECS()
 {
 	return m_ECS;
 }
