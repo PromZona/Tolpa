@@ -1,6 +1,7 @@
 #include "GuiManager.hpp"
 
 #include <algorithm>
+#include <string>
 
 #include "imgui/rlImGui.h"
 #include "game.hpp"

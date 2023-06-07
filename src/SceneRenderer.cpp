@@ -5,6 +5,7 @@
 #include "Components/ModelComponent.hpp"
 
 #include "game.hpp"
+#include "rlgl.h"
 
 SceneRenderer::SceneRenderer(){}
 
@@ -132,37 +133,41 @@ void SceneRenderer::RenderScene()
 
     BeginDrawing();
     
-        ClearBackground(BLACK);
-        DrawFPS(5, 5);
+    ClearBackground(BLACK);
+    DrawFPS(5, 5);
 
-        BeginMode3D(m_camera);
+    
+    BeginMode3D(m_camera);
 
-        for (auto& archetype : archetypes)
+    for (auto& archetype : archetypes)
+    {
+        auto& transforms = archetype->GetComponents<TransformComponent>();
+        auto& renders = archetype->GetComponents<RenderComponent>();
+        auto& models = archetype->GetComponents<ModelComponent>();
+
+        std::size_t size = transforms.size();
+
+        Vector3 cum_xyz = {0.0f, 0.0f, 0.0f};
+
+        for (std::size_t i = 0; i < size; i++)
         {
-            auto& transforms = archetype->GetComponents<TransformComponent>();
-            auto& renders = archetype->GetComponents<RenderComponent>();
-            auto& models = archetype->GetComponents<ModelComponent>();
-
-            std::size_t size = transforms.size();
-
-            Vector3 cum_xyz = {0.0f, 0.0f, 0.0f};
-
-            for (std::size_t i = 0; i < size; i++)
-            {
-                DrawModel(*models[i].model, transforms[i].Position, models[i].scale, WHITE);
-                cum_xyz = Vector3Add(cum_xyz, transforms[i].Position);
-            }
-
-            m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
+            DrawModel(*models[i].model, transforms[i].Position, models[i].scale, WHITE);
+            cum_xyz = Vector3Add(cum_xyz, transforms[i].Position);
         }
 
-        // Light sphere
-        //DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
+        m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
+    }
 
-        // Check if cursor ray collides with any mesh on the screen
-        //RenderCursorRayCollision();
 
-        EndMode3D();
+    // Light sphere
+    //DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
+
+    // Check if cursor ray collides with any mesh on the screen
+    //RenderCursorRayCollision();
+
+    EndMode3D();
+    
+    Game::Instance().GetGUI().DrawGUI();
 
     if (m_cursor_collision_detector.m_collision.hit)
     {

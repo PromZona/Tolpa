@@ -1,33 +1,17 @@
-file(GLOB SOURCES Source/*.cpp)
-add_library(Recast ${SOURCES})
+cmake_minimum_required(VERSION 3.11) # FetchContent is available in 3.11+
+project(Recast)
 
-add_library(RecastNavigation::Recast ALIAS Recast)
-set_target_properties(Recast PROPERTIES DEBUG_POSTFIX -d)
+include_directories(../../include/Recast)
 
-set(Recast_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
-
-target_include_directories(Recast PUBLIC
-    "$<BUILD_INTERFACE:${Recast_INCLUDE_DIR}>"
-)
-
-set_target_properties(Recast PROPERTIES
-        SOVERSION ${SOVERSION}
-        VERSION ${LIB_VERSION}
-        COMPILE_PDB_OUTPUT_DIRECTORY .
-        COMPILE_PDB_NAME "Recast-d"
-        )
-
-install(TARGETS Recast
-        EXPORT recastnavigation-targets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT library
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
-        )
-
-file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
-if(MSVC)
-    install(FILES "$<TARGET_FILE_DIR:Recast>/Recast-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib" OPTIONAL)
-endif()
+add_library(${PROJECT_NAME} STATIC
+        Recast.cpp
+        RecastAlloc.cpp
+        RecastArea.cpp
+        RecastAssert.cpp
+        RecastContour.cpp
+        RecastFilter.cpp
+        RecastLayers.cpp
+        RecastMesh.cpp
+        RecastMeshDetail.cpp
+        RecastRasterization.cpp
+        RecastRegion.cpp)
