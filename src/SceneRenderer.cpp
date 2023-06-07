@@ -1,9 +1,29 @@
 #include "../include/SceneRenderer.hpp"
 
+#include "Components/RenderComponent.hpp"
+#include "Components/TransformComponent.hpp"
+#include "Components/ModelComponent.hpp"
+
+#include "game.hpp"
+
 SceneRenderer::SceneRenderer(){}
 
 SceneRenderer::~SceneRenderer()
 {
+    auto& ecs = Game::Instance().GetECS();
+	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
+    
+    for (auto& archetype : archetypes)
+    {
+        auto& models = archetype->GetComponents<ModelComponent>();
+
+        for (std::size_t i = 0; i < models.size(); i++)
+        {
+            UnloadModel(*models[i].model);
+            models[i].model.reset();
+        }
+
+    }
     UnloadShader(m_shader_light);
 }
 
@@ -34,7 +54,7 @@ void SceneRenderer::InitializeLighting()
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void SceneRenderer::ApplyLightingShaderToObjects(SceneManager* scene_manager)
+void SceneRenderer::ApplyLightingShaderToObjects()
 {
     /*
     for (int i = 0; i < scene_manager->CountSceneObjects(); i++)
@@ -47,7 +67,7 @@ void SceneRenderer::ApplyLightingShaderToObjects(SceneManager* scene_manager)
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void SceneRenderer::RenderCursorRayCollision(SceneManager* scene_manager)
+void SceneRenderer::RenderCursorRayCollision()
 {
     /*
     m_cursor_collision_detector.m_collision = {0};
@@ -157,20 +177,20 @@ void UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.colorLoc, color, SHADER_UNIFORM_VEC4);
 }
 
-void SceneRenderer::RenderScene(SceneManager* scene_manager)
+void SceneRenderer::RenderScene()
 {
+    auto& ecs = Game::Instance().GetECS();
+	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
+
     UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
     
-    // Camera always focused on center
-    m_camera.target = {0.0f, 0.0f, 0.0f};
+    //float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
+    //SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
 
-    float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
-    SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+    //if (IsKeyPressed(KEY_B))
+    //    m_light.enabled = !m_light.enabled;
 
-    if (IsKeyPressed(KEY_B))
-        m_light.enabled = !m_light.enabled;
-
-    UpdateLightValues(m_shader_light, m_light);
+    //UpdateLightValues(m_shader_light, m_light);
 
     BeginDrawing();
     
@@ -179,16 +199,30 @@ void SceneRenderer::RenderScene(SceneManager* scene_manager)
 
         BeginMode3D(m_camera);
 
-        // Light sphere
-        DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
+        for (auto& archetype : archetypes)
+        {
+            auto& transforms = archetype->GetComponents<TransformComponent>();
+            auto& renders = archetype->GetComponents<RenderComponent>();
+            auto& models = archetype->GetComponents<ModelComponent>();
 
-        //for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
-        //{
-            // Draw scene objects
-        //}
+            std::size_t size = transforms.size();
+
+            Vector3 cum_xyz = {0.0f, 0.0f, 0.0f};
+
+            for (std::size_t i = 0; i < size; i++)
+            {
+                DrawModel(*models[i].model, transforms[i].Position, models[i].scale, WHITE);
+                cum_xyz = Vector3Add(cum_xyz, transforms[i].Position);
+            }
+
+            m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
+        }
+        
+        // Light sphere
+        //DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
 
         // Check if cursor ray collides with any mesh on the screen
-        RenderCursorRayCollision(scene_manager);
+        //RenderCursorRayCollision();
 
         EndMode3D();
 

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "raylib.h"
+#include <string>
 
 struct ModelComponent
 {
-    Model m_model;
-    BoundingBox m_BBox;
+    std::shared_ptr<Model> model;
+    float scale;
 };

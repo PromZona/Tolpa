@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME} STATIC
         game.cpp
         EntityFactory.cpp
         InputManager.cpp
-        renderer.cpp
+        SceneRenderer.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)
 

@@ -13,46 +13,69 @@ InputManager::~InputManager() = default;
 
 void InputManager::Update()
 {
+	static float offset = 0.0f;
+	static bool first = true;
+
 	int keyPressed = 0;
 	while ((keyPressed = GetKeyPressed()) != 0)
 	{
-		if (keyPressed == KEY_Q)
+		if (keyPressed == KEY_B)
 		{
 			auto& lairs = Game::Instance().State.lairs;
 			if (lairs.empty())
 				continue;
-			auto unit = EntityFactory::CreateEnemy();
+			auto unit = EntityFactory::CreateEnemy("../resources/3d_objects/enemy.glb");
 
 			auto& ecs = Game::Instance().GetECS();
 			auto lairPos = ecs.GetComponent<TransformComponent>(lairs[GetRandomValue(0, lairs.size() - 1)])->Position;
 			ecs.GetComponent<TransformComponent>(unit)->Position = lairPos;
+			offset += 2;
 			continue;
 		}
 
-		if (keyPressed == KEY_W)
+		if (keyPressed == KEY_N)
 		{
-			auto mousePos = GetMousePosition();
-			auto unit = EntityFactory::CreateParty();
+
+			// -----------------------------------------------------------
+			// ------------- NEEDS IMPLEMENTATION FOR 3D -----------------
+			// -----------------------------------------------------------
+			Vector3 mousePos = {0, 0, 0}; //GetMousePosition();
+			// -----------------------------------------------------------
+			// -----------------------------------------------------------
+
+			auto unit = EntityFactory::CreateParty("../resources/3d_objects/party.glb");
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(unit)->Position = mousePos;
+			offset += 2;
 			continue;
 		}
     
-		if (keyPressed == KEY_E)
+		if (keyPressed == KEY_C)
 		{
-			auto mousePos = GetMousePosition();
-			auto city = EntityFactory::CreateCity();
+			Vector3 mousePos; //GetMousePosition();
+
+			if (first)
+				mousePos = {0, 0, offset};
+			else
+				mousePos = {offset, 5.0f, offset};
+
+			auto city = EntityFactory::CreateCity("../resources/3d_objects/ciiity.glb");
 			auto& ecs = Game::Instance().GetECS();
 			auto transform= ecs.GetComponent<TransformComponent>(city);
 			transform->Position = mousePos;
+
+			offset += 20;
+			first = !first;
+
 			continue;
 		}
-		if (keyPressed == KEY_R)
+		if (keyPressed == KEY_V)
 		{
-			auto mousePos = GetMousePosition();
-			auto lair = EntityFactory::CreateLair();
+			Vector3 mousePos = {0, offset, 0}; //GetMousePosition();
+			auto lair = EntityFactory::CreateLair("../resources/3d_objects/lair.glb");
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(lair)->Position = mousePos;
+			offset += 2;
 			continue;
 		}
 

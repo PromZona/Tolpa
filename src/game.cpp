@@ -6,13 +6,14 @@
 #include "Components/RenderComponent.hpp"
 #include "Components/MovementComponent.hpp"
 #include "Components/GoalComponent.hpp"
+#include "Components/ModelComponent.hpp"
 
 Game& Game::m_instance = Game::Instance();
 
 Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS()
 {
-	const int screenWidth = 800;
-	const int screenHeight = 450;
+	const int screenWidth = 1200;
+	const int screenHeight = 1200;
 	InitWindow(screenWidth, screenHeight, "Tolpa");
 	SetTargetFPS(60);
 }
@@ -25,9 +26,11 @@ Game::~Game()
 void Game::Start()
 {
     InitializeControllers();
+	InitializeScene();
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_renderer);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_renderer);
-	
+	m_ECS.RegisterComponentInSystem<ModelComponent>(m_renderer);
+
 	while (!WindowShouldClose())
 	{
 		Input();
@@ -52,7 +55,7 @@ void Game::Update()
 
 void Game::Render()
 {
-    m_renderer.Render();
+    m_renderer.RenderScene();
 }
 
 void Game::InitializeControllers()
@@ -70,13 +73,10 @@ void Game::InitializeControllers()
 	m_controllers.emplace_back(std::make_unique<UnitGoalController>(unitGoalController));
 }
 
-/*
 void Game::InitializeScene()
 {
-    m_sceneRenderer.InitializeCamera();
-    m_sceneRenderer.InitializeLighting();
+    m_renderer.InitializeCamera();
 }
-*/
 
 ECS& Game::GetECS()
 {

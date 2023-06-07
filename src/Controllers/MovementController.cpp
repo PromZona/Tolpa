@@ -29,7 +29,7 @@ void MovementController::Tick(float deltaTime)
 		{
 			auto& movement = moves[i];
 			auto& transform = trans[i];
-			Vector2 result = Vector2Add(transform.Position, Vector2Scale(movement.Direction, movement.Speed * deltaTime));
+			Vector3 result = Vector3Add(transform.Position, Vector3Scale(movement.Direction, movement.Speed * deltaTime));
 			transform.Position = result;
 		}
 	}

@@ -4,7 +4,7 @@
 #include "raylib.h"
 
 #include "ECS/ECS.hpp"
-#include "renderer.hpp"
+#include "SceneRenderer.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "GameState.h"
@@ -31,8 +31,9 @@ private:
 	void Update();
 	void Render();
 	void InitializeControllers();
+	void InitializeScene();
 
-	Renderer m_renderer;
+	SceneRenderer m_renderer;
 	InputManager m_inputManager;
 	ECS m_ECS;
 

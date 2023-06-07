@@ -1,11 +1,12 @@
 #pragma once
 
-#include "raylib.h"
-#include "SceneManager.hpp"
-#include "raymath.h"
-
 #include <stdio.h>
 #include <algorithm>
+
+#include "raylib.h"
+#include "raymath.h"
+
+#include "ECS/System.hpp"
 
 #define MAX_LIGHTS 1         // Max dynamic lights supported by shader
 
@@ -52,7 +53,7 @@ struct MeshCursorCollisionDetector
     RayCollision m_mesh_hit_info;
 };
 
-class SceneRenderer
+class SceneRenderer : public System
 {
 
 public:
@@ -63,15 +64,15 @@ public:
     const float m_model_render_scale = 1.0f;
 
     // Renders all objects and lights
-    void RenderScene(SceneManager* scene_manager);
+    void RenderScene();
 
     void InitializeCamera();
 
     void InitializeLighting();
 
-    void RenderCursorRayCollision(SceneManager* scene_manager);
+    void RenderCursorRayCollision();
 
-    void ApplyLightingShaderToObjects(SceneManager* scene_manager);
+    void ApplyLightingShaderToObjects();
 
     Shader m_shader_light;
     // Ambient light level

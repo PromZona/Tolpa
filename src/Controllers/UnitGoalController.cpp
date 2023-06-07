@@ -36,7 +36,7 @@ void UnitGoalController::Tick(float deltaTime)
 			auto& movementComp = moves[i];
 			auto& transformComp = trans[i];
 
-			if (Vector2Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
+			if (Vector3Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
 			{
 				goalComp.IsActive = false;
 			}
@@ -44,12 +44,12 @@ void UnitGoalController::Tick(float deltaTime)
 			if (!goalComp.IsActive)
 			{
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
-				Vector2 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
+				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
 				goalComp.GoalPosition = cityPosition;
 				goalComp.IsActive = true;
 
-				movementComp.Direction = Vector2Normalize(Vector2Subtract(cityPosition, transformComp.Position));
+				movementComp.Direction = Vector3Normalize(Vector3Subtract(cityPosition, transformComp.Position));
 			}
 		}
 	}
