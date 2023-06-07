@@ -86,4 +86,7 @@ std::vector<std::shared_ptr<Archetype>> ECS::GetRequiredArchetypes(const Archety
 
 	return result;
 }
-
+const std::unordered_map<EntityId, std::shared_ptr<Archetype>>& ECS::GetEntityToArchetype()
+{
+	return m_entityToArchetype;
+}

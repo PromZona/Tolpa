@@ -10,12 +10,15 @@
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS()
+Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
 {
 	const int screenWidth = 1200;
 	const int screenHeight = 1200;
+	
 	InitWindow(screenWidth, screenHeight, "Tolpa");
 	SetTargetFPS(60);
+
+	m_guiManager.Init();
 }
 
 Game::~Game()
@@ -98,4 +101,9 @@ ECS& Game::GetECS()
 SceneRenderer& Game::GetSceneRenderer()
 {
 	return m_renderer;
+}
+
+GUIManager& Game::GetGUI()
+{
+	return m_guiManager;
 }

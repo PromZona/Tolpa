@@ -9,4 +9,7 @@ public:
 	~Renderer();
 
 	void Render();
+
+private:
+	void RenderScene();
 };

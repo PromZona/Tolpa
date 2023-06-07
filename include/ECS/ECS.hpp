@@ -71,6 +71,7 @@ public:
 	}
 
 	std::vector<std::shared_ptr<Archetype>> GetRequiredArchetypes(ArchetypeId requiredArchetypes);
+	const std::unordered_map<EntityId, std::shared_ptr<Archetype>>& GetEntityToArchetype();
 
 private:
 	EntityId m_availableEntityId = 0;
