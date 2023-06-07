@@ -17,6 +17,7 @@ public:
 	virtual int GetComponentBit() = 0;
 	virtual void PrintInfo() = 0;
 	virtual std::shared_ptr<IComponentVector> CreateEmptyClone() const = 0;
+	virtual std::vector<EntityId> GetEntities() = 0;
 };
 
 template<class T>
@@ -107,10 +108,19 @@ public:
 		return std::make_shared<ComponentVector<T>>(m_componentBit);
 	}
 
+	std::vector<EntityId> GetEntities() override
+	{
+		std::vector<EntityId> keys(m_entityToComponentIndex.size());
+
+		for(const auto &kv : m_entityToComponentIndex) {
+			keys.push_back(kv.first);
+		}
+		return keys;
+	}
+
 private:
 	int m_componentBit;
 	std::vector<T> m_components;
 	std::unordered_map<std::size_t, EntityId> m_componentToEntityId;
 	std::unordered_map<EntityId, std::size_t> m_entityToComponentIndex;
-
 };

@@ -51,6 +51,11 @@ public:
 		auto componentTypeIndex = std::type_index(typeid(T));
 		return std::static_pointer_cast<ComponentVector<T>>(m_componentVectors.at(componentTypeIndex))->GetVector();
 	}
+
+	std::unordered_map<std::type_index, std::shared_ptr<IComponentVector>> GetRawComponents()
+	{
+		return m_componentVectors;
+	}
 private:
 	ArchetypeId m_archetypeId;
 	std::unordered_map<std::type_index, std::shared_ptr<IComponentVector>> m_componentVectors;
