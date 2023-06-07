@@ -88,8 +88,6 @@ void Game::InitializeScene()
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
 
 	Game::Instance().State.map.push_back(map);
-
-	m_renderer.CalculateGrid();
 }
 
 ECS& Game::GetECS()
