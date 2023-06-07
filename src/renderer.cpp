@@ -25,7 +25,7 @@ void Renderer::Render()
 		std::size_t size = transforms.size();
 		for (int i = 0; i < size; i++)
 		{
-			DrawCircle((int)transforms[i].Position.x, (int)transforms[i].Position.y, renders[i].Radius, renders[i].Color);
+			DrawCircle((int)transforms[i].Position.x, (int)transforms[i].Position.y, renders[i].Radius, renders[i].color);
 		}
 	}
 	EndDrawing();
