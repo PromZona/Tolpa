@@ -19,9 +19,8 @@ EntityId EntityFactory::CreateParty(const std::string model_path)
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 
-	// ????????????????????????????
 	std::shared_ptr<Model> model = std::make_shared<Model>(LoadModel(model_path.c_str()));
-	float model_scale = 1.0f;
+	float model_scale = 0.05f;
 
     ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}});
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
@@ -38,7 +37,6 @@ EntityId EntityFactory::CreateCity(const std::string model_path)
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	// ??????????????????????????????
 	std::shared_ptr<Model> model = std::make_shared<Model>(LoadModel(model_path.c_str()));
 	float model_scale = 1.0f;
 
@@ -55,7 +53,6 @@ EntityId EntityFactory::CreateLair(const std::string model_path)
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	// ??????????????????????????????
 	std::shared_ptr<Model> model = std::make_shared<Model>(LoadModel(model_path.c_str()));
 	float model_scale = 1.0f;
 
@@ -72,7 +69,6 @@ EntityId EntityFactory::CreateEnemy(const std::string model_path)
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 
-	// ??????????????????????????????
 	std::shared_ptr<Model> model = std::make_shared<Model>(LoadModel(model_path.c_str()));
 	float model_scale = 1.0f;
 

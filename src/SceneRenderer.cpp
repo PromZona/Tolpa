@@ -24,6 +24,7 @@ SceneRenderer::~SceneRenderer()
         }
 
     }
+    
     UnloadShader(m_shader_light);
 }
 
@@ -64,69 +65,6 @@ void SceneRenderer::ApplyLightingShaderToObjects()
         
         printf("Material count: %d\n", scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.materialCount);
     }*/
-}
-
-// ----------------------------------------------------------------------------------------------------------------------
-void SceneRenderer::RenderCursorRayCollision()
-{
-    /*
-    m_cursor_collision_detector.m_collision = {0};
-    m_cursor_collision_detector.m_collision.distance = FLT_MAX;
-    m_cursor_collision_detector.m_collision.hit = false;
-
-    Color cursor_color = WHITE;
-
-    m_cursor_collision_detector.m_ray = GetMouseRay(GetMousePosition(), m_camera);
-
-    m_cursor_collision_detector.m_mesh_hit_info = {0};
-
-    for (size_t i = 0; i < scene_manager->CountSceneObjects(); i++)
-    {
-        // Check for collision with Binding box first
-        RayCollision box_hit_info = GetRayCollisionBox(m_cursor_collision_detector.m_ray,
-                                                       scene_manager->GetSceneObject(i)->GetObjectModel()->BBox);
-
-        if (box_hit_info.hit && box_hit_info.distance < m_cursor_collision_detector.m_collision.distance)
-            for (int m = 0; m < scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.meshCount; m++)
-            {
-                m_cursor_collision_detector.m_mesh_hit_info = GetRayCollisionMesh(m_cursor_collision_detector.m_ray, 
-                                                            scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.meshes[m],
-                                                            scene_manager->GetSceneObject(i)->GetObjectModel()->m_model.transform);
-                
-                
-                if (m_cursor_collision_detector.m_mesh_hit_info.hit)
-                {
-                    if ((!m_cursor_collision_detector.m_collision.hit) || 
-                    (m_cursor_collision_detector.m_collision.distance > m_cursor_collision_detector.m_mesh_hit_info.distance))
-                    {
-                        m_cursor_collision_detector.m_collision = m_cursor_collision_detector.m_mesh_hit_info;
-                    }
-
-                    break;
-                }
-            }
-
-        if (m_cursor_collision_detector.m_mesh_hit_info.hit)
-        {
-            m_cursor_collision_detector.m_collision = m_cursor_collision_detector.m_mesh_hit_info;
-            cursor_color = ORANGE;
-        }
-    }
-
-    // Visual representation at the point where collision occured
-    // Maybe move somewhere else but for now its okay since this render is called inside BeginDrawing()
-    if (m_cursor_collision_detector.m_collision.hit)
-    {
-        DrawSphere(m_cursor_collision_detector.m_collision.point, 0.2f, cursor_color);
-
-        Vector3 normal_end;
-        normal_end.x = m_cursor_collision_detector.m_collision.point.x + m_cursor_collision_detector.m_collision.normal.x;    
-        normal_end.y = m_cursor_collision_detector.m_collision.point.y + m_cursor_collision_detector.m_collision.normal.y;    
-        normal_end.z = m_cursor_collision_detector.m_collision.point.z + m_cursor_collision_detector.m_collision.normal.z;
-
-        DrawLine3D(m_cursor_collision_detector.m_collision.point, normal_end, RED);
-    }
-    */
 }
 
 Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
@@ -182,7 +120,7 @@ void SceneRenderer::RenderScene()
     auto& ecs = Game::Instance().GetECS();
 	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
 
-    UpdateCamera(&m_camera, CAMERA_PERSPECTIVE);
+    UpdateCamera(&m_camera, CAMERA_ORBITAL);
     
     //float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
     //SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
@@ -217,7 +155,7 @@ void SceneRenderer::RenderScene()
 
             m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
         }
-        
+
         // Light sphere
         //DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
 

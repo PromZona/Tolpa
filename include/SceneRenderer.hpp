@@ -70,8 +70,6 @@ public:
 
     void InitializeLighting();
 
-    void RenderCursorRayCollision();
-
     void ApplyLightingShaderToObjects();
 
     Shader m_shader_light;

@@ -59,7 +59,7 @@ void InputManager::Update()
 			else
 				mousePos = {offset, 5.0f, offset};
 
-			auto city = EntityFactory::CreateCity("../resources/3d_objects/ciiity.glb");
+			auto city = EntityFactory::CreateCity("../resources/3d_objects/city.glb");
 			auto& ecs = Game::Instance().GetECS();
 			auto transform= ecs.GetComponent<TransformComponent>(city);
 			transform->Position = mousePos;

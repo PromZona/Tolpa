@@ -22,6 +22,7 @@ public:
 	void Start();
 
 	ECS& GetECS();
+	SceneRenderer& GetSceneRenderer();
 	GameState State;
 private:
 	Game();

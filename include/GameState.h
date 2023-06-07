@@ -9,4 +9,5 @@ struct GameState
 	std::vector<EntityId> parties;
 	std::vector<EntityId> lairs;
 	std::vector<EntityId> enemies;
+	std::vector<EntityId> map;
 };
