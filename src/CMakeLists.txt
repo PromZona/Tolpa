@@ -5,6 +5,8 @@ project(TolpaLib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Dependencies
+
+## RAYLIB
 set(RAYLIB_VERSION 4.5.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
@@ -24,8 +26,8 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Our Project
-
 add_subdirectory(ECS)
+add_subdirectory(imgui)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
@@ -34,6 +36,7 @@ add_library(${PROJECT_NAME} STATIC
         EntityFactory.cpp
         InputManager.cpp
         renderer.cpp
+        GuiManager.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)
 
@@ -43,4 +46,4 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
-target_link_libraries(${PROJECT_NAME} raylib ECS)
+target_link_libraries(${PROJECT_NAME} raylib ECS imgui)
