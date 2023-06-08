@@ -55,7 +55,7 @@ EntityId EntityFactory::CreateEnemy()
 {
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
-
+	
 	ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}});
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::ENEMY, 1.0f});
