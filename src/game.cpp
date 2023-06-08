@@ -79,15 +79,13 @@ void Game::InitializeControllers()
 void Game::InitializeScene()
 {
     m_renderer.InitializeCamera();
-
+	m_sceneManager.LoadModels();
+	
 	auto& ecs = Game::Instance().GetECS();
 	auto map = ecs.CreateEntity();
 
-	std::shared_ptr<Model> model = std::make_shared<Model>(LoadModel("../resources/3d_objects/landscape.glb"));
-	float model_scale = 1.0f;
-
 	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}});
-	ecs.AddComponent<ModelComponent>(map, {model, model_scale});
+	ecs.AddComponent<ModelComponent>(map, {ModelType::MAP, 1.0f});
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
 
 	Game::Instance().State.map.push_back(map);
@@ -106,4 +104,9 @@ SceneRenderer& Game::GetSceneRenderer()
 GUIManager& Game::GetGUI()
 {
 	return m_guiManager;
+}
+
+SceneManager& Game::GetSceneManager()
+{
+	return m_sceneManager;
 }

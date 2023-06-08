@@ -5,6 +5,7 @@
 
 #include "ECS/ECS.hpp"
 #include "SceneRenderer.hpp"
+#include "SceneManager.hpp"
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "GameState.h"
@@ -24,8 +25,10 @@ public:
 
 	ECS& GetECS();
 	SceneRenderer& GetSceneRenderer();
+	SceneManager& GetSceneManager();
 	GUIManager& GetGUI();
 	GameState State;
+
 private:
 	Game();
 	static Game& m_instance;
@@ -37,6 +40,7 @@ private:
 	void InitializeScene();
 
 	SceneRenderer m_renderer;
+	SceneManager m_sceneManager;
 	InputManager m_inputManager;
 	ECS m_ECS;
 	GUIManager m_guiManager;

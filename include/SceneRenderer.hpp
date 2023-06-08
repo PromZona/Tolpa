@@ -42,9 +42,6 @@ void UpdateLightValues(Shader shader, Light light);
 // Create a light and get shader locations
 Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);
 
-// For detecting mesh cursor collision, max value of float
-#define FLT_MAX     340282346638528859811704183484516925440.0f
-
 struct MeshCursorCollisionDetector
 {
     // Picking ray

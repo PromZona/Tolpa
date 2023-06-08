@@ -11,21 +11,6 @@ SceneRenderer::SceneRenderer(){}
 
 SceneRenderer::~SceneRenderer()
 {
-    auto& ecs = Game::Instance().GetECS();
-	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
-    
-    for (auto& archetype : archetypes)
-    {
-        auto& models = archetype->GetComponents<ModelComponent>();
-
-        for (std::size_t i = 0; i < models.size(); i++)
-        {
-            UnloadModel(*models[i].model);
-            models[i].model.reset();
-        }
-
-    }
-    
     UnloadShader(m_shader_light);
 }
 
@@ -119,6 +104,7 @@ void UpdateLightValues(Shader shader, Light light)
 void SceneRenderer::RenderScene()
 {
     auto& ecs = Game::Instance().GetECS();
+    auto& SceneManager = Game::Instance().GetSceneManager();
 	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
 
     UpdateCamera(&m_camera, CAMERA_ORBITAL);
@@ -135,7 +121,6 @@ void SceneRenderer::RenderScene()
     
     ClearBackground(BLACK);
     DrawFPS(5, 5);
-
     
     BeginMode3D(m_camera);
 
@@ -151,13 +136,12 @@ void SceneRenderer::RenderScene()
 
         for (std::size_t i = 0; i < size; i++)
         {
-            DrawModel(*models[i].model, transforms[i].Position, models[i].scale, WHITE);
+            DrawModel(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
             cum_xyz = Vector3Add(cum_xyz, transforms[i].Position);
         }
 
         m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
     }
-
 
     // Light sphere
     //DrawSphereEx(m_light.position, 0.2f, 8, 8, m_light.color);
@@ -166,7 +150,7 @@ void SceneRenderer::RenderScene()
     //RenderCursorRayCollision();
 
     EndMode3D();
-    
+
     Game::Instance().GetGUI().DrawGUI();
 
     if (m_cursor_collision_detector.m_collision.hit)

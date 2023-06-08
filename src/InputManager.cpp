@@ -6,6 +6,25 @@
 
 #include "Components/TransformComponent.hpp"
 
+// --------------------------
+// ---- DELETE LATER --------
+#include <random>
+
+Vector3 GetRandomLocation()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    float min = -100.0f;
+    float max = 100.0f;
+
+    std::uniform_real_distribution<float> dis(min, max);
+
+    return {dis(gen), dis(gen), dis(gen)};
+}
+//--------------------------
+//--------------------------
+
 InputManager::InputManager()
 {
 }
@@ -13,9 +32,6 @@ InputManager::~InputManager() = default;
 
 void InputManager::Update()
 {
-	static float offset = 0.0f;
-	static bool first = true;
-
 	int keyPressed = 0;
 	while ((keyPressed = GetKeyPressed()) != 0)
 	{
@@ -24,12 +40,11 @@ void InputManager::Update()
 			auto& lairs = Game::Instance().State.lairs;
 			if (lairs.empty())
 				continue;
-			auto unit = EntityFactory::CreateEnemy("../resources/3d_objects/enemy.glb");
+			auto unit = EntityFactory::CreateEnemy();
 
 			auto& ecs = Game::Instance().GetECS();
 			auto lairPos = ecs.GetComponent<TransformComponent>(lairs[GetRandomValue(0, lairs.size() - 1)])->Position;
 			ecs.GetComponent<TransformComponent>(unit)->Position = lairPos;
-			offset += 2;
 			continue;
 		}
 
@@ -43,10 +58,9 @@ void InputManager::Update()
 			// -----------------------------------------------------------
 			// -----------------------------------------------------------
 
-			auto unit = EntityFactory::CreateParty("../resources/3d_objects/party.glb");
+			auto unit = EntityFactory::CreateParty();
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(unit)->Position = mousePos;
-			offset += 2;
 			continue;
 		}
     
@@ -54,28 +68,18 @@ void InputManager::Update()
 		{
 			Vector3 mousePos; //GetMousePosition();
 
-			if (first)
-				mousePos = {0, 0, offset};
-			else
-				mousePos = {offset, 5.0f, offset};
-
-			auto city = EntityFactory::CreateCity("../resources/3d_objects/city.glb");
+			auto city = EntityFactory::CreateCity();
 			auto& ecs = Game::Instance().GetECS();
 			auto transform= ecs.GetComponent<TransformComponent>(city);
-			transform->Position = mousePos;
-
-			offset += 20;
-			first = !first;
-
+			transform->Position = GetRandomLocation();
 			continue;
 		}
 		if (keyPressed == KEY_V)
 		{
-			Vector3 mousePos = {0, offset, 0}; //GetMousePosition();
-			auto lair = EntityFactory::CreateLair("../resources/3d_objects/lair.glb");
+			Vector3 mousePos = {0, 0, 0}; //GetMousePosition();
+			auto lair = EntityFactory::CreateLair();
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(lair)->Position = mousePos;
-			offset += 2;
 			continue;
 		}
 

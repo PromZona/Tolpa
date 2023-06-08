@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME} STATIC
         EntityFactory.cpp
         InputManager.cpp
         SceneRenderer.cpp
+        SceneManager.cpp
         GuiManager.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)

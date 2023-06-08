@@ -3,8 +3,11 @@
 #include "raylib.h"
 #include <string>
 
+// Forward declaration
+enum class ModelType;
+
 struct ModelComponent
 {
-    std::shared_ptr<Model> model;
+    ModelType model_id;
     float scale;
 };
