@@ -37,6 +37,11 @@ add_library(${PROJECT_NAME} STATIC
         InputManager.cpp
         renderer.cpp
         GuiManager.cpp
+        Commands/CommandManager.cpp
+        Commands/CreateHumanCommand.cpp
+        Commands/CreateCityCommand.cpp
+        Commands/CreateOrcCommand.cpp
+        Commands/CreateOrcsTribeCommand.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)
 

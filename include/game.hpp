@@ -9,6 +9,7 @@
 #include "Controllers/IController.hpp"
 #include "GameState.h"
 #include "GuiManager.hpp"
+#include "Commands/CommandManager.hpp"
 
 class Game
 {
@@ -24,6 +25,7 @@ public:
 
 	ECS& GetECS();
 	GUIManager& GetGUI();
+	CommandManager& GetCommandManager();
 	GameState State;
 private:
 	Game();
@@ -38,6 +40,7 @@ private:
 	InputManager m_inputManager;
 	ECS m_ECS;
 	GUIManager m_guiManager;
+	CommandManager m_CommandManager;
 
 	std::vector<std::unique_ptr<IController>> m_controllers;
 };

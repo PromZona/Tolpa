@@ -9,7 +9,13 @@
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
+Game::Game() :
+	m_renderer(),
+	m_inputManager(),
+	m_controllers(),
+	m_ECS(),
+	m_guiManager(),
+	m_CommandManager()
 {
 	m_guiManager.Init();
 }
@@ -40,6 +46,8 @@ void Game::Input()
 
 void Game::Update()
 {
+	m_CommandManager.Tick();
+
 	float deltaTime = GetFrameTime();
 	for (auto& controller : m_controllers)
 	{
@@ -71,7 +79,13 @@ ECS& Game::GetECS()
 {
 	return m_ECS;
 }
+
 GUIManager& Game::GetGUI()
 {
 	return m_guiManager;
+}
+
+CommandManager& Game::GetCommandManager()
+{
+	return m_CommandManager;
 }
