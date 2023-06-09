@@ -52,7 +52,7 @@ Party can include units of the same type.
 - Create Orcs party of a random size (5-20) each 5 days
 
 ## Resources
-- Food - waste to create Cities
+- Food - waste to create HumanCities
 - Gold - waste to create Heroes
 
 ## Fights

@@ -5,6 +5,10 @@
 #include "game.hpp"
 
 #include "Components/TransformComponent.hpp"
+#include "Commands/CreateCityCommand.hpp"
+#include "Commands/CreateHumanCommand.hpp"
+#include "Commands/CreateOrcsTribeCommand.hpp"
+#include "Commands/CreateOrcCommand.hpp"
 
 InputManager::InputManager()
 {
@@ -18,41 +22,32 @@ void InputManager::Update()
 	{
 		if (keyPressed == KEY_Q)
 		{
-			auto& lairs = Game::Instance().State.lairs;
-			if (lairs.empty())
-				continue;
-			auto unit = EntityFactory::CreateEnemy();
-
-			auto& ecs = Game::Instance().GetECS();
-			auto lairPos = ecs.GetComponent<TransformComponent>(lairs[GetRandomValue(0, lairs.size() - 1)])->Position;
-			ecs.GetComponent<TransformComponent>(unit)->Position = lairPos;
+			auto command = std::make_unique<CreateOrcCommand>();
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
 
 		if (keyPressed == KEY_W)
 		{
 			auto mousePos = GetMousePosition();
-			auto unit = EntityFactory::CreateParty();
-			auto& ecs = Game::Instance().GetECS();
-			ecs.GetComponent<TransformComponent>(unit)->Position = mousePos;
+			auto command = std::make_unique<CreateHumanCommand>(mousePos);
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
     
 		if (keyPressed == KEY_E)
 		{
 			auto mousePos = GetMousePosition();
-			auto city = EntityFactory::CreateCity();
-			auto& ecs = Game::Instance().GetECS();
-			auto transform= ecs.GetComponent<TransformComponent>(city);
-			transform->Position = mousePos;
+			auto command = std::make_unique<CreateCityCommand>(mousePos);
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
+
 		if (keyPressed == KEY_R)
 		{
 			auto mousePos = GetMousePosition();
-			auto lair = EntityFactory::CreateLair();
-			auto& ecs = Game::Instance().GetECS();
-			ecs.GetComponent<TransformComponent>(lair)->Position = mousePos;
+			auto command = std::make_unique<CreateOrcsTribeCommand>(mousePos);
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
 
