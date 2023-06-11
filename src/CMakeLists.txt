@@ -28,8 +28,6 @@ endif()
 # Our Project
 add_subdirectory(ECS)
 add_subdirectory(imgui)
-add_subdirectory(Recast)
-add_subdirectory(Detour)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
@@ -49,4 +47,4 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
-target_link_libraries(${PROJECT_NAME} raylib ECS imgui Recast Detour)
+target_link_libraries(${PROJECT_NAME} raylib ECS imgui)

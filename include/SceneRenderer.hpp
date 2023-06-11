@@ -69,6 +69,8 @@ public:
 
     void ApplyLightingShaderToObjects();
 
+    Camera& GetCamera();
+
     Shader m_shader_light;
     // Ambient light level
     int m_ambient_loc;

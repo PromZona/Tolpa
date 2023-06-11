@@ -11,10 +11,7 @@
 Game& Game::m_instance = Game::Instance();
 
 Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
-{
-	const int screenWidth = 1200;
-	const int screenHeight = 1200;
-	
+{	
 	InitWindow(screenWidth, screenHeight, "Tolpa");
 	SetTargetFPS(60);
 
@@ -89,6 +86,9 @@ void Game::InitializeScene()
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
 
 	Game::Instance().State.map.push_back(map);
+
+	m_renderer.InitializeLighting();
+	m_renderer.ApplyLightingShaderToObjects();
 }
 
 ECS& Game::GetECS()

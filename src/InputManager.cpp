@@ -32,7 +32,9 @@ InputManager::~InputManager() = default;
 
 void InputManager::Update()
 {
+	auto& cam = Game::Instance().GetSceneRenderer().GetCamera();
 	int keyPressed = 0;
+
 	while ((keyPressed = GetKeyPressed()) != 0)
 	{
 		if (keyPressed == KEY_B)
@@ -87,5 +89,51 @@ void InputManager::Update()
 		{
 			Game::Instance().GetECS().PrintInfo();
 		}
+	}
+
+	Vector2 prevMousePosition = {0.0f, 0.0f};
+	Vector2 currPosition = {0.0f, 0.0f};
+	Vector2 mouseDelta = {0.0f, 0.0f};
+
+	Vector3 camPosition;
+	float cameraSpeed = 0.01f;
+
+	if (IsMouseButtonPressed(MouseButton::MOUSE_BUTTON_RIGHT))
+	{
+		prevMousePosition = GetMousePosition();
+		
+		BeginDrawing();
+
+		DrawText(TextFormat("Current Mouse Pos: %3.2f %3.2f",
+                        currPosition.x,
+                        currPosition.y), 10, 70 + 30, 10, WHITE);
+
+		DrawText(TextFormat("Prev Mouse Pos: %3.2f %3.2f",
+                        prevMousePosition.x,
+                        prevMousePosition.y), 10, 70 + 15, 10, WHITE);
+
+		EndDrawing();
+	}
+
+	if (IsMouseButtonDown(MouseButton::MOUSE_BUTTON_RIGHT))
+	{
+		currPosition = {GetMousePosition().x - Game::Instance().screenWidth / 2,
+						GetMousePosition().y - Game::Instance().screenHeight / 2};
+
+		mouseDelta = {currPosition.x - prevMousePosition.x, currPosition.y - prevMousePosition.y};
+
+		mouseDelta = Vector2Normalize(mouseDelta);
+
+		cam.position = Vector3Subtract(cam.position, cam.target);
+		cam.position = Vector3RotateByAxisAngle(cam.position, {0.0f, 1.0f, 0.0f}, -mouseDelta.x * cameraSpeed);
+
+		prevMousePosition = currPosition;
+	}
+
+	float wheel = GetMouseWheelMove();
+	float zoomStrength = 5.0f;
+	if (wheel != 0)
+	{
+		UpdateCameraPro(&cam, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, -wheel * zoomStrength);
 	}
 }

@@ -29,6 +29,9 @@ public:
 	GUIManager& GetGUI();
 	GameState State;
 
+	const int screenWidth = 1200;
+	const int screenHeight = 1200;
+
 private:
 	Game();
 	static Game& m_instance;
@@ -38,6 +41,7 @@ private:
 	void Render();
 	void InitializeControllers();
 	void InitializeScene();
+
 
 	SceneRenderer m_renderer;
 	SceneManager m_sceneManager;
