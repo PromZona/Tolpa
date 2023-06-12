@@ -52,14 +52,7 @@ void InputManager::Update()
 
 		if (keyPressed == KEY_N)
 		{
-
-			// -----------------------------------------------------------
-			// ------------- NEEDS IMPLEMENTATION FOR 3D -----------------
-			// -----------------------------------------------------------
-			Vector3 mousePos = {0, 0, 0}; //GetMousePosition();
-			// -----------------------------------------------------------
-			// -----------------------------------------------------------
-
+			Vector3 mousePos = {0, 0, 0};
 			auto unit = EntityFactory::CreateParty();
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(unit)->Position = mousePos;
@@ -68,7 +61,7 @@ void InputManager::Update()
     
 		if (keyPressed == KEY_C)
 		{
-			Vector3 mousePos; //GetMousePosition();
+			Vector3 mousePos;
 
 			auto city = EntityFactory::CreateCity();
 			auto& ecs = Game::Instance().GetECS();
@@ -78,7 +71,7 @@ void InputManager::Update()
 		}
 		if (keyPressed == KEY_V)
 		{
-			Vector3 mousePos = {0, 0, 0}; //GetMousePosition();
+			Vector3 mousePos = {0, 0, 0};
 			auto lair = EntityFactory::CreateLair();
 			auto& ecs = Game::Instance().GetECS();
 			ecs.GetComponent<TransformComponent>(lair)->Position = mousePos;
@@ -99,21 +92,7 @@ void InputManager::Update()
 	float cameraSpeed = 0.01f;
 
 	if (IsMouseButtonPressed(MouseButton::MOUSE_BUTTON_RIGHT))
-	{
 		prevMousePosition = GetMousePosition();
-		
-		BeginDrawing();
-
-		DrawText(TextFormat("Current Mouse Pos: %3.2f %3.2f",
-                        currPosition.x,
-                        currPosition.y), 10, 70 + 30, 10, WHITE);
-
-		DrawText(TextFormat("Prev Mouse Pos: %3.2f %3.2f",
-                        prevMousePosition.x,
-                        prevMousePosition.y), 10, 70 + 15, 10, WHITE);
-
-		EndDrawing();
-	}
 
 	if (IsMouseButtonDown(MouseButton::MOUSE_BUTTON_RIGHT))
 	{
@@ -131,7 +110,7 @@ void InputManager::Update()
 	}
 
 	float wheel = GetMouseWheelMove();
-	float zoomStrength = 5.0f;
+	float zoomStrength = 7.0f;
 	if (wheel != 0)
 	{
 		UpdateCameraPro(&cam, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, -wheel * zoomStrength);

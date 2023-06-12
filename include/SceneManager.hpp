@@ -10,7 +10,8 @@ enum class ModelType
     PARTY,
     LAIR,
     ENEMY,
-    MAP
+    MAP,
+    NAVMESH
 };
 
 class SceneManager
@@ -32,4 +33,5 @@ private:
     Model lairModel;
     Model enemyModel;
     Model mapModel;
+    Model navmeshModel;
 };

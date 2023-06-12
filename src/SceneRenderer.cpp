@@ -45,7 +45,6 @@ void SceneRenderer::InitializeLighting()
     m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), BLUE, m_shader_light);
 }
 
-// ----------------------------------------------------------------------------------------------------------------------
 void SceneRenderer::ApplyLightingShaderToObjects()
 {
     auto& sceneManager = Game::Instance().GetSceneManager();
@@ -105,6 +104,7 @@ void SceneRenderer::RenderScene()
 {
     auto& ecs = Game::Instance().GetECS();
     auto& SceneManager = Game::Instance().GetSceneManager();
+    auto& NavGrid = Game::Instance().GetNavGrid();
 	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
     
     float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
@@ -130,22 +130,23 @@ void SceneRenderer::RenderScene()
 
         std::size_t size = transforms.size();
 
-        Vector3 cum_xyz = {0.0f, 0.0f, 0.0f};
-
         for (std::size_t i = 0; i < size; i++)
         {
             DrawModel(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
-            cum_xyz = Vector3Add(cum_xyz, transforms[i].Position);
         }
-
-        m_camera.target = {cum_xyz.x / size, cum_xyz.y / size, cum_xyz.z / size};
     }
 
-    // Light sphere
-    DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
+    auto& middleMesh = NavGrid.GetTriangles();
 
-    // Check if cursor ray collides with any mesh on the screen
-    //RenderCursorRayCollision();
+    for (int i = 0; i < middleMesh.size(); i++)
+        DrawPoint3D(middleMesh[i].middlePoint, GREEN);
+
+    auto& navGridModel = NavGrid.GetModel();
+
+    NavGrid.DebugDrawGrid();
+    NavGrid.DebugDrawConnectedTriangles();
+
+    DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 
     EndMode3D();
 

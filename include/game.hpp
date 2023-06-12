@@ -7,6 +7,7 @@
 #include "SceneRenderer.hpp"
 #include "SceneManager.hpp"
 #include "InputManager.hpp"
+#include "NavigationMesh.hpp"
 #include "Controllers/IController.hpp"
 #include "GameState.h"
 #include "GuiManager.hpp"
@@ -26,6 +27,7 @@ public:
 	ECS& GetECS();
 	SceneRenderer& GetSceneRenderer();
 	SceneManager& GetSceneManager();
+	NavMesh& GetNavGrid();
 	GUIManager& GetGUI();
 	GameState State;
 
@@ -42,6 +44,7 @@ private:
 	void InitializeControllers();
 	void InitializeScene();
 
+	NavMesh m_navGrid;
 
 	SceneRenderer m_renderer;
 	SceneManager m_sceneManager;

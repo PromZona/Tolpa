@@ -89,6 +89,9 @@ void Game::InitializeScene()
 
 	m_renderer.InitializeLighting();
 	m_renderer.ApplyLightingShaderToObjects();
+
+	m_navGrid.CalculateMiddlePoints();
+	m_navGrid.ConstructMeshGraph();
 }
 
 ECS& Game::GetECS()
@@ -109,4 +112,9 @@ GUIManager& Game::GetGUI()
 SceneManager& Game::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+NavMesh& Game::GetNavGrid()
+{
+	return m_navGrid;
 }
