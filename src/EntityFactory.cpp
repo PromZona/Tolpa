@@ -19,7 +19,7 @@ EntityId EntityFactory::CreateParty()
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::PARTY, 0.2f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
-	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, false});
+	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 
 	Game::Instance().State.parties.push_back(unit);
 	return unit;
@@ -60,7 +60,7 @@ EntityId EntityFactory::CreateEnemy()
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::ENEMY, 1.0f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
-	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, false});
+	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 
 	Game::Instance().State.enemies.push_back(unit);
 	return unit;

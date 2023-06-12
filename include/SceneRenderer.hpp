@@ -32,15 +32,16 @@ typedef enum {
     LIGHT_POINT
 } LightType;
 
+// GUI interaction for Debug Display
+struct RenderFlags
+{
+    bool drawDebugNavMeshWireframe;
+    bool drawDebugNavMeshMidConnect;
+    bool drawDebugTerrainWireframe;
+    bool drawDebugBoundingBoxes;
+};
 
 static int lightsCount = 0;    // Current amount of created lights
-
-// Send light properties to shader
-// NOTE: Light shader locations should be available 
-void UpdateLightValues(Shader shader, Light light);
-
-// Create a light and get shader locations
-Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);
 
 struct MeshCursorCollisionDetector
 {
@@ -60,27 +61,31 @@ public:
     // Dont know if its needed at all
     const float m_model_render_scale = 1.0f;
 
+    // Send light properties to shader
+    // NOTE: Light shader locations should be available 
+    void UpdateLightValues(Shader shader, Light light);
+
+    // Create a light and get shader locations
+    Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);
+
     // Renders all objects and lights
     void RenderScene();
-
     void InitializeCamera();
-
     void InitializeLighting();
-
     void ApplyLightingShaderToObjects();
+
+    inline RenderFlags& GetFlags() {return m_flags;}
 
     Camera& GetCamera();
 
-    Shader m_shader_light;
-    // Ambient light level
-    int m_ambient_loc;
-
-    Light m_light;
 
 private:
 
+    Shader m_shader_light;
+    int m_ambient_loc;
+    Light m_light;
+    RenderFlags m_flags;
     Camera m_camera;
-
     MeshCursorCollisionDetector m_cursor_collision_detector;
 
     // Basic lighting shader

@@ -66,19 +66,99 @@ void NavMesh::ConstructMeshGraph()
                                         (nV1.y + nV2.y + nV3.y) / 3.0f,
                                         (nV1.z + nV2.z + nV3.z) / 3.0f};
 
-                midConnectivityGraph[navMeshTriVec[i].middlePoint].push_back(neighbourMid);
+                connectivityGraph[navMeshTriVec[i].middlePoint].push_back(neighbourMid);
             }
         }
     }
+}
+
+float DistanceToNode(const Vector3& v1, const Vector3& v2)
+{
+    int dx = v2.x - v1.x;
+    int dy = v2.y - v1.y;
+    int dz = v2.z - v1.z;
+
+    return sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
+{
+    // No start or goal nodes in graph
+    if (connectivityGraph.find(start) == connectivityGraph.end() || connectivityGraph.find(goal) == connectivityGraph.end())
+    {
+        printf("start/end nodes not found\n");
+        return {};
+    }
+    auto heuristic = [&](const Vector3& v) {
+        // Euclidean distance between vertex v and the goal vertex
+        return DistanceToNode(v, goal);
+    };
+
+    std::priority_queue<AStarNode, std::vector<AStarNode>, std::greater<AStarNode>> openNodes;
+
+    std::unordered_map<Vector3, Vector3, Vector3Hash> cameFrom;
+
+    std::unordered_map<Vector3, float, Vector3Hash> gScores;
+
+    for (const auto& pairs : connectivityGraph)
+    {
+        Vector3 origin = pairs.first;
+        gScores[origin] = std::numeric_limits<float>::infinity();
+    }
+
+    gScores[start] = 0.0f;
+
+    openNodes.push(AStarNode(start, 0.0f, heuristic(start)));
+
+    while (!openNodes.empty())
+    {
+        AStarNode current = openNodes.top();
+        openNodes.pop();
+
+        if (current.vertex == goal)
+        {
+            std::vector<Vector3> path;
+            Vector3 currentVertex = current.vertex;
+
+            while(currentVertex != start)
+            {
+                path.push_back(currentVertex);
+                currentVertex = cameFrom[currentVertex];
+            }
+
+            path.push_back(currentVertex);
+            std::reverse(path.begin(), path.end());
+
+            return path;
+        }
+
+        for (const Vector3& neighbour : connectivityGraph[current.vertex])
+        {
+            float tentativeScore = current.gScore + DistanceToNode(current.vertex, neighbour);
+
+            if (tentativeScore < gScores[neighbour])
+            {
+                gScores[neighbour] = tentativeScore;
+                float fScore = tentativeScore + heuristic(neighbour);
+
+                openNodes.push(AStarNode(neighbour, tentativeScore, fScore));
+
+                cameFrom[neighbour] = current.vertex;
+            }
+        }
+    }
+
+    printf("No path found\n");
+    return {};
 }
 
 void NavMesh::DebugDrawConnectedTriangles()
 {
     for (int i = 0; i < navMeshTriVec.size(); i++)
     {
-        for (int j = 0; j < midConnectivityGraph[navMeshTriVec[i].middlePoint].size(); j++)
+        for (int j = 0; j < connectivityGraph[navMeshTriVec[i].middlePoint].size(); j++)
         {
-            DrawLine3D(navMeshTriVec[i].middlePoint, midConnectivityGraph[navMeshTriVec[i].middlePoint][j], RED);
+            DrawLine3D(navMeshTriVec[i].middlePoint, connectivityGraph[navMeshTriVec[i].middlePoint][j], RED);
         }
     }
 }
@@ -96,4 +176,10 @@ void NavMesh::DebugDrawGrid()
         DrawLine3D(vertices[indice_index[1]], vertices[indice_index[2]], WHITE);
         DrawLine3D(vertices[indice_index[0]], vertices[indice_index[2]], WHITE);
     }
+}
+
+void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
+{
+    for (int i = step; i < path.size(); i++)
+        DrawLine3D(path[i], Vector3Add(path[i], {0.0f, 5.0f, 0.0f}), YELLOW);
 }

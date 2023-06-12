@@ -5,7 +5,8 @@
 #include "stdio.h"
 #include <cmath>
 #include <unordered_map>
-#include <unordered_set>
+#include <queue>
+#include <functional>
 #include <vector>
 #include <algorithm>
 
@@ -22,6 +23,10 @@ inline bool operator==(const Vector3& v1, const Vector3& v2) {
     return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z);
 };
 
+inline bool operator!=(const Vector3& v1, const Vector3& v2) {
+    return (v1.x != v2.x) || (v1.y != v2.y) || (v1.z != v2.z);
+};
+
 struct TriangleMesh
 {
     Vector3 vertices[3];
@@ -35,6 +40,21 @@ struct TriangleMesh
 
         middlePoint = mP;
     }
+
+};
+
+float DistanceToNode(const Vector3& v1, const Vector3& v2);
+
+struct AStarNode
+{
+    Vector3 vertex;
+    float gScore;
+    float fScore;
+
+    AStarNode(const Vector3& _vector3, float _gScore, float _fScore)
+        : vertex(_vector3), gScore (_gScore), fScore (_fScore) {}
+
+    bool operator > (const AStarNode& other) const {return fScore > other.fScore;}
 };
 
 class NavMesh
@@ -47,7 +67,13 @@ class NavMesh
     void CalculateMiddlePoints();
     void DebugDrawGrid();
     void DebugDrawConnectedTriangles();
+    void DebugDrawPath(std::vector<Vector3> path, int step);
     void ConstructMeshGraph();
+
+    void TestMovement();
+
+    // A*
+    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal);
 
     inline std::vector<TriangleMesh>&  GetTriangles() {return navMeshTriVec;}
     inline Model& GetModel() {return navModel;}
@@ -61,13 +87,5 @@ class NavMesh
 
     // Stores every mesh triangle
     std::vector<TriangleMesh> navMeshTriVec;
-
-    std::unordered_map<Vector3, std::unordered_set<int>, Vector3Hash> connectivityGraph;
-
-    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> midConnectivityGraph;
-
-    std::vector<Vector3> weakVertices;
-    std::vector<TriangleMesh> weakTriangles;
-
-    std::vector<Vector3> strongVertices;
+    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> connectivityGraph;
 };

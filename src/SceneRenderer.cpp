@@ -3,6 +3,7 @@
 #include "Components/RenderComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/ModelComponent.hpp"
+#include "Components/GoalComponent.hpp"
 
 #include "game.hpp"
 #include "rlgl.h"
@@ -52,7 +53,7 @@ void SceneRenderer::ApplyLightingShaderToObjects()
     sceneManager.GetModel(ModelType::MAP).materials[0].shader = m_shader_light;
 }
 
-Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
+Light SceneRenderer::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
 {
     Light light = { 0 };
 
@@ -80,7 +81,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
     return light;
 }
 
-void UpdateLightValues(Shader shader, Light light)
+void SceneRenderer::UpdateLightValues(Shader shader, Light light)
 {
     // Send to shader light enabled state and type
     SetShaderValue(shader, light.enabledLoc, &light.enabled, SHADER_UNIFORM_INT);
@@ -122,17 +123,30 @@ void SceneRenderer::RenderScene()
     
     BeginMode3D(m_camera);
 
+
     for (auto& archetype : archetypes)
     {
         auto& transforms = archetype->GetComponents<TransformComponent>();
         auto& renders = archetype->GetComponents<RenderComponent>();
         auto& models = archetype->GetComponents<ModelComponent>();
+        //auto& goals = archetype->GetComponents<GoalComponent>();
 
         std::size_t size = transforms.size();
 
         for (std::size_t i = 0; i < size; i++)
         {
+            if (models[i].model_id == ModelType::MAP && m_flags.drawDebugTerrainWireframe)
+            {
+                DrawModelWires(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
+                continue;
+            }
+
             DrawModel(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
+
+            //if (goals[i].IsActive)
+            //{
+                //NavGrid.DebugDrawPath(goals[i].PathToGoal, goals[i].steps);
+            //}
         }
     }
 
@@ -142,9 +156,12 @@ void SceneRenderer::RenderScene()
         DrawPoint3D(middleMesh[i].middlePoint, GREEN);
 
     auto& navGridModel = NavGrid.GetModel();
+    
+    if (m_flags.drawDebugNavMeshMidConnect)
+        NavGrid.DebugDrawConnectedTriangles();
+    if (m_flags.drawDebugNavMeshWireframe)
+        NavGrid.DebugDrawGrid();
 
-    NavGrid.DebugDrawGrid();
-    NavGrid.DebugDrawConnectedTriangles();
 
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 
@@ -152,10 +169,5 @@ void SceneRenderer::RenderScene()
 
     Game::Instance().GetGUI().DrawGUI();
 
-    DrawText(TextFormat("Camera Pos: %3.2f %3.2f %3.2f",
-                        m_camera.position.x,
-                        m_camera.position.y,
-                        m_camera.position.z), 10, 70 + 45, 10, WHITE);
-    
     EndDrawing();
 }

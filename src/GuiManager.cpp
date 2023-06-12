@@ -19,6 +19,7 @@ void GUIManager::DrawGUI()
 	rlImGuiBegin();
 
 	DrawECS();
+	DrawRenderDebug();
 	// ImGui::ShowDemoWindow();
 	rlImGuiEnd();
 }
@@ -26,6 +27,22 @@ void GUIManager::DrawGUI()
 void GUIManager::Init()
 {
 	rlImGuiSetup(true);
+}
+
+void GUIManager::DrawRenderDebug()
+{
+	ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Render Flags", &m_showEcsWindow))
+	{
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Checkbox("NavMesh Wireframe", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugNavMeshWireframe);
+	ImGui::Checkbox("NavMesh MidPoints", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugNavMeshMidConnect);
+	ImGui::Checkbox("Terrain Wireframe", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugTerrainWireframe);
+
+	ImGui::End();
 }
 
 void GUIManager::DrawECS()
