@@ -201,6 +201,11 @@ void NavMesh::DebugDrawWireframe()
 
 void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
 {
-    for (int i = step; i < path.size(); i++)
-        DrawLine3D(path[i], Vector3Add(path[i], {0.0f, 5.0f, 0.0f}), GREEN);
+    Vector3 elevation = {0.0f, 1.0f, 0.0f};
+
+    for (int i = (step == 0 ? 0 : step - 1); i < path.size() - 1; i++)
+    {
+        DrawCube(Vector3Add(path[i], elevation), 1.0f, 1.0f, 1.0f, GREEN);
+        DrawLine3D(Vector3Add(path[i], elevation), Vector3Add(path[i + 1], elevation), GREEN);
+    }
 }

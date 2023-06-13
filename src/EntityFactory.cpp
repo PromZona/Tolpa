@@ -18,7 +18,7 @@ EntityId EntityFactory::CreateHuman(Vector3 position)
 
     ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
-	ecs.AddComponent<ModelComponent>(unit, {ModelType::HUMAN, 0.2f});
+	ecs.AddComponent<ModelComponent>(unit, {ModelType::HUMAN, 0.3f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
 	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 
@@ -61,7 +61,7 @@ EntityId EntityFactory::CreateOrc(Vector3 position)
 	
 	ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
-	ecs.AddComponent<ModelComponent>(unit, {ModelType::ORC, 1.0f});
+	ecs.AddComponent<ModelComponent>(unit, {ModelType::ORC, 0.3f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
 	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 

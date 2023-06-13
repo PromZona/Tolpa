@@ -237,4 +237,11 @@ void LocationRenderer::RenderLocations()
 void GuiRenderer::RenderGUI()
 {
     Game::Instance().GetGUI().DrawGUI();
+
+    DrawText("Controls:", 10, 35, 20, DARKGRAY);
+    DrawText("[C] - Create City", 10, 60, 20, DARKGRAY);
+    DrawText("[H] - Create Human", 10, 85, 20, DARKGRAY);
+    DrawText("[T] - Create Tribe", 10, 110, 20, DARKGRAY);
+    DrawText("[O] - Create Orc", 10, 135, 20, DARKGRAY);
+
 }
