@@ -15,7 +15,7 @@ EntityId EntityFactory::CreateParty()
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 
-    ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}});
+    ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::PARTY, 0.2f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
@@ -30,7 +30,7 @@ EntityId EntityFactory::CreateCity()
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(city, {{0, 0, 0}});
+	ecs.AddComponent<TransformComponent>(city, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
 	ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 
@@ -43,7 +43,7 @@ EntityId EntityFactory::CreateLair()
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(city, {{0, 0, 0}});
+	ecs.AddComponent<TransformComponent>(city, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<ModelComponent>(city, {ModelType::LAIR, 1.0f});
 	ecs.AddComponent<RenderComponent>(city, {PURPLE, 8.0f});
 
@@ -56,7 +56,7 @@ EntityId EntityFactory::CreateEnemy()
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 	
-	ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}});
+	ecs.AddComponent<TransformComponent>(unit, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::ENEMY, 1.0f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});

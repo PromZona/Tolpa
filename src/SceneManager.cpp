@@ -1,4 +1,5 @@
 #include "SceneManager.hpp"
+#include "raymath.h"
 
 SceneManager::SceneManager()
 {}
@@ -14,6 +15,17 @@ void SceneManager::LoadModels()
     model_map.insert({ModelType::PARTY, &partyModel});
     model_map.insert({ModelType::MAP, &mapModel});
     model_map.insert({ModelType::NAVMESH, &navmeshModel});
+
+    // Map containing ForwardVetor and UpVector for each model type
+    for (auto& entry : model_map)
+    {
+        modelQuatMap[entry.first].forward = Vector3Normalize({ 
+            entry.second->transform.m12, 
+            entry.second->transform.m13, 
+            entry.second->transform.m14 });
+
+        modelQuatMap[entry.first].up = Vector3Normalize({ 0.0f, 1.0f, 0.0f });
+    }
 }
 
 SceneManager::~SceneManager()

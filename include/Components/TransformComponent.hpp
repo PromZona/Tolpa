@@ -5,4 +5,6 @@
 struct TransformComponent
 {
 	Vector3 Position;
+	Vector3 RotationAxis;
+	float rotationAngle;
 };

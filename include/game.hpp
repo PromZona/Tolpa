@@ -4,7 +4,7 @@
 #include "raylib.h"
 
 #include "ECS/ECS.hpp"
-#include "SceneRenderer.hpp"
+#include "Renderer.hpp"
 #include "SceneManager.hpp"
 #include "InputManager.hpp"
 #include "NavigationMesh.hpp"
@@ -27,7 +27,11 @@ public:
 	void DebugTestTestDebugDeleteLater();
 
 	ECS& GetECS();
-	SceneRenderer& GetSceneRenderer();
+	
+	inline Renderer& GetRendererScene() {return m_rendererScene;}
+	inline Renderer& GetRendererUnits() {return m_rendererUnits;}
+	inline Renderer& GetRendererLocations() {return m_rendererLocations;}
+
 	SceneManager& GetSceneManager();
 	NavMesh& GetNavGrid();
 	GUIManager& GetGUI();
@@ -44,11 +48,15 @@ private:
 	void Update();
 	void Render();
 	void InitializeControllers();
+	void InitializeRenderers();
 	void InitializeScene();
 
 	NavMesh m_navGrid;
 
-	SceneRenderer m_renderer;
+	Renderer m_rendererScene;
+	Renderer m_rendererUnits;
+	Renderer m_rendererLocations;
+
 	SceneManager m_sceneManager;
 	InputManager m_inputManager;
 	ECS m_ECS;

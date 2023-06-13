@@ -14,6 +14,12 @@ enum class ModelType
     NAVMESH
 };
 
+struct ModelQuatVectors
+{
+    Vector3 forward;
+    Vector3 up;
+};
+
 class SceneManager
 {
 public:
@@ -22,11 +28,13 @@ public:
     ~SceneManager();
 
     Model& GetModel(ModelType model_id);
+    inline ModelQuatVectors& GetModelQuaterionVectors(ModelType model_id) {return modelQuatMap[model_id];}
 
     void LoadModels();
 
 private:
     std::unordered_map<ModelType, Model*> model_map;
+    std::unordered_map<ModelType, ModelQuatVectors> modelQuatMap;
 
     Model cityModel;
     Model partyModel;

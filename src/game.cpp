@@ -7,10 +7,11 @@
 #include "Components/MovementComponent.hpp"
 #include "Components/GoalComponent.hpp"
 #include "Components/ModelComponent.hpp"
+#include "Components/LocationComponent.hpp"
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_renderer(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
+Game::Game() : m_rendererScene(), m_rendererLocations(), m_rendererUnits(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
 {	
 	InitWindow(screenWidth, screenHeight, "Tolpa");
 	SetTargetFPS(60);
@@ -27,9 +28,6 @@ void Game::Start()
 {
     InitializeControllers();
 	InitializeScene();
-	m_ECS.RegisterComponentInSystem<TransformComponent>(m_renderer);
-	m_ECS.RegisterComponentInSystem<RenderComponent>(m_renderer);
-	m_ECS.RegisterComponentInSystem<ModelComponent>(m_renderer);
 
 	while (!WindowShouldClose())
 	{
@@ -53,9 +51,22 @@ void Game::Update()
 	}
 }
 
-void Game::Render()
+void Game::InitializeRenderers()
 {
-    m_renderer.RenderScene();
+	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererScene);
+	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererScene);
+	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererScene);
+
+	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererUnits);
+	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererUnits);
+	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererUnits);
+	m_ECS.RegisterComponentInSystem<MovementComponent>(m_rendererUnits);
+	m_ECS.RegisterComponentInSystem<GoalComponent>(m_rendererUnits);
+
+	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererLocations);
+	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererLocations);
+	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererLocations);
+	m_ECS.RegisterComponentInSystem<LocationComponent>(m_rendererLocations);
 }
 
 void Game::InitializeControllers()
@@ -90,18 +101,18 @@ void Game::DebugTestTestDebugDeleteLater()
 		auto city = ecs.CreateEntity();
 
 		ecs.AddComponent<TransformComponent>(city, 
-		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint});
+		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint, {0, 0, 0}, 0});
 		ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
 		ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 
 		Game::Instance().State.cities.push_back(city);
 	}
 
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		auto unit = ecs.CreateEntity();
 		ecs.AddComponent<TransformComponent>(unit, 
-		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint});
+		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint, {0.0f, 0.0f, 0.0f}, 0});
 
 		ecs.AddComponent<ModelComponent>(unit, {ModelType::PARTY, 0.1f});
 		ecs.AddComponent<RenderComponent>(unit, {RED, 8.0f});
@@ -121,7 +132,7 @@ void Game::InitializeScene()
 	auto& ecs = Game::Instance().GetECS();
 	auto map = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}});
+	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<ModelComponent>(map, {ModelType::MAP, 1.0f});
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
 
@@ -141,7 +152,7 @@ ECS& Game::GetECS()
 	return m_ECS;
 }
 
-SceneRenderer& Game::GetSceneRenderer()
+Renderer& Game::GetRenderer()
 {
 	return m_renderer;
 }
