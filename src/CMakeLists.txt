@@ -39,6 +39,11 @@ add_library(${PROJECT_NAME} STATIC
         SceneRenderer.cpp
         SceneManager.cpp
         GuiManager.cpp
+        Commands/CommandManager.cpp
+        Commands/CreateHumanCommand.cpp
+        Commands/CreateCityCommand.cpp
+        Commands/CreateOrcCommand.cpp
+        Commands/CreateOrcsTribeCommand.cpp
         Controllers/MovementController.cpp
         Controllers/UnitGoalController.cpp)
 

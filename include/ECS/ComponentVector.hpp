@@ -102,7 +102,7 @@ public:
 		}
 	}
 
-	std::shared_ptr<IComponentVector> CreateEmptyClone() const
+	std::shared_ptr<IComponentVector> CreateEmptyClone() const override
 	{
 		// Returns an empty ComponentVector that matches this one's type
 		return std::make_shared<ComponentVector<T>>(m_componentBit);

@@ -5,9 +5,9 @@
 
 struct GameState
 {
-	std::vector<EntityId> cities;
-	std::vector<EntityId> parties;
-	std::vector<EntityId> lairs;
-	std::vector<EntityId> enemies;
+	std::vector<EntityId> HumanCities;
+	std::vector<EntityId> Humans;
+	std::vector<EntityId> OrcTribes;
+	std::vector<EntityId> Orcs;
 	std::vector<EntityId> map;
 };

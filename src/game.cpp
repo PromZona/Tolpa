@@ -11,11 +11,18 @@
 
 Game& Game::m_instance = Game::Instance();
 
-Game::Game() : m_rendererScene(), m_rendererLocations(), m_rendererUnits(), m_inputManager(), m_controllers(), m_ECS(), m_guiManager()
-{	
+Game::Game() :
+	m_rendererScene(), 
+	m_rendererLocations(), 
+	m_rendererUnits(),
+	m_inputManager(),
+	m_controllers(),
+	m_ECS(),
+	m_guiManager(),
+	m_CommandManager()
+{
 	InitWindow(screenWidth, screenHeight, "Tolpa");
 	SetTargetFPS(60);
-
 	m_guiManager.Init();
 }
 
@@ -44,6 +51,8 @@ void Game::Input()
 
 void Game::Update()
 {
+	m_CommandManager.Tick();
+
 	float deltaTime = GetFrameTime();
 	for (auto& controller : m_controllers)
 	{
@@ -53,10 +62,6 @@ void Game::Update()
 
 void Game::InitializeRenderers()
 {
-	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererScene);
-	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererScene);
-	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererScene);
-
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererUnits);
@@ -84,49 +89,9 @@ void Game::InitializeControllers()
 	m_controllers.emplace_back(std::make_unique<UnitGoalController>(unitGoalController));
 }
 
-#include <random>
-void Game::DebugTestTestDebugDeleteLater()
-{
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	int min = 0;
-	int max = Game::Instance().GetNavGrid().GetTriangles().size();
-    std::uniform_int_distribution<int> dis(min, max);
-
-	auto& ecs = Game::Instance().GetECS();
-
-	for (int i = 0; i < 10; i++)
-	{
-		auto city = ecs.CreateEntity();
-
-		ecs.AddComponent<TransformComponent>(city, 
-		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint, {0, 0, 0}, 0});
-		ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
-		ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
-
-		Game::Instance().State.cities.push_back(city);
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		auto unit = ecs.CreateEntity();
-		ecs.AddComponent<TransformComponent>(unit, 
-		{Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint, {0.0f, 0.0f, 0.0f}, 0});
-
-		ecs.AddComponent<ModelComponent>(unit, {ModelType::PARTY, 0.1f});
-		ecs.AddComponent<RenderComponent>(unit, {RED, 8.0f});
-		ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
-		ecs.AddComponent<GoalComponent>(unit, {
-		Game::Instance().GetNavGrid().GetTriangles()[dis(gen)].middlePoint, {}, false, 0});
-
-		Game::Instance().State.parties.push_back(unit);
-	}
-}
-
 void Game::InitializeScene()
 {
-    m_renderer.InitializeCamera();
+    m_rendererScene.InitializeCamera();
 	m_sceneManager.LoadModels();
 	
 	auto& ecs = Game::Instance().GetECS();
@@ -138,23 +103,16 @@ void Game::InitializeScene()
 
 	Game::Instance().State.map.push_back(map);
 
-	m_renderer.InitializeLighting();
-	m_renderer.ApplyLightingShaderToObjects();
+	m_rendererScene.InitializeLighting();
+	m_rendererScene.ApplyLightingShaderToObjects();
 
 	m_navGrid.CalculateMiddlePoints();
 	m_navGrid.ConstructMeshGraph();
-
-	DebugTestTestDebugDeleteLater();
 }
 
 ECS& Game::GetECS()
 {
 	return m_ECS;
-}
-
-Renderer& Game::GetRenderer()
-{
-	return m_renderer;
 }
 
 GUIManager& Game::GetGUI()
@@ -170,4 +128,8 @@ SceneManager& Game::GetSceneManager()
 NavMesh& Game::GetNavGrid()
 {
 	return m_navGrid;
+}
+CommandManager& Game::GetCommandManager()
+{
+	return m_CommandManager;
 }

@@ -17,7 +17,7 @@ UnitGoalController::~UnitGoalController() = default;
 void UnitGoalController::Tick(float deltaTime)
 {
 	auto& ecs = Game::Instance().GetECS();
-	auto& cities = Game::Instance().State.cities;
+	auto& cities = Game::Instance().State.HumanCities;
 
 	if (cities.empty())
 		return;

@@ -5,76 +5,68 @@
 #include "game.hpp"
 
 #include "Components/TransformComponent.hpp"
+#include "Commands/CreateCityCommand.hpp"
+#include "Commands/CreateHumanCommand.hpp"
+#include "Commands/CreateOrcsTribeCommand.hpp"
+#include "Commands/CreateOrcCommand.hpp"
 
-// --------------------------
-// ---- DELETE LATER --------
 #include <random>
 
+// RANDOM LOCATION ON NAV MESH GRID
+// THIS IS TEMPORARY UNTIL MOUSE POSITION BECOMES AVAILABLE
+// (and nav mesh + pathfinding actually works as intended)
 Vector3 GetRandomLocation()
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    auto& navGrid = Game::Instance().GetNavGrid();
 
-    float min = -100.0f;
-    float max = 100.0f;
+	std::random_device rd;
+	std::mt19937 gen(rd());
 
-    std::uniform_real_distribution<float> dis(min, max);
+	int min = 0;
+	int max = navGrid.GetTriangles().size();
+    std::uniform_int_distribution<int> dis(min, max);
 
-    return {dis(gen), dis(gen), dis(gen)};
+	return navGrid.GetTriangles()[dis(gen)].middlePoint;
 }
-//--------------------------
-//--------------------------
 
-InputManager::InputManager()
-{
-}
+InputManager::InputManager(){}
 InputManager::~InputManager() = default;
 
 void InputManager::Update()
 {
-	auto& cam = Game::Instance().GetSceneRenderer().GetCamera();
+	auto& cam = Game::Instance().GetRendererScene().GetCamera();
 	int keyPressed = 0;
 
 	while ((keyPressed = GetKeyPressed()) != 0)
 	{
-		if (keyPressed == KEY_B)
+		if (keyPressed == KEY_O)
 		{
-			auto& lairs = Game::Instance().State.lairs;
-			if (lairs.empty())
-				continue;
-			auto unit = EntityFactory::CreateEnemy();
-
-			auto& ecs = Game::Instance().GetECS();
-			auto lairPos = ecs.GetComponent<TransformComponent>(lairs[GetRandomValue(0, lairs.size() - 1)])->Position;
-			ecs.GetComponent<TransformComponent>(unit)->Position = lairPos;
+			auto command = std::make_unique<CreateOrcCommand>();
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
 
-		if (keyPressed == KEY_N)
+		if (keyPressed == KEY_H)
 		{
-			Vector3 mousePos = {0, 0, 0};
-			auto unit = EntityFactory::CreateParty();
-			auto& ecs = Game::Instance().GetECS();
-			ecs.GetComponent<TransformComponent>(unit)->Position = mousePos;
+			//auto mousePos = GetMousePosition();
+			auto command = std::make_unique<CreateHumanCommand>(GetRandomLocation());
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
     
 		if (keyPressed == KEY_C)
 		{
-			Vector3 mousePos;
-
-			auto city = EntityFactory::CreateCity();
-			auto& ecs = Game::Instance().GetECS();
-			auto transform= ecs.GetComponent<TransformComponent>(city);
-			transform->Position = GetRandomLocation();
+			//auto mousePos = GetMousePosition();
+			auto command = std::make_unique<CreateCityCommand>(GetRandomLocation());
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
-		if (keyPressed == KEY_V)
+
+		if (keyPressed == KEY_T)
 		{
-			Vector3 mousePos = {0, 0, 0};
-			auto lair = EntityFactory::CreateLair();
-			auto& ecs = Game::Instance().GetECS();
-			ecs.GetComponent<TransformComponent>(lair)->Position = mousePos;
+			//auto mousePos = GetMousePosition();
+			auto command = std::make_unique<CreateOrcsTribeCommand>(GetRandomLocation());
+			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
 
