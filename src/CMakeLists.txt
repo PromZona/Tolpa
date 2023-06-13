@@ -36,7 +36,7 @@ add_library(${PROJECT_NAME} STATIC
         EntityFactory.cpp
         InputManager.cpp
         NavigationMesh.cpp
-        SceneRenderer.cpp
+        Renderer.cpp
         SceneManager.cpp
         GuiManager.cpp
         Commands/CommandManager.cpp

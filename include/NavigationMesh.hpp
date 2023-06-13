@@ -64,14 +64,11 @@ class NavMesh
     NavMesh();
     ~NavMesh();
 
-    void CalculateMiddlePoints();
-    void DebugDrawGrid();
-    void DebugDrawConnectedTriangles();
+    void InitializeNavigationGrid(Model& navModel);
+    void DebugDrawWireframe();
+    void DebugDrawNavMeshGraph();
     void DebugDrawPath(std::vector<Vector3> path, int step);
     void ConstructMeshGraph();
-
-    void TestMovement();
-
     // A*
     std::vector<Vector3> FindPath(Vector3& start, Vector3& goal);
 

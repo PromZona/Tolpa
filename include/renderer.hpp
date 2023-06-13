@@ -33,12 +33,23 @@ typedef enum {
 } LightType;
 
 // GUI interaction for Debug Display
-struct RenderFlags
+struct RenderFlagsGlobal
 {
     bool drawDebugNavMeshWireframe;
-    bool drawDebugNavMeshMidConnect;
+    bool drawDebugNavMeshGraph;
+    bool drawDebugNavMeshMiddlePoints;
     bool drawDebugTerrainWireframe;
-    bool drawDebugBoundingBoxes;
+};
+
+struct RenderFlagsUnits
+{
+    bool drawDebugPath;
+    bool drawDebugForwardVector;
+};
+
+struct RenderFlagsLocations
+{
+    bool debug;
 };
 
 static int lightsCount = 0;    // Current amount of created lights
@@ -51,12 +62,12 @@ struct MeshCursorCollisionDetector
     RayCollision m_mesh_hit_info;
 };
 
-class Renderer : public System
+class SceneRenderer : public System
 {
 
 public:
-    Renderer();
-    ~Renderer();
+    SceneRenderer();
+    ~SceneRenderer();
 
     // Send light properties to shader
     // NOTE: Light shader locations should be available 
@@ -67,16 +78,13 @@ public:
 
     // Renders terrain-related objects
     void RenderScene();
-    // Unit Entities
-    void RenderUnits();
     // Location Entities
-    void RenderLocations();
     
     void InitializeCamera();
     void InitializeLighting();
     void ApplyLightingShaderToObjects();
 
-    inline RenderFlags& GetFlags() {return m_flags;}
+    inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
 
     Camera& GetCamera();
 
@@ -85,6 +93,50 @@ private:
     Shader m_shader_light;
     int m_ambient_loc;
     Light m_light;
-    RenderFlags m_flags;
+    RenderFlagsGlobal m_GlobalFlags;
     Camera m_camera;
+};
+
+class UnitRenderer : public System
+{
+    public:
+
+    UnitRenderer();
+    ~UnitRenderer();
+
+    inline RenderFlagsUnits& GetFlags() {return m_UnitFlags;}
+
+    void RenderUnits();
+
+    private:
+
+    RenderFlagsUnits m_UnitFlags;
+};
+
+class LocationRenderer : public System
+{
+    public:
+
+    LocationRenderer();
+    ~LocationRenderer();
+
+    inline RenderFlagsLocations& GetFlags() {return m_LocationFlags;}
+
+    void RenderLocations();
+
+    private:
+
+    RenderFlagsLocations m_LocationFlags;
+};
+
+class GuiRenderer : public System
+{
+    public:
+
+    GuiRenderer();
+    ~GuiRenderer();
+
+    void RenderGUI();
+    
+    private:
 };

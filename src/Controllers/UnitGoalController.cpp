@@ -18,6 +18,7 @@ void UnitGoalController::Tick(float deltaTime)
 {
 	auto& ecs = Game::Instance().GetECS();
 	auto& cities = Game::Instance().State.HumanCities;
+	auto& navMeshTriangles = Game::Instance().GetNavGrid().GetTriangles();
 
 	if (cities.empty())
 		return;
@@ -29,7 +30,9 @@ void UnitGoalController::Tick(float deltaTime)
 		auto& moves = archetype->GetComponents<MovementComponent>();
 		auto& trans = archetype->GetComponents<TransformComponent>();
 		auto& goals = archetype->GetComponents<GoalComponent>();
+
 		std::size_t size = moves.size();
+		
 		for (int i = 0; i < size; i++)
 		{
 			auto& goalComp = goals[i];
@@ -40,8 +43,7 @@ void UnitGoalController::Tick(float deltaTime)
 			{
 				if (goalComp.steps == goalComp.PathToGoal.size())
 				{
-					transformComp.Position = Game::Instance().GetNavGrid().GetTriangles()[GetRandomValue(0,
-											 Game::Instance().GetNavGrid().GetTriangles().size() - 1)].middlePoint;
+					transformComp.Position = navMeshTriangles[GetRandomValue(0, navMeshTriangles.size() - 1)].middlePoint;
 					goalComp.IsActive = false;
 				}
 			}

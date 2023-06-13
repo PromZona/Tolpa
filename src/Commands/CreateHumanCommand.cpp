@@ -3,10 +3,10 @@
 
 CreateHumanCommand::CreateHumanCommand()
 {
-	m_Position = {0, 0};
+	m_Position = {0, 0, 0};
 }
 
-CreateHumanCommand::CreateHumanCommand(Vector2 position)
+CreateHumanCommand::CreateHumanCommand(Vector3 position)
 {
 	m_Position = position;
 }

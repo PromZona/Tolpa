@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include "EntityFactory.hpp"
 #include "game.hpp"
+#include "NavigationMesh.hpp"
 
 #include "Components/TransformComponent.hpp"
 #include "Commands/CreateCityCommand.hpp"
@@ -12,21 +13,30 @@
 
 #include <random>
 
+bool Vector3Comparator(const Vector3& v1, const Vector3& v2)
+{
+    return (v1.x == v2.x && v1.y == v2.y && v1.z == v2.z);
+}
+
 // RANDOM LOCATION ON NAV MESH GRID
 // THIS IS TEMPORARY UNTIL MOUSE POSITION BECOMES AVAILABLE
 // (and nav mesh + pathfinding actually works as intended)
 Vector3 GetRandomLocation()
 {
-    auto& navGrid = Game::Instance().GetNavGrid();
-
 	std::random_device rd;
 	std::mt19937 gen(rd());
+	
+    auto& navGrid = Game::Instance().GetNavGrid();
 
 	int min = 0;
 	int max = navGrid.GetTriangles().size();
+
     std::uniform_int_distribution<int> dis(min, max);
 
-	return navGrid.GetTriangles()[dis(gen)].middlePoint;
+	Vector3 selectedCell;
+	selectedCell = navGrid.GetTriangles()[dis(gen)].middlePoint;
+
+	return selectedCell;
 }
 
 InputManager::InputManager(){}

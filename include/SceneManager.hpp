@@ -7,9 +7,9 @@
 enum class ModelType
 {
     CITY,
-    PARTY,
-    LAIR,
-    ENEMY,
+    HUMAN,
+    TRIBE,
+    ORC,
     MAP,
     NAVMESH
 };
@@ -29,6 +29,7 @@ public:
 
     Model& GetModel(ModelType model_id);
     inline ModelQuatVectors& GetModelQuaterionVectors(ModelType model_id) {return modelQuatMap[model_id];}
+    inline std::unordered_map<ModelType, Model*>& GetTypeToModelMap() {return model_map;}
 
     void LoadModels();
 
@@ -37,9 +38,9 @@ private:
     std::unordered_map<ModelType, ModelQuatVectors> modelQuatMap;
 
     Model cityModel;
-    Model partyModel;
-    Model lairModel;
-    Model enemyModel;
+    Model humanModel;
+    Model tribeModel;
+    Model orcModel;
     Model mapModel;
     Model navmeshModel;
 };

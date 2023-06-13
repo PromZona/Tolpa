@@ -5,19 +5,26 @@
 #include "Components/ModelComponent.hpp"
 #include "Components/GoalComponent.hpp"
 #include "Components/MovementComponent.hpp"
+#include "Components/LocationComponent.hpp"
+#include "Components/TerrainComponent.hpp"
 
 #include "game.hpp"
 #include "rlgl.h"
 
-Renderer::Renderer(){}
+SceneRenderer::SceneRenderer(){}
+UnitRenderer::UnitRenderer(){}
+LocationRenderer::LocationRenderer(){}
+GuiRenderer::GuiRenderer(){}
 
-Renderer::~Renderer()
+SceneRenderer::~SceneRenderer()
 {
-    if (m_shader_light)
-        UnloadShader(m_shader_light);
+    UnloadShader(m_shader_light);
 }
+UnitRenderer::~UnitRenderer(){}
+LocationRenderer::~LocationRenderer(){}
+GuiRenderer::~GuiRenderer(){}
 
-void Renderer::InitializeCamera()
+void SceneRenderer::InitializeCamera()
 {
     m_camera = { 0 };
     m_camera.position = {400.0f, 400.0f, 400.0f};
@@ -27,12 +34,12 @@ void Renderer::InitializeCamera()
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
-Camera& Renderer::GetCamera()
+Camera& SceneRenderer::GetCamera()
 {
     return m_camera;
 }
 
-void Renderer::InitializeLighting()
+void SceneRenderer::InitializeLighting()
 {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
@@ -45,17 +52,22 @@ void Renderer::InitializeLighting()
     float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f};
     SetShaderValue(m_shader_light, m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
 
-    m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), BLUE, m_shader_light);
+    m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), WHITE, m_shader_light);
 }
 
-void Renderer::ApplyLightingShaderToObjects()
+void SceneRenderer::ApplyLightingShaderToObjects()
 {
     auto& sceneManager = Game::Instance().GetSceneManager();
 
-    sceneManager.GetModel(ModelType::MAP).materials[0].shader = m_shader_light;
+    auto& model_map = sceneManager.GetTypeToModelMap();
+
+    for (auto& entry : model_map)
+    {
+        model_map[entry.first]->materials[0].shader = m_shader_light;
+    }
 }
 
-Light Renderer::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
+Light SceneRenderer::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
 {
     Light light = { 0 };
 
@@ -83,7 +95,7 @@ Light Renderer::CreateLight(int type, Vector3 position, Vector3 target, Color co
     return light;
 }
 
-void Renderer::UpdateLightValues(Shader shader, Light light)
+void SceneRenderer::UpdateLightValues(Shader shader, Light light)
 {
     // Send to shader light enabled state and type
     SetShaderValue(shader, light.enabledLoc, &light.enabled, SHADER_UNIFORM_INT);
@@ -103,7 +115,11 @@ void Renderer::UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.colorLoc, color, SHADER_UNIFORM_VEC4);
 }
 
-void Renderer::RenderScene()
+// Scene-specific Renders
+// Camera updates
+// Light updates
+// Terrain rendering
+void SceneRenderer::RenderScene()
 {
     auto& ecs = Game::Instance().GetECS();
     auto& SceneManager = Game::Instance().GetSceneManager();
@@ -118,51 +134,107 @@ void Renderer::RenderScene()
 
     UpdateLightValues(m_shader_light, m_light);
 
-    BeginDrawing();
-    
-    ClearBackground(BLACK);
-    DrawFPS(5, 5);
-    
-    BeginMode3D(m_camera);
-
     for (auto& archetype : archetypes)
     {
         auto& transforms = archetype->GetComponents<TransformComponent>();
         auto& renders = archetype->GetComponents<RenderComponent>();
         auto& models = archetype->GetComponents<ModelComponent>();
+        auto& terrain = archetype->GetComponents<TerrainComponent>(); // No use currently
 
         std::size_t size = transforms.size();
 
         for (std::size_t i = 0; i < size; i++)
         {
-            if (models[i].model_id == ModelType::MAP && m_flags.drawDebugTerrainWireframe)
+            Model currentModel = SceneManager.GetModel(models[i].model_id);
+
+            if (models[i].model_id == ModelType::MAP && m_GlobalFlags.drawDebugTerrainWireframe)
             {
-                DrawModelWires(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
+                DrawModelWires(currentModel, transforms[i].Position, models[i].scale, WHITE);
                 continue;
             }
 
-            DrawModel(SceneManager.GetModel(models[i].model_id), transforms[i].Position, models[i].scale, WHITE);
+            DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
         }
     }
 
-    auto& middleMesh = NavGrid.GetTriangles();
+    if (m_GlobalFlags.drawDebugNavMeshMiddlePoints)
+    {
+        auto& middleMesh = NavGrid.GetTriangles();
 
-    for (int i = 0; i < middleMesh.size(); i++)
-        DrawPoint3D(middleMesh[i].middlePoint, GREEN);
+        for (int i = 0; i < middleMesh.size(); i++)
+            DrawPoint3D(middleMesh[i].middlePoint, GREEN);
+    }
 
     auto& navGridModel = NavGrid.GetModel();
-    
-    if (m_flags.drawDebugNavMeshMidConnect)
-        NavGrid.DebugDrawConnectedTriangles();
-    if (m_flags.drawDebugNavMeshWireframe)
-        NavGrid.DebugDrawGrid();
 
+    if (m_GlobalFlags.drawDebugNavMeshGraph)
+        NavGrid.DebugDrawNavMeshGraph();
+    if (m_GlobalFlags.drawDebugNavMeshWireframe)
+        NavGrid.DebugDrawWireframe();
 
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
+}
 
-    EndMode3D();
+// EntityUnit-Specific Renders
+// Unit model rendering
+// Path drawing
+// Model Rotation (TODO)
+void UnitRenderer::RenderUnits()
+{
+    auto& ecs = Game::Instance().GetECS();
+    auto& SceneManager = Game::Instance().GetSceneManager();
+    auto& NavGrid = Game::Instance().GetNavGrid();
+	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
 
+    for (auto& archetype : archetypes)
+    {
+        auto& c_transforms = archetype->GetComponents<TransformComponent>();
+        auto& c_renders = archetype->GetComponents<RenderComponent>();
+        auto& c_models = archetype->GetComponents<ModelComponent>();
+        auto& c_goals = archetype->GetComponents<GoalComponent>();
+        auto& c_movement = archetype->GetComponents<MovementComponent>();
+
+        std::size_t size = c_transforms.size();
+
+        for (std::size_t i = 0; i < size; i++)
+        {
+            Model currentModel = SceneManager.GetModel(c_models[i].model_id);
+            DrawModel(currentModel, c_transforms[i].Position, c_models[i].scale, WHITE);
+
+            if (m_UnitFlags.drawDebugPath)
+                NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
+        }
+    }
+}
+
+// Location-Specific Renders
+// Location model rendering
+void LocationRenderer::RenderLocations()
+{
+    auto& ecs = Game::Instance().GetECS();
+    auto& SceneManager = Game::Instance().GetSceneManager();
+    auto& NavGrid = Game::Instance().GetNavGrid();
+	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
+
+    for (auto& archetype : archetypes)
+    {
+        auto& c_transforms = archetype->GetComponents<TransformComponent>();
+        auto& c_renders = archetype->GetComponents<RenderComponent>();
+        auto& c_models = archetype->GetComponents<ModelComponent>();
+        auto& c_location = archetype->GetComponents<LocationComponent>(); // No use currently
+
+        std::size_t size = c_transforms.size();
+
+        for (std::size_t i = 0; i < size; i++)
+        {
+            Model currentModel = SceneManager.GetModel(c_models[i].model_id);
+            DrawModel(currentModel, c_transforms[i].Position, c_models[i].scale, WHITE);
+        }
+    }
+}
+
+// Everything that needs to be rendered in 2d
+void GuiRenderer::RenderGUI()
+{
     Game::Instance().GetGUI().DrawGUI();
-
-    EndDrawing();
 }

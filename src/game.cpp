@@ -8,6 +8,7 @@
 #include "Components/GoalComponent.hpp"
 #include "Components/ModelComponent.hpp"
 #include "Components/LocationComponent.hpp"
+#include "Components/TerrainComponent.hpp"
 
 Game& Game::m_instance = Game::Instance();
 
@@ -34,6 +35,7 @@ Game::~Game()
 void Game::Start()
 {
     InitializeControllers();
+	InitializeRenderers();
 	InitializeScene();
 
 	while (!WindowShouldClose())
@@ -60,8 +62,32 @@ void Game::Update()
 	}
 }
 
+void Game::Render()
+{
+	BeginDrawing();
+	ClearBackground(BLACK);
+	DrawFPS(5, 5);
+
+	BeginMode3D(m_rendererScene.GetCamera());
+
+	m_rendererScene.RenderScene();
+	m_rendererUnits.RenderUnits();
+	m_rendererLocations.RenderLocations();
+
+	EndMode3D();
+	
+	m_rendererGUI.RenderGUI();
+	
+	EndDrawing();
+}
+
 void Game::InitializeRenderers()
 {
+	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererScene);
+	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererScene);
+	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererScene);
+	m_ECS.RegisterComponentInSystem<TerrainComponent>(m_rendererScene);
+
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererUnits);
@@ -100,14 +126,12 @@ void Game::InitializeScene()
 	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}, {0, 0, 0}, 0});
 	ecs.AddComponent<ModelComponent>(map, {ModelType::MAP, 1.0f});
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
+	ecs.AddComponent<TerrainComponent>(map, {0});
 
 	Game::Instance().State.map.push_back(map);
 
 	m_rendererScene.InitializeLighting();
 	m_rendererScene.ApplyLightingShaderToObjects();
-
-	m_navGrid.CalculateMiddlePoints();
-	m_navGrid.ConstructMeshGraph();
 }
 
 ECS& Game::GetECS()

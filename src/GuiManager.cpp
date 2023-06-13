@@ -38,9 +38,17 @@ void GUIManager::DrawRenderDebug()
 		return;
 	}
 
-	ImGui::Checkbox("NavMesh Wireframe", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugNavMeshWireframe);
-	ImGui::Checkbox("NavMesh MidPoints", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugNavMeshMidConnect);
-	ImGui::Checkbox("Terrain Wireframe", &Game::Instance().GetSceneRenderer().GetFlags().drawDebugTerrainWireframe);
+	auto& gameInstance = Game::Instance();
+
+	ImGui::SeparatorText("Scene Flags");
+	ImGui::Checkbox("NavMesh Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshWireframe);
+	ImGui::Checkbox("NavMesh Midpoints", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshMiddlePoints);
+	ImGui::Checkbox("NavMesh Graph", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshGraph);
+	ImGui::Checkbox("Terrain Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugTerrainWireframe);
+
+	ImGui::SeparatorText("Unit Flags");
+	ImGui::Checkbox("Unit Path", &gameInstance.GetRendererUnits().GetFlags().drawDebugPath);
+	ImGui::Checkbox("Unit ForwardVector (TODO)", &gameInstance.GetRendererUnits().GetFlags().drawDebugForwardVector);
 
 	ImGui::End();
 }

@@ -9,11 +9,15 @@ NavMesh::~NavMesh()
     UnloadModel(navModel);
 }
 
-void NavMesh::CalculateMiddlePoints()
+void NavMesh::InitializeNavigationGrid(Model& navModel)
 {
-    navModel = LoadModel("../resources/3d_objects/NavigationMesh.glb");
+    printf("Initializing NavGrid\n");
+    this->navModel = navModel;
 
     navMesh = navModel.meshes[0];
+
+    printf("NavMesh vertice count: %d\n", this->navModel.meshes[0].vertexCount);
+    printf("NavMesh triangle count: %d\n", this->navModel.meshes[0].triangleCount);
 
     vertices = (Vector3*)(navMesh.vertices);
 
@@ -21,6 +25,7 @@ void NavMesh::CalculateMiddlePoints()
     Vector3 v[3];
     Vector3 mid;
 
+    // should be optimized later (maybe merged into ConstructMeshGraph entirely)
     for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
     {
         indice_index[0] = navMesh.indices[i];
@@ -37,6 +42,13 @@ void NavMesh::CalculateMiddlePoints()
 
         navMeshTriVec.push_back(TriangleMesh(v, mid));
     }
+
+    printf("Constructing NavGraph\n");
+
+    ConstructMeshGraph();
+
+    printf("Nav Mesh done\n");
+
 }
 
 void NavMesh::ConstructMeshGraph()
@@ -152,18 +164,22 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
     return {};
 }
 
-void NavMesh::DebugDrawConnectedTriangles()
+// Needs to be VERY OPTIMIZED
+// this is terrible on performance
+void NavMesh::DebugDrawNavMeshGraph()
 {
     for (int i = 0; i < navMeshTriVec.size(); i++)
     {
         for (int j = 0; j < connectivityGraph[navMeshTriVec[i].middlePoint].size(); j++)
         {
-            DrawLine3D(navMeshTriVec[i].middlePoint, connectivityGraph[navMeshTriVec[i].middlePoint][j], RED);
+            Vector3 elevation = {0.0f, 1.0f, 0.0f};
+            DrawLine3D(Vector3Add(navMeshTriVec[i].middlePoint, elevation),
+                       Vector3Add(connectivityGraph[navMeshTriVec[i].middlePoint][j], elevation), RED);
         }
     }
 }
 
-void NavMesh::DebugDrawGrid()
+void NavMesh::DebugDrawWireframe()
 {
     int indice_index[3];
     for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
@@ -172,14 +188,19 @@ void NavMesh::DebugDrawGrid()
         indice_index[1] = navMesh.indices[i + 1];
         indice_index[2] = navMesh.indices[i + 2];
 
-        DrawLine3D(vertices[indice_index[0]], vertices[indice_index[1]], WHITE);
-        DrawLine3D(vertices[indice_index[1]], vertices[indice_index[2]], WHITE);
-        DrawLine3D(vertices[indice_index[0]], vertices[indice_index[2]], WHITE);
+        Vector3 elevation = {0.0f, 1.0f, 0.0f};
+
+        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
+                   Vector3Add(vertices[indice_index[1]], elevation), WHITE);
+        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
+                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
+        DrawLine3D(Vector3Add(vertices[indice_index[1]], elevation),
+                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
     }
 }
 
 void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
 {
     for (int i = step; i < path.size(); i++)
-        DrawLine3D(path[i], Vector3Add(path[i], {0.0f, 5.0f, 0.0f}), YELLOW);
+        DrawLine3D(path[i], Vector3Add(path[i], {0.0f, 5.0f, 0.0f}), GREEN);
 }

@@ -25,13 +25,12 @@ public:
 	~Game();
 	void Start();
 
-	void DebugTestTestDebugDeleteLater();
-
 	ECS& GetECS();
 	
-	inline Renderer& GetRendererScene() {return m_rendererScene;}
-	inline Renderer& GetRendererUnits() {return m_rendererUnits;}
-	inline Renderer& GetRendererLocations() {return m_rendererLocations;}
+	inline SceneRenderer& GetRendererScene() {return m_rendererScene;}
+	inline UnitRenderer& GetRendererUnits() {return m_rendererUnits;}
+	inline LocationRenderer& GetRendererLocations() {return m_rendererLocations;}
+	inline GuiRenderer& getRendererGUI() {return m_rendererGUI;}
 
 	SceneManager& GetSceneManager();
 	NavMesh& GetNavGrid();
@@ -55,9 +54,10 @@ private:
 
 	NavMesh m_navGrid;
 
-	Renderer m_rendererScene;
-	Renderer m_rendererUnits;
-	Renderer m_rendererLocations;
+	SceneRenderer m_rendererScene;
+	UnitRenderer m_rendererUnits;
+	LocationRenderer m_rendererLocations;
+	GuiRenderer m_rendererGUI;
 
 	SceneManager m_sceneManager;
 	InputManager m_inputManager;
