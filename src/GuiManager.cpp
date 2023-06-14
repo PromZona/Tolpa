@@ -119,6 +119,23 @@ void GUIManager::DrawConsole()
 		return;
 	}
 
+	ImGui::Checkbox("Auto-scroll", &m_autoScroll);
+	ImGui::SameLine();
+
+	if (ImGui::BeginPopup("Log Type"))
+	{
+		ImGui::Text("Filter log message types");
+		ImGui::Checkbox("Info", &m_showInfoLog);
+		ImGui::Checkbox("Warning", &m_showWarningLog);
+		ImGui::Checkbox("Error", &m_showErrorLog);
+		ImGui::EndPopup();
+	}
+
+	if (ImGui::Button("Log Type"))
+		ImGui::OpenPopup("Log Type");
+
+	ImGui::Separator();
+
 	const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 	if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar))
 	{
@@ -126,11 +143,19 @@ void GUIManager::DrawConsole()
 		auto& logs = Logger::GetLog();
 		for (auto& log : logs)
 		{
+			if (!FilterLogMessage(log))
+				continue;
+
 			PushColor(log.LogType);
 			ImGui::TextUnformatted(log.Message.c_str());
 			PopColor();
 		}
 		ImGui::PopStyleVar();
+
+		if (m_autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+		{
+			ImGui::SetScrollHereY(1.0f);
+		}
 	}
 	ImGui::EndChild();
 	ImGui::Separator();
@@ -180,4 +205,21 @@ void GUIManager::PopColor()
 {
 	ImGui::PopStyleColor();
 
+}
+
+// True = show, False = do not show
+bool GUIManager::FilterLogMessage(const LogMessage& message)
+{
+	switch (message.LogType)
+	{
+	case Info:
+		return m_showInfoLog;
+	case Warning:
+		return m_showWarningLog;
+	case Error:
+		return m_showErrorLog;
+	case Raylib:
+		return true;
+	}
+	return false;
 }

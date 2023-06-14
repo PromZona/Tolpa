@@ -22,7 +22,13 @@ private:
 	void PopColor();
 
 	bool m_showEcsWindow = true;
-	bool m_showConsoleWindow = true;
 
+	// CONSOLE
+	bool m_showConsoleWindow = true;
+	bool m_autoScroll = true;
+	bool m_showInfoLog = true;
+	bool m_showWarningLog = true;
+	bool m_showErrorLog = true;
+	bool FilterLogMessage(const LogMessage& message);
 	char m_ConsoleInputBuf[256];
 };
