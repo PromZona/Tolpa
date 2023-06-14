@@ -1,5 +1,8 @@
 #include "game.hpp"
 
+#include <string>
+#include "Logger/Logger.hpp"
+
 #include "Controllers/MovementController.hpp"
 #include "Controllers/UnitGoalController.hpp"
 #include "Components/TransformComponent.hpp"
@@ -27,6 +30,8 @@ Game::~Game()
 
 void Game::Start()
 {
+	SetTraceLogCallback(Logger::RaylibLoggingRedirect);
+
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_renderer);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_renderer);
 	InitializeControllers();

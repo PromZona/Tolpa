@@ -8,6 +8,7 @@
 #include "game.hpp"
 
 #include "imgui/rlImGui.h"
+#include "Logger/Logger.hpp"
 
 Renderer::Renderer()
 {

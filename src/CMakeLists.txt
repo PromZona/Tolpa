@@ -37,6 +37,7 @@ add_library(${PROJECT_NAME} STATIC
         InputManager.cpp
         renderer.cpp
         GuiManager.cpp
+        Logger/Logger.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp
         Commands/CreateCityCommand.cpp
