@@ -9,4 +9,5 @@ struct GameState
 	std::vector<EntityId> Humans;
 	std::vector<EntityId> OrcTribes;
 	std::vector<EntityId> Orcs;
+	std::vector<EntityId> map;
 };

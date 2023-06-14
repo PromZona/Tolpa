@@ -35,7 +35,9 @@ add_library(${PROJECT_NAME} STATIC
         game.cpp
         EntityFactory.cpp
         InputManager.cpp
-        renderer.cpp
+        NavigationMesh.cpp
+        Renderer.cpp
+        SceneManager.cpp
         GuiManager.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp

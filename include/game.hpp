@@ -4,8 +4,10 @@
 #include "raylib.h"
 
 #include "ECS/ECS.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
+#include "SceneManager.hpp"
 #include "InputManager.hpp"
+#include "NavigationMesh.hpp"
 #include "Controllers/IController.hpp"
 #include "GameState.h"
 #include "GuiManager.hpp"
@@ -24,9 +26,21 @@ public:
 	void Start();
 
 	ECS& GetECS();
+	
+	inline SceneRenderer& GetRendererScene() {return m_rendererScene;}
+	inline UnitRenderer& GetRendererUnits() {return m_rendererUnits;}
+	inline LocationRenderer& GetRendererLocations() {return m_rendererLocations;}
+	inline GuiRenderer& getRendererGUI() {return m_rendererGUI;}
+
+	SceneManager& GetSceneManager();
+	NavMesh& GetNavGrid();
 	GUIManager& GetGUI();
 	CommandManager& GetCommandManager();
 	GameState State;
+
+	const int screenWidth = 1600;
+	const int screenHeight = 1400;
+
 private:
 	Game();
 	static Game& m_instance;
@@ -35,8 +49,17 @@ private:
 	void Update();
 	void Render();
 	void InitializeControllers();
+	void InitializeRenderers();
+	void InitializeScene();
 
-	Renderer m_renderer;
+	NavMesh m_navGrid;
+
+	SceneRenderer m_rendererScene;
+	UnitRenderer m_rendererUnits;
+	LocationRenderer m_rendererLocations;
+	GuiRenderer m_rendererGUI;
+
+	SceneManager m_sceneManager;
 	InputManager m_inputManager;
 	ECS m_ECS;
 	GUIManager m_guiManager;

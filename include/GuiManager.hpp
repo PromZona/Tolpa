@@ -13,8 +13,12 @@ public:
 	void DrawGUI();
 	void Shutdown();
 private:
+	void DrawHub();
 	void DrawECS();
+	void DrawRenderDebug();
 	void HandleComponent(std::type_index type, EntityId entity);
 
 	bool m_showEcsWindow = true;
+	bool ShowRenderSettings = false;
+	bool ShowECSSettings = false;
 };

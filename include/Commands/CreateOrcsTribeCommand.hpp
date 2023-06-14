@@ -7,10 +7,10 @@ class CreateOrcsTribeCommand : public ICommand
 {
 public:
 	CreateOrcsTribeCommand();
-	CreateOrcsTribeCommand(Vector2 position);
+	CreateOrcsTribeCommand(Vector3 position);
 	~CreateOrcsTribeCommand() override = default;
 
 	void Execute() override;
 private:
-	Vector2 m_Position;
+	Vector3 m_Position;
 };

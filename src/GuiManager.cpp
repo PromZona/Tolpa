@@ -1,6 +1,7 @@
 #include "GuiManager.hpp"
 
 #include <algorithm>
+#include <string>
 
 #include "imgui/rlImGui.h"
 #include "game.hpp"
@@ -17,8 +18,7 @@ void GUIManager::DrawGUI()
 {
 	rlImGuiBegin();
 
-	DrawECS();
-	// ImGui::ShowDemoWindow();
+	DrawHub();
 	rlImGuiEnd();
 }
 
@@ -27,14 +27,47 @@ void GUIManager::Init()
 	rlImGuiSetup(true);
 }
 
-void GUIManager::DrawECS()
+void GUIManager::DrawHub()
 {
 	ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Entity Inspector", &m_showEcsWindow))
+	if (!ImGui::Begin("GUI Manager", &m_showEcsWindow))
 	{
 		ImGui::End();
 		return;
 	}
+
+	if (ImGui::TreeNode("Render Settings"))
+	{
+		DrawRenderDebug();
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("ECS Entities"))
+	{
+		DrawECS();
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+}
+
+void GUIManager::DrawRenderDebug()
+{
+	auto& gameInstance = Game::Instance();
+
+	ImGui::SeparatorText("Scene Flags");
+	ImGui::Checkbox("NavMesh Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshWireframe);
+	ImGui::Checkbox("NavMesh Midpoints", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshMiddlePoints);
+	ImGui::Checkbox("NavMesh Graph", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshGraph);
+	ImGui::Checkbox("Terrain Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugTerrainWireframe);
+
+	ImGui::SeparatorText("Unit Flags");
+	ImGui::Checkbox("Unit Path", &gameInstance.GetRendererUnits().GetFlags().drawDebugPath);
+	ImGui::Checkbox("Unit ForwardVector (TODO)", &gameInstance.GetRendererUnits().GetFlags().drawDebugForwardVector);
+}
+
+void GUIManager::DrawECS()
+{
 	auto entityMap = Game::Instance().GetECS().GetEntityToArchetype();
 	for (auto& pair : entityMap)
 	{
@@ -49,8 +82,6 @@ void GUIManager::DrawECS()
 			ImGui::TreePop();
 		}
 	}
-
-	ImGui::End();
 }
 
 void GUIManager::HandleComponent(std::type_index type, EntityId entity)
@@ -72,7 +103,7 @@ void GUIManager::HandleComponent(std::type_index type, EntityId entity)
 			auto* comp = Game::Instance().GetECS().GetComponent<TransformComponent>(entity);
 			if (comp != nullptr)
 			{
-				ImGui::InputFloat2("Position", &comp->Position.x);
+				ImGui::InputFloat3("Position", &comp->Position.x);
 			}
 		}
 
@@ -81,7 +112,7 @@ void GUIManager::HandleComponent(std::type_index type, EntityId entity)
 			auto* comp = Game::Instance().GetECS().GetComponent<GoalComponent>(entity);
 			if (comp != nullptr)
 			{
-				ImGui::InputFloat2("Goal Position", &comp->GoalPosition.x);
+				ImGui::InputFloat3("Goal Position", &comp->GoalPosition.x);
 				ImGui::Checkbox("Is Active", &comp->IsActive);
 			}
 		}

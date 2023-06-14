@@ -7,10 +7,10 @@ class CreateHumanCommand : public ICommand
 {
 public:
 	CreateHumanCommand();
-	CreateHumanCommand(Vector2 position);
+	CreateHumanCommand(Vector3 position);
 	~CreateHumanCommand() override = default;
 
 	void Execute() override;
 private:
-	Vector2 m_Position;
+	Vector3 m_Position;
 };
