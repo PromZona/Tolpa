@@ -42,47 +42,61 @@ bool ComparePointsInDimensions(Vector3 p1, Vector3 p2, int axis)
     switch (axis)
     {
         case 0:
-            /*
-            if (p1.x == p2.x)
-            {
-                if (p1.y == p2.y)
-                    return p1.z > p2.z;
-                return p1.y > p2.y;
-            }
-            */
             return p1.x < p2.x;
 
         case 1:
-
-            /*
-            if (p1.y == p2.y)
-            {
-                if (p1.z == p2.z)
-                    return p1.x < p2.x;
-                return p1.z > p2.z;
-            }
-            */
-
             return p1.y < p2.y;
 
         case 2:
-
-            /*
-            if (p1.z == p2.z)
-            {
-                if (p1.y == p2.y)
-                    return p1.x > p2.x;
-                return p1.y > p2.y;
-            }
-            */
-
             return p1.z < p2.z;
-        
-        default:
+    }
+
+    TraceLog(LOG_WARNING, "EQUAL POINTS IN MESH???? AAAAAAAAAAHHHHHH");
+    return false; // Points are considered equal (Apocalypse happens)
+}
+
+// This ensures that right side will always have strictly higher points
+// And left lesser or equal, im not sure if this is useful in any way
+// but it appeals to the common design of the k-d tree
+// also makes tree disbalanced but not too much to have serious effects
+// also kind of makes data more predictable so thats it i guess
+int SelectLastEqualPoint(std::vector<Vector3>& nodePoints, int axis, int index)
+{
+    if (index + 1 == nodePoints.size())
+        return index;
+
+    switch(axis)
+    {
+        case 0:
+            while (nodePoints[index].x == nodePoints[index + 1].x)
+            {
+                if (index + 1 == nodePoints.size())
+                    return index;
+                index++;
+            }
+
+            break;
+        case 1:
+            while (nodePoints[index].y == nodePoints[index + 1].y)
+            {
+                 if (index + 1 == nodePoints.size())
+                    return index;
+                index++;
+            }
+
+            break;
+        case 2:
+            while (nodePoints[index].z == nodePoints[index + 1].z)
+            {
+                if (index + 1 == nodePoints.size())
+                    return index;
+                index++;
+            }
+
             break;
     }
 
-    return false; // Points are considered equal (Apocalypse happens)
+    return index;
 }
 
 int FindMedianIndex(std::vector<Vector3>& nodePoints, int axis) 
@@ -92,10 +106,15 @@ int FindMedianIndex(std::vector<Vector3>& nodePoints, int axis)
     });
 
     int medianPointIndex = nodePoints.size() / 2;
+
+    medianPointIndex = SelectLastEqualPoint(nodePoints, axis, medianPointIndex);
+
     return medianPointIndex;
 }
 
 // this is somewhat unnecessary?? (might find some use later though)
+// it leaves the original set of points as it is, unsorted
+// and allows to store tree points inside tree class (?????)
 KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints)
 {
     this->nodePoints = nodePoints;
@@ -118,85 +137,6 @@ KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints, int depth)
     leftPoints = std::vector<Vector3>(nodePoints.begin(), nodePoints.begin() + medianIndex);
     rightPoints = std::vector<Vector3>(nodePoints.begin() + medianIndex + 1, nodePoints.end());
 
-    /*
-    for (size_t i = 0; i < medianIndex; ++i)
-        if ((axis == 0 && nodePoints[i].x <= nodePoints[medianIndex].x) ||
-            (axis == 1 && nodePoints[i].y <= nodePoints[medianIndex].y) ||
-            (axis == 2 && nodePoints[i].z <= nodePoints[medianIndex].z))
-            leftPoints.push_back(nodePoints[i]);
-
-    // this is needed to get values that are strictly greater than median
-    for (size_t i = medianIndex + 1; i < nodePoints.size(); ++i)
-        if ((axis == 0 && nodePoints[i].x > nodePoints[medianIndex].x) ||
-            (axis == 1 && nodePoints[i].y > nodePoints[medianIndex].y) ||
-            (axis == 2 && nodePoints[i].z > nodePoints[medianIndex].z))
-            rightPoints.push_back(nodePoints[i]);
-    */
-
-    /*
-    for (auto& point : leftPoints)
-    {
-        switch(axis)
-        {
-            case 0:
-                if (point.x > root->pos.x)
-                {
-                    TraceLog(LOG_INFO, "left points error x at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f > Median: %f", point.x, root->pos.x);
-                }
-                break;
-            case 1:
-                if (point.y > root->pos.y)
-                {
-                    TraceLog(LOG_INFO, "left points error y at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f > Median: %f", point.y, root->pos.y);
-                }
-                break;
-            case 2:
-                if (point.z > root->pos.z)
-                {
-                    TraceLog(LOG_INFO, "left points error z at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f > Median: %f", point.z, root->pos.z);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (auto& point : rightPoints)
-    {
-        switch(axis)
-        {
-            case 0:
-                if (point.x <= root->pos.x)
-                {
-                    TraceLog(LOG_INFO, "right points error x at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f <= Median: %f", point.x, root->pos.x);
-                }
-                break;
-            case 1:
-                if (point.y <= root->pos.y)
-                {
-                    TraceLog(LOG_INFO, "right points error y at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f <= Median: %f", point.y, root->pos.y);
-                }
-                break;
-            case 2:
-                if (point.z <= root->pos.z)
-                {
-                    TraceLog(LOG_INFO, "right points error z at %d depth", depth);
-                    TraceLog(LOG_INFO, "Point: %f <= Median: %f", point.z, root->pos.z);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    */
-    //TraceLog(LOG_INFO, "left: %d", leftPoints.size());
-    //TraceLog(LOG_INFO, "right %d", rightPoints.size());
-
     root->left = constructTree(leftPoints, depth + 1);
     root->right = constructTree(rightPoints, depth + 1);
 
@@ -212,24 +152,37 @@ Vector3 KDTree::findNearestNode(KDNode* root, Vector3 target, float& distance)
 
     if (root == nullptr)
         return s_nearest;
-    else
-        DrawLine3D(root->pos, target, RAYWHITE);
 
-    float currentDistance = GetDistance(root->pos, target);
-
-    if (currentDistance <= distance)
+    DrawLine3D(target, root->pos, RAYWHITE);
+    if (Vector3Distance(root->pos, target) <= distance)
     {
-        distance = currentDistance;
+        distance = Vector3Distance(root->pos, target);
         s_nearest = root->pos;
     }
 
-    if (ComparePointsInDimensions(target, root->pos, root->SplitAxis))
+    switch(root->SplitAxis)
     {
-        s_nearest = findNearestNode(root->left, target, distance);
-    }
-    else
-    {
-        s_nearest = findNearestNode(root->right, target, distance);
+        case 0:
+            if (target.x <= root->pos.x || root->right == nullptr)
+                s_nearest = findNearestNode(root->left, target, distance);
+            else
+                s_nearest = findNearestNode(root->right, target, distance);
+
+            break;
+        case 1:
+            if (target.y <= root->pos.y || root->right == nullptr)
+                s_nearest = findNearestNode(root->left, target, distance);
+            else
+                s_nearest = findNearestNode(root->right, target, distance);
+                
+            break;
+        case 2:
+            if (target.z <= root->pos.z || root->right == nullptr)
+                s_nearest = findNearestNode(root->left, target, distance);
+            else
+                s_nearest = findNearestNode(root->right, target, distance);
+                
+            break;
     }
 
     DrawLine3D(target, s_nearest, MAGENTA);
@@ -297,45 +250,39 @@ bool KDTree::validateKdTree(KDNode* root, int depth = 0)
         return true;
     }
 
-    if (root->left != nullptr) {
-        switch (root->SplitAxis) {
-            case 0: // X-axis
-                if (root->left->pos.x <= root->pos.x) {
+    if (root->left != nullptr)
+        switch (root->SplitAxis) 
+        {
+            case 0:
+                if (root->left->pos.x > root->pos.x) 
                     return false;
-                }
                 break;
-            case 1: // Y-axis
-                if (root->left->pos.y <= root->pos.y) {
+            case 1:
+                if (root->left->pos.y > root->pos.y)
                     return false;
-                }
                 break;
-            case 2: // Z-axis
-                if (root->left->pos.z <= root->pos.z) {
+            case 2:
+                if (root->left->pos.z > root->pos.z)
                     return false;
-                }
                 break;
         }
-    }
 
-    if (root->right != nullptr) {
-        switch (root->SplitAxis) {
-            case 0: // X-axis
-                if (root->right->pos.x >= root->pos.x) {
+    if (root->right != nullptr)
+        switch (root->SplitAxis) 
+        {
+            case 0:
+                if (root->right->pos.x <= root->pos.x)
                     return false;
-                }
                 break;
-            case 1: // Y-axis
-                if (root->right->pos.y >= root->pos.y) {
+            case 1:
+                if (root->right->pos.y <= root->pos.y)
                     return false;
-                }
                 break;
-            case 2: // Z-axis
-                if (root->right->pos.z >= root->pos.z) {
+            case 2:
+                if (root->right->pos.z <= root->pos.z)
                     return false;
-                }
                 break;
         }
-    }
 
     return validateKdTree(root->left, depth + 1) && validateKdTree(root->right, depth + 1);
 }

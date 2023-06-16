@@ -78,13 +78,6 @@ void SceneManager::LoadModels()
     }
     else
     {
-        /*
-        cityModel = LoadModel("../resources/3d_objects/city.glb");
-        humanModel = LoadModel("../resources/3d_objects/human.glb");
-        mapModel = LoadModel("../resources/3d_objects/TolpaTerrain.glb");
-        navmeshModel = LoadModel("../resources/3d_objects/NavigationMesh.glb");
-        */
-
         if (m_sceneVariables.SceneModels.size() == m_sceneVariables.TotalModelCount)
         {
             cityModel = LoadModel(m_sceneVariables.SceneModels[0].c_str());
@@ -181,7 +174,6 @@ void SceneManager::ParseSceneModelInfo()
             {
                 sceneCounter++;
                 TraceLog(LOG_INFO, ("../" + line).c_str());
-
             }
 
             if (sceneCounter > m_sceneVariables.TotalScenes)

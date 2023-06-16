@@ -189,18 +189,14 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
     return {};
 }
 
-// Needs to be VERY OPTIMIZED
-// this is terrible on performance
 void NavMesh::DebugDrawNavMeshGraph()
 {
-    for (int i = 0; i < graphNodes.size(); i++)
+    for (auto& pair : connectivityGraph)
     {
-        for (int j = 0; j < connectivityGraph[graphNodes[i]].size(); j++)
-        {
-            Vector3 elevation = {0.0f, 1.0f, 0.0f};
-            DrawLine3D(Vector3Add(graphNodes[i], elevation),
-                       Vector3Add(connectivityGraph[graphNodes[i]][j], elevation), RED);
-        }
+        Vector3 elevation = {0.0f, 1.0f, 0.0f};
+        for (int i = 0; i < pair.second.size(); i++)
+        DrawLine3D(Vector3Add(pair.first, elevation),
+                    Vector3Add(pair.second[i], elevation), RED);
     }
 }
 

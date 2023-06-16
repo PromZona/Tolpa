@@ -95,13 +95,17 @@ void GUIManager::DrawRenderDebug()
 	auto& sceneLight = gameInstance.GetRendererScene().GetLight();
 	
 	ImGui::SeparatorText("Scene Flags");
-	ImGui::Checkbox("Draw Models", &rendererGlobalFlags.drawDebugModels);
+	ImGui::Checkbox("Draw Terrain", &rendererGlobalFlags.drawDebugModels);
 	if (ImGui::Checkbox("Rotate Ligh Source", &rendererGlobalFlags.rotateLight))
 	{
 		if (sceneLight.position.x == 0.0f)
 			sceneLight.position.x = 400.0f;
 		else
+		{
 			sceneLight.position.x = 0.0f;
+			sceneLight.position.z = 0.0f;
+			sceneLight.color = WHITE;
+		}
 	}
 	
 	if (rendererGlobalFlags.rotateLight)
@@ -109,7 +113,7 @@ void GUIManager::DrawRenderDebug()
 		ImGui::SliderFloat("Speed", &rendererGlobalVariables.LightRotationSpeed, 0.0f, 1.0f);
 
 		static ImVec4 colorPicked;
-		if (ImGui::ColorEdit4("Color: ", (float*)&colorPicked))
+		if (ImGui::ColorEdit4("Color", (float*)&colorPicked))
 		{
 			sceneLight.color.r = static_cast<unsigned char>(colorPicked.x * 255);
 			sceneLight.color.g = static_cast<unsigned char>(colorPicked.y * 255);
