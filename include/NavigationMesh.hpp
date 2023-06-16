@@ -20,14 +20,6 @@ struct Vector3Hash {
     }
 };
 
-inline bool operator==(const Vector3& v1, const Vector3& v2) {
-    return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z);
-};
-
-inline bool operator!=(const Vector3& v1, const Vector3& v2) {
-    return (v1.x != v2.x) || (v1.y != v2.y) || (v1.z != v2.z);
-};
-
 struct TriangleMesh
 {
     Vector3 vertices[3];
@@ -47,7 +39,6 @@ float DistanceToNode(const Vector3& v1, const Vector3& v2);
 
 struct AStarNode
 {
-
     Vector3 Vertex;
     float G_Score;
     float F_Score;
@@ -56,16 +47,6 @@ struct AStarNode
         : Vertex(_vector3), G_Score (_gScore), F_Score (_fScore) {}
 
     bool operator > (const AStarNode& other) const {return F_Score > other.F_Score;}
-
-    Vector3 vertex;
-    float gScore;
-    float fScore;
-
-    AStarNode(const Vector3& _vector3, float _gScore, float _fScore)
-        : vertex(_vector3), gScore (_gScore), fScore (_fScore) {}
-
-    bool operator > (const AStarNode& other) const {return fScore > other.fScore;}
-
 };
 
 class NavMesh
@@ -105,25 +86,4 @@ private:
     // Stores every mesh triangle
     std::vector<Vector3> m_graphNodes;
     std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> m_connectivityGraph;
-
-    void DebugDrawWireframe();
-    void DebugDrawNavMeshGraph();
-    void DebugDrawPath(std::vector<Vector3> path, int step);
-    void ConstructMeshGraph();
-    // A*
-    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal);
-
-    inline std::vector<TriangleMesh>&  GetTriangles() {return navMeshTriVec;}
-    inline Model& GetModel() {return navModel;}
-
-    private:
-
-    Model navModel;
-    Mesh navMesh;
-
-    Vector3* vertices;
-
-    // Stores every mesh triangle
-    std::vector<TriangleMesh> navMeshTriVec;
-    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> connectivityGraph;
 };
