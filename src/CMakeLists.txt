@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME} STATIC
         NavigationMesh.cpp
         Renderer.cpp
         SceneManager.cpp
+        KDTree.cpp
         GuiManager.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp

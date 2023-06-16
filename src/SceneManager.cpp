@@ -2,7 +2,7 @@
 #include "raymath.h"
 #include "game.hpp"
 
-#define NOMODELSMODE true
+#define NOMODELSMODE false
 
 SceneManager::SceneManager()
 {}
@@ -10,10 +10,24 @@ SceneManager::SceneManager()
 void SceneManager::LoadModels()
 {
     #if (!NOMODELSMODE)
-    cityModel = LoadModel("../resources/3d_objects/city.glb");
-    humanModel = LoadModel("../resources/3d_objects/party.glb");
+    //cityModel = LoadModel("../resources/3d_objects/city.glb");
+    //humanModel = LoadModel("../resources/3d_objects/human.glb");
     mapModel = LoadModel("../resources/3d_objects/TolpaTerrain.glb");
     navmeshModel = LoadModel("../resources/3d_objects/NavigationMesh.glb");
+
+    humanModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+    humanModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = SKYBLUE;
+
+    cityModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+    cityModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
+
+
+    orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+    orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;
+
+    tribeModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+    tribeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+
     #else
     orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
     orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;

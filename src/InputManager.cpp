@@ -29,12 +29,12 @@ Vector3 GetRandomLocation()
     auto& navGrid = Game::Instance().GetNavGrid();
 
 	int min = 0;
-	int max = navGrid.GetTriangles().size();
+	int max = navGrid.GetGraphNodes().size();
 
     std::uniform_int_distribution<int> dis(min, max);
 
 	Vector3 selectedCell;
-	selectedCell = navGrid.GetTriangles()[dis(gen)].middlePoint;
+	selectedCell = navGrid.GetGraphNodes()[dis(gen)];
 
 	return selectedCell;
 }

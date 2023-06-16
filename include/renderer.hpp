@@ -32,13 +32,24 @@ typedef enum {
     LIGHT_POINT
 } LightType;
 
+struct RenderDebugVariables
+{
+    int KDTreeDepthDrawingDepth = 0;
+    int KDTreeDepthDrawingStep = 0;
+    int KDTreeDepthDrawingElevation = 0;
+};
+
 // GUI interaction for Debug Display
 struct RenderFlagsGlobal
 {
     bool drawDebugNavMeshWireframe;
     bool drawDebugNavMeshGraph;
     bool drawDebugNavMeshMiddlePoints;
+    bool drawDebugNavMeshKDTree;
+    bool drawDebugNavMeshKDTreeInverted;
+    bool drawDebugNavMeshKDTreeElevated;
     bool drawDebugTerrainWireframe;
+    bool drawDebugNavMeshNearestPoint;
 };
 
 struct RenderFlagsUnits
@@ -85,6 +96,7 @@ public:
     void ApplyLightingShaderToObjects();
 
     inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
+    inline RenderDebugVariables& GetDebugVariables() {return m_DebugVariables;}
 
     Camera& GetCamera();
 
@@ -93,7 +105,10 @@ private:
     Shader m_shader_light;
     int m_ambient_loc;
     Light m_light;
+    
     RenderFlagsGlobal m_GlobalFlags;
+    RenderDebugVariables m_DebugVariables;
+
     Camera m_camera;
 };
 

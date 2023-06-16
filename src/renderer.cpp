@@ -153,24 +153,45 @@ void SceneRenderer::RenderScene()
                 continue;
             }
 
-            DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
+            //DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
         }
     }
 
     if (m_GlobalFlags.drawDebugNavMeshMiddlePoints)
     {
-        auto& middleMesh = NavGrid.GetTriangles();
+        auto& navGraphNodes = NavGrid.GetGraphNodes();
 
-        for (int i = 0; i < middleMesh.size(); i++)
-            DrawPoint3D(middleMesh[i].middlePoint, GREEN);
+        for (int i = 0; i < navGraphNodes.size(); i++)
+            DrawPoint3D(navGraphNodes[i], GREEN);
     }
-
-    auto& navGridModel = NavGrid.GetModel();
 
     if (m_GlobalFlags.drawDebugNavMeshGraph)
         NavGrid.DebugDrawNavMeshGraph();
+
     if (m_GlobalFlags.drawDebugNavMeshWireframe)
         NavGrid.DebugDrawWireframe();
+
+    if (m_GlobalFlags.drawDebugNavMeshKDTree)
+    {
+        auto& kd_tree = NavGrid.GetNavKDTree();
+
+        if (m_GlobalFlags.drawDebugNavMeshKDTreeInverted)
+            kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
+            m_DebugVariables.KDTreeDepthDrawingDepth,
+            m_GlobalFlags.drawDebugNavMeshKDTreeInverted,
+            m_GlobalFlags.drawDebugNavMeshKDTreeElevated);
+        else
+            kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
+            m_DebugVariables.KDTreeDepthDrawingDepth, 0,
+            m_GlobalFlags.drawDebugNavMeshKDTreeElevated);
+    }
+    if (m_GlobalFlags.drawDebugNavMeshNearestPoint)
+    {
+        auto& testPoint = NavGrid.GetTestPoint();        
+        DrawSphereWires(testPoint, 5.0f, 10, 10, ORANGE);
+
+        NavGrid.DebugDrawNearestNeighbour(&m_camera);
+    }
 
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 }

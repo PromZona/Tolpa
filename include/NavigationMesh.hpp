@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include "KDTree.hpp"
 #include "stdio.h"
 #include <cmath>
 #include <unordered_map>
@@ -17,30 +18,6 @@ struct Vector3Hash {
         std::size_t hashZ = std::hash<float>{}(v.z);
         return hashX ^ (hashY << 1) ^ (hashZ << 2);
     }
-};
-
-inline bool operator==(const Vector3& v1, const Vector3& v2) {
-    return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z);
-};
-
-inline bool operator!=(const Vector3& v1, const Vector3& v2) {
-    return (v1.x != v2.x) || (v1.y != v2.y) || (v1.z != v2.z);
-};
-
-struct TriangleMesh
-{
-    Vector3 vertices[3];
-    Vector3 middlePoint;
-
-    inline TriangleMesh(Vector3 v[3], Vector3 mP)
-    {
-        vertices[0] = v[0];
-        vertices[1] = v[1];
-        vertices[2] = v[2];
-
-        middlePoint = mP;
-    }
-
 };
 
 float DistanceToNode(const Vector3& v1, const Vector3& v2);
@@ -68,12 +45,16 @@ class NavMesh
     void DebugDrawWireframe();
     void DebugDrawNavMeshGraph();
     void DebugDrawPath(std::vector<Vector3> path, int step);
+    void DebugDrawNearestNeighbour(Camera* camera);
     void ConstructMeshGraph();
-    // A*
-    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal);
 
-    inline std::vector<TriangleMesh>&  GetTriangles() {return navMeshTriVec;}
+    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal); // A* pathfinding
+
+    inline std::vector<Vector3>&  GetGraphNodes() {return graphNodes;}
     inline Model& GetModel() {return navModel;}
+    inline KDTree& GetNavKDTree() {return kdTreeNavigationNodes;}
+    inline std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash>& GetNavConnectGraph(){return connectivityGraph;}
+    inline Vector3& GetTestPoint(){return m_testPoint;}
 
     private:
 
@@ -81,8 +62,11 @@ class NavMesh
     Mesh navMesh;
 
     Vector3* vertices;
+    Vector3 m_testPoint; // For nearest node neighbour testing
+
+    KDTree kdTreeNavigationNodes;
 
     // Stores every mesh triangle
-    std::vector<TriangleMesh> navMeshTriVec;
+    std::vector<Vector3> graphNodes;
     std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> connectivityGraph;
 };

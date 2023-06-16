@@ -53,13 +53,79 @@ void GUIManager::DrawHub()
 
 void GUIManager::DrawRenderDebug()
 {
-	auto& gameInstance = Game::Instance();
+	float spacing = ImGui::GetStyle().ItemSpacing.x; 
 
+	auto& gameInstance = Game::Instance();
+	auto& testPoint = gameInstance.GetNavGrid().GetTestPoint();
+	auto& rendererGlobalFlags = gameInstance.GetRendererScene().GetFlags();
+	auto& rendererGlobalVariables = gameInstance.GetRendererScene().GetDebugVariables();
+	
 	ImGui::SeparatorText("Scene Flags");
-	ImGui::Checkbox("NavMesh Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshWireframe);
-	ImGui::Checkbox("NavMesh Midpoints", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshMiddlePoints);
-	ImGui::Checkbox("NavMesh Graph", &gameInstance.GetRendererScene().GetFlags().drawDebugNavMeshGraph);
-	ImGui::Checkbox("Terrain Wireframe", &gameInstance.GetRendererScene().GetFlags().drawDebugTerrainWireframe);
+	ImGui::Checkbox("NavMesh Wireframe", &rendererGlobalFlags.drawDebugNavMeshWireframe);
+	ImGui::Checkbox("NavMesh Midpoints", &rendererGlobalFlags.drawDebugNavMeshMiddlePoints);
+	ImGui::Checkbox("NavMesh Graph", &rendererGlobalFlags.drawDebugNavMeshGraph);
+	ImGui::Checkbox("NavMesh KD-Tree", &rendererGlobalFlags.drawDebugNavMeshKDTree);
+	
+	if (rendererGlobalFlags.drawDebugNavMeshKDTree)
+	{
+		ImGui::Separator();
+
+		if(ImGui::Checkbox("Steps", &rendererGlobalFlags.drawDebugNavMeshKDTreeInverted))
+		{
+			rendererGlobalVariables.KDTreeDepthDrawingDepth = 0;
+			rendererGlobalFlags.drawDebugNavMeshKDTreeElevated = false;
+		}
+		ImGui::SameLine(0, spacing);
+		
+		if(ImGui::Checkbox("Elevated", &rendererGlobalFlags.drawDebugNavMeshKDTreeElevated))
+			rendererGlobalFlags.drawDebugNavMeshKDTreeInverted = false;
+
+		if (ImGui::ArrowButton("##DecreaseDepth", ImGuiDir_Left) && 
+		rendererGlobalVariables.KDTreeDepthDrawingDepth > 0)
+			rendererGlobalVariables.KDTreeDepthDrawingDepth--;
+		ImGui::SameLine(0, spacing);
+
+		if (ImGui::ArrowButton("##IncreaseDepth", ImGuiDir_Right) && 
+		rendererGlobalVariables.KDTreeDepthDrawingDepth <
+		gameInstance.GetNavGrid().GetNavKDTree().GetMaxDepth() - 1)
+			rendererGlobalVariables.KDTreeDepthDrawingDepth++;
+		ImGui::SameLine(0, spacing);
+
+		ImGui::Text("Depth: %d", rendererGlobalVariables.KDTreeDepthDrawingDepth);
+		
+		ImGui::Separator();
+	}
+
+	ImGui::Checkbox("NavMesh KD-Tree Nearest Points", &rendererGlobalFlags.drawDebugNavMeshNearestPoint);
+
+	if (rendererGlobalFlags.drawDebugNavMeshNearestPoint)
+	{
+		ImGui::Separator();
+		static float controlStrength = 5.0f;
+		ImGui::SliderFloat("Strength", &controlStrength, 1.0f, 10.0f);
+
+		if (ImGui::Button(" +X "))
+			testPoint.x += controlStrength;
+		ImGui::SameLine(0, spacing);
+		if (ImGui::Button(" -X "))
+			testPoint.x -= controlStrength;
+
+		if (ImGui::Button(" +Y "))
+			testPoint.y += controlStrength;
+		ImGui::SameLine(0, spacing);
+		if (ImGui::Button(" -Y "))
+			testPoint.y -= controlStrength;
+
+		if (ImGui::Button(" +Z "))
+			testPoint.z += controlStrength;
+		ImGui::SameLine(0, spacing);
+		if (ImGui::Button(" -Z "))
+			testPoint.z -= controlStrength;
+
+		ImGui::Separator();
+	}
+
+	ImGui::Checkbox("Terrain Wireframe", &rendererGlobalFlags.drawDebugTerrainWireframe);
 
 	ImGui::SeparatorText("Unit Flags");
 	ImGui::Checkbox("Unit Path", &gameInstance.GetRendererUnits().GetFlags().drawDebugPath);
