@@ -169,18 +169,18 @@ void SceneRenderer::RenderScene()
         {
             Model currentModel = SceneManager.GetModel(models[i].model_id);
 
-            if (models[i].model_id == ModelType::MAP && m_GlobalFlags.drawDebugTerrainWireframe)
+            if (models[i].model_id == ModelType::MAP && m_GlobalFlags.DrawDebugTerrainWireframe)
             {
                 DrawModelWires(currentModel, transforms[i].Position, models[i].scale, WHITE);
                 continue;
             }
 
-            if (m_GlobalFlags.drawDebugModels)
+            if (m_GlobalFlags.DrawDebugModels)
                 DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
         }
     }
 
-    if (m_GlobalFlags.drawDebugNavMeshMiddlePoints)
+    if (m_GlobalFlags.DrawDebugNavMeshMiddlePoints)
     {
         auto& navGraphNodes = NavGrid.GetGraphNodes();
 
@@ -188,28 +188,28 @@ void SceneRenderer::RenderScene()
             DrawPoint3D(navGraphNodes[i], GREEN);
     }
 
-    if (m_GlobalFlags.drawDebugNavMeshGraph)
+    if (m_GlobalFlags.DrawDebugNavMeshGraph)
         NavGrid.DebugDrawNavMeshGraph();
 
-    if (m_GlobalFlags.drawDebugNavMeshWireframe)
+    if (m_GlobalFlags.DrawDebugNavMeshWireframe)
         NavGrid.DebugDrawWireframe();
 
-    if (m_GlobalFlags.drawDebugNavMeshKDTree)
+    if (m_GlobalFlags.DrawDebugNavMeshKDTree)
     {
         auto& kd_tree = NavGrid.GetNavKDTree();
 
-        if (m_GlobalFlags.drawDebugNavMeshKDTreeInverted)
+        if (m_GlobalFlags.DrawDebugNavMeshKDTreeInverted)
             kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
             m_DebugVariables.KDTreeDepthDrawingDepth,
-            m_GlobalFlags.drawDebugNavMeshKDTreeInverted,
-            m_GlobalFlags.drawDebugNavMeshKDTreeElevated);
+            m_GlobalFlags.DrawDebugNavMeshKDTreeInverted,
+            m_GlobalFlags.DrawDebugNavMeshKDTreeElevated);
         else
             kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
             m_DebugVariables.KDTreeDepthDrawingDepth, 0,
-            m_GlobalFlags.drawDebugNavMeshKDTreeElevated);
+            m_GlobalFlags.DrawDebugNavMeshKDTreeElevated);
     }
 
-    if (m_GlobalFlags.drawDebugNavMeshNearestPoint)
+    if (m_GlobalFlags.DrawDebugNavMeshNearestPoint)
     {
         auto& testPoint = NavGrid.GetTestPoint();        
         DrawSphereWires(testPoint, 5.0f, 10, 10, ORANGE);
@@ -217,7 +217,7 @@ void SceneRenderer::RenderScene()
         NavGrid.DebugDrawNearestNeighbour(&m_camera);
     }
     
-    if (m_GlobalFlags.rotateLight)
+    if (m_GlobalFlags.RotateLight)
         RotateLight();
 
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
@@ -249,7 +249,7 @@ void UnitRenderer::RenderUnits()
             Model currentModel = SceneManager.GetModel(c_models[i].model_id);
             DrawModel(currentModel, c_transforms[i].Position, c_models[i].scale, WHITE);
 
-            if (m_UnitFlags.drawDebugPath)
+            if (m_UnitFlags.DrawDebugPath)
                 NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
         }
     }

@@ -33,8 +33,8 @@ struct SceneFlags
 
 struct ModelQuatVectors
 {
-    Vector3 forward;
-    Vector3 up;
+    Vector3 Forward;
+    Vector3 Up;
 };
 
 class SceneManager
@@ -45,8 +45,8 @@ public:
     ~SceneManager();
 
     Model& GetModel(ModelType model_id);
-    inline ModelQuatVectors& GetModelQuaterionVectors(ModelType model_id) {return modelQuatMap[model_id];}
-    inline std::unordered_map<ModelType, Model*>& GetTypeToModelMap() {return model_map;}
+    inline ModelQuatVectors& GetModelQuaterionVectors(ModelType model_id) {return m_modelQuatMap[model_id];}
+    inline std::unordered_map<ModelType, Model*>& GetTypeToModelMap() {return m_model_map;}
     inline SceneFlags& GetSceneFlags() {return m_sceneFlags;}
     inline SceneVariables& GetSceneVariables() {return m_sceneVariables;}
 
@@ -57,15 +57,15 @@ public:
     void InitializeScene(); 
 
 private:
-    std::unordered_map<ModelType, Model*> model_map;
-    std::unordered_map<ModelType, ModelQuatVectors> modelQuatMap;
+    std::unordered_map<ModelType, Model*> m_model_map;
+    std::unordered_map<ModelType, ModelQuatVectors> m_modelQuatMap;
 
-    Model cityModel;
-    Model humanModel;
-    Model tribeModel;
-    Model orcModel;
-    Model mapModel;
-    Model navmeshModel;
+    Model m_cityModel;
+    Model m_humanModel;
+    Model m_tribeModel;
+    Model m_orcModel;
+    Model m_mapModel;
+    Model m_navmeshModel;
 
     SceneFlags m_sceneFlags;
     SceneVariables m_sceneVariables;

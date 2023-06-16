@@ -44,27 +44,27 @@ struct RenderDebugVariables
 // GUI interaction for Debug Display
 struct RenderFlagsGlobal
 {
-    bool drawDebugNavMeshWireframe;
-    bool drawDebugNavMeshGraph;
-    bool drawDebugNavMeshMiddlePoints;
-    bool drawDebugNavMeshKDTree;
-    bool drawDebugNavMeshKDTreeInverted;
-    bool drawDebugNavMeshKDTreeElevated;
-    bool drawDebugTerrainWireframe;
-    bool drawDebugNavMeshNearestPoint;
-    bool drawDebugModels;
-    bool rotateLight;
+    bool DrawDebugNavMeshWireframe;
+    bool DrawDebugNavMeshGraph;
+    bool DrawDebugNavMeshMiddlePoints;
+    bool DrawDebugNavMeshKDTree;
+    bool DrawDebugNavMeshKDTreeInverted;
+    bool DrawDebugNavMeshKDTreeElevated;
+    bool DrawDebugTerrainWireframe;
+    bool DrawDebugNavMeshNearestPoint;
+    bool DrawDebugModels;
+    bool RotateLight;
 };
 
 struct RenderFlagsUnits
 {
-    bool drawDebugPath;
-    bool drawDebugForwardVector;
+    bool DrawDebugPath;
+    bool DrawDebugForwardVector;
 };
 
 struct RenderFlagsLocations
 {
-    bool debug;
+    bool Debug;
 };
 
 static int lightsCount = 0;    // Current amount of created lights

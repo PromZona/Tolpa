@@ -67,7 +67,7 @@ void InputManager::Update()
 		if (keyPressed == KEY_C)
 		{
 			//auto mousePos = GetMousePosition();
-			auto command = std::make_unique<CreateCityCommand>(GetRandomLocation());
+			auto command = std::make_unique<CreateCityCommand>(Vector3Add(GetRandomLocation(), {-5.0f, 0.0f, -10.0f}));
 			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
@@ -75,7 +75,7 @@ void InputManager::Update()
 		if (keyPressed == KEY_T)
 		{
 			//auto mousePos = GetMousePosition();
-			auto command = std::make_unique<CreateOrcsTribeCommand>(GetRandomLocation());
+			auto command = std::make_unique<CreateOrcsTribeCommand>(Vector3Add(GetRandomLocation(), {5.0f, 0.0f, 10.0f}));
 			Game::Instance().GetCommandManager().AddCommand(std::move(command));
 			continue;
 		}
@@ -98,8 +98,8 @@ void InputManager::Update()
 
 	if (IsMouseButtonDown(MouseButton::MOUSE_BUTTON_RIGHT))
 	{
-		currPosition = {GetMousePosition().x - Game::Instance().screenWidth / 2,
-						GetMousePosition().y - Game::Instance().screenHeight / 2};
+		currPosition = {GetMousePosition().x - Game::Instance().ScreenWidth / 2,
+						GetMousePosition().y - Game::Instance().ScreenHeight / 2};
 
 		mouseDelta = {currPosition.x - prevMousePosition.x, currPosition.y - prevMousePosition.y};
 

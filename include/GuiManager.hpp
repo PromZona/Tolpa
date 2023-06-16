@@ -20,6 +20,4 @@ private:
 	void HandleComponent(std::type_index type, EntityId entity);
 
 	bool m_showEcsWindow = true;
-	bool ShowRenderSettings = false;
-	bool ShowECSSettings = false;
 };

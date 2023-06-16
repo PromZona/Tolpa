@@ -30,7 +30,7 @@ public:
 	inline SceneRenderer& GetRendererScene() {return m_rendererScene;}
 	inline UnitRenderer& GetRendererUnits() {return m_rendererUnits;}
 	inline LocationRenderer& GetRendererLocations() {return m_rendererLocations;}
-	inline GuiRenderer& getRendererGUI() {return m_rendererGUI;}
+	inline GuiRenderer& GetRendererGUI() {return m_rendererGUI;}
 
 	SceneManager& GetSceneManager();
 	NavMesh& GetNavGrid();
@@ -38,8 +38,8 @@ public:
 	CommandManager& GetCommandManager();
 	GameState State;
 
-	const int screenWidth = 1600;
-	const int screenHeight = 1400;
+	const int ScreenWidth = 1600;
+	const int ScreenHeight = 1400;
 
 private:
 	Game();

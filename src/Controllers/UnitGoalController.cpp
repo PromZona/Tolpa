@@ -53,8 +53,8 @@ void UnitGoalController::Tick(float deltaTime)
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
 				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
-				Vector3 startClosestNode = navGridTree.findNearestNode(*treeRoot, transformComp.Position, dis);
-				Vector3 targetClosestNode = navGridTree.findNearestNode(*treeRoot, cityPosition, dis);
+				Vector3 startClosestNode = navGridTree.FindNearestNode(*treeRoot, transformComp.Position, dis);
+				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
 				navGridGraph[startClosestNode].push_back(transformComp.Position);
 				navGridGraph[targetClosestNode].push_back(cityPosition);

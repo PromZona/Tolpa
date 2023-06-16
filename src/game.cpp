@@ -22,7 +22,7 @@ Game::Game() :
 	m_guiManager(),
 	m_CommandManager()
 {
-	InitWindow(screenWidth, screenHeight, "Tolpa");
+	InitWindow(ScreenWidth, ScreenHeight, "Tolpa");
 	SetTargetFPS(60);
 	m_guiManager.Init();
 }

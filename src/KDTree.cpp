@@ -6,7 +6,7 @@ KDTree::KDTree()
 }
 KDTree::~KDTree()
 {
-    DeleteTree(root);
+    DeleteTree(m_root);
 }
 
 void KDTree::DeleteTree(KDNode* node)
@@ -14,8 +14,8 @@ void KDTree::DeleteTree(KDNode* node)
     if (node == nullptr)
         return;
 
-    DeleteTree(node->left);
-    DeleteTree(node->right);
+    DeleteTree(node->Left);
+    DeleteTree(node->Right);
 
     delete(node);
 }
@@ -34,9 +34,10 @@ int calculateSize(KDNode* root)
     if (root == nullptr)
         return 0;
 
-    return 1 + calculateSize(root->left) + calculateSize(root->right);
+    return 1 + calculateSize(root->Left) + calculateSize(root->Right);
 }
 
+// k-d tree axis split condition
 bool ComparePointsInDimensions(Vector3 p1, Vector3 p2, int axis)
 {
     switch (axis)
@@ -115,13 +116,13 @@ int FindMedianIndex(std::vector<Vector3>& nodePoints, int axis)
 // this is somewhat unnecessary?? (might find some use later though)
 // it leaves the original set of points as it is, unsorted
 // and allows to store tree points inside tree class (?????)
-KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints)
+KDNode* KDTree::ConstructTree(std::vector<Vector3>& nodePoints)
 {
-    this->nodePoints = nodePoints;
-    return constructTree(this->nodePoints, 0);
+    this->m_nodePoints = nodePoints;
+    return ConstructTree(this->m_nodePoints, 0);
 }
 
-KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints, int depth) 
+KDNode* KDTree::ConstructTree(std::vector<Vector3>& nodePoints, int depth) 
 {
     if (nodePoints.empty())
         return nullptr;
@@ -137,8 +138,8 @@ KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints, int depth)
     leftPoints = std::vector<Vector3>(nodePoints.begin(), nodePoints.begin() + medianIndex);
     rightPoints = std::vector<Vector3>(nodePoints.begin() + medianIndex + 1, nodePoints.end());
 
-    root->left = constructTree(leftPoints, depth + 1);
-    root->right = constructTree(rightPoints, depth + 1);
+    root->Left = ConstructTree(leftPoints, depth + 1);
+    root->Right = ConstructTree(rightPoints, depth + 1);
 
     if (m_maxDepth < depth)
         m_maxDepth = depth;
@@ -146,41 +147,43 @@ KDNode* KDTree::constructTree(std::vector<Vector3>& nodePoints, int depth)
     return root;
 }
 
-Vector3 KDTree::findNearestNode(KDNode* root, Vector3 target, float& distance)
+// NNS algorithm for k-d tree
+// it kind of works correctly most of the time but in cases
+// where target's Y is way above the grid it gets janky (reason? unknown)
+Vector3 KDTree::FindNearestNode(KDNode* root, Vector3 target, float& distance)
 {
     static Vector3 s_nearest;
 
     if (root == nullptr)
         return s_nearest;
 
-    DrawLine3D(target, root->pos, RAYWHITE);
-    if (Vector3Distance(root->pos, target) <= distance)
+    if (Vector3Distance(root->Pos, target) <= distance)
     {
-        distance = Vector3Distance(root->pos, target);
-        s_nearest = root->pos;
+        distance = Vector3Distance(root->Pos, target);
+        s_nearest = root->Pos;
     }
 
     switch(root->SplitAxis)
     {
         case 0:
-            if (target.x <= root->pos.x || root->right == nullptr)
-                s_nearest = findNearestNode(root->left, target, distance);
+            if (target.x <= root->Pos.x || root->Right == nullptr)
+                s_nearest = FindNearestNode(root->Left, target, distance);
             else
-                s_nearest = findNearestNode(root->right, target, distance);
+                s_nearest = FindNearestNode(root->Right, target, distance);
 
             break;
         case 1:
-            if (target.y <= root->pos.y || root->right == nullptr)
-                s_nearest = findNearestNode(root->left, target, distance);
+            if (target.y <= root->Pos.y || root->Right == nullptr)
+                s_nearest = FindNearestNode(root->Left, target, distance);
             else
-                s_nearest = findNearestNode(root->right, target, distance);
+                s_nearest = FindNearestNode(root->Right, target, distance);
                 
             break;
         case 2:
-            if (target.z <= root->pos.z || root->right == nullptr)
-                s_nearest = findNearestNode(root->left, target, distance);
+            if (target.z <= root->Pos.z || root->Right == nullptr)
+                s_nearest = FindNearestNode(root->Left, target, distance);
             else
-                s_nearest = findNearestNode(root->right, target, distance);
+                s_nearest = FindNearestNode(root->Right, target, distance);
                 
             break;
     }
@@ -189,36 +192,36 @@ Vector3 KDTree::findNearestNode(KDNode* root, Vector3 target, float& distance)
     return s_nearest;
 }
 
-#include "raymath.h"
 void KDTree::DebugDrawTree(KDNode* node, int depth, int targetDepth, bool inverted, bool elevated)
 {
     if (node == nullptr)
         return;
 
-    if (node->left != nullptr)
+    if (node->Left != nullptr)
     {
         if (elevated)
-            DrawLine3D(Vector3Add(node->pos, {0.0f, 20.0f * m_maxDepth / (depth + 1) - 20, 0.0f}), 
-                       Vector3Add(node->left->pos, {0.0f, 20.0f * m_maxDepth / (depth + 2) - 20}), GREEN);
+            DrawLine3D(Vector3Add(node->Pos, {0.0f, 20.0f * m_maxDepth / (depth + 1) - 20, 0.0f}), 
+                       Vector3Add(node->Left->Pos, {0.0f, 20.0f * m_maxDepth / (depth + 2) - 20}), GREEN);
         else
-            DrawLine3D(node->pos, node->left->pos, GREEN);
+            DrawLine3D(node->Pos, node->Left->Pos, GREEN);
     }
 
-    if (node->right != nullptr)
+    if (node->Right != nullptr)
     {
         if (elevated)
-            DrawLine3D(Vector3Add(node->pos, {0.0f, 20.0f * m_maxDepth / (depth + 1) - 20, 0.0f}),
-                       Vector3Add(node->right->pos, {0.0f, 20.0f * m_maxDepth / (depth + 2) - 20}), RED);
+            DrawLine3D(Vector3Add(node->Pos, {0.0f, 20.0f * m_maxDepth / (depth + 1) - 20, 0.0f}),
+                       Vector3Add(node->Right->Pos, {0.0f, 20.0f * m_maxDepth / (depth + 2) - 20}), RED);
         else
-            DrawLine3D(node->pos, node->right->pos, RED);
+            DrawLine3D(node->Pos, node->Right->Pos, RED);
     }
     if (inverted && depth <= targetDepth)
         return;
 
-    DebugDrawTree(node->left, depth + 1, targetDepth, inverted, elevated);
-    DebugDrawTree(node->right, depth + 1, targetDepth, inverted, elevated);
+    DebugDrawTree(node->Left, depth + 1, targetDepth, inverted, elevated);
+    DebugDrawTree(node->Right, depth + 1, targetDepth, inverted, elevated);
 }
 
+// Returns every node of the tree below set depth
 void DeepSearch(KDNode* root, int targetDepth, int currentDepth, std::vector<KDNode*>& result)
 {
     if (root == nullptr)
@@ -230,8 +233,8 @@ void DeepSearch(KDNode* root, int targetDepth, int currentDepth, std::vector<KDN
         return;
     }
 
-    DeepSearch(root->left, targetDepth, currentDepth + 1, result);
-    DeepSearch(root->right, targetDepth, currentDepth + 1, result);
+    DeepSearch(root->Left, targetDepth, currentDepth + 1, result);
+    DeepSearch(root->Right, targetDepth, currentDepth + 1, result);
 }
 
 void KDTree::DebugDrawTreeByDepth(KDNode* root, int depth, bool inverted, bool elevated)
@@ -244,56 +247,61 @@ void KDTree::DebugDrawTreeByDepth(KDNode* root, int depth, bool inverted, bool e
         DebugDrawTree(deepRoots[i], 0, depth, inverted, elevated);
 }
 
-bool KDTree::validateKdTree(KDNode* root, int depth = 0) 
+// Check if tree is built correctly
+// It does not need to be strictly balanced but invalid tree's NNS wont work
+bool KDTree::ValidateKdTree(KDNode* root, int depth = 0) 
 {
     if (root == nullptr) {
         return true;
     }
 
-    if (root->left != nullptr)
+    if (root->Left != nullptr)
         switch (root->SplitAxis) 
         {
             case 0:
-                if (root->left->pos.x > root->pos.x) 
+                if (root->Left->Pos.x > root->Pos.x) 
                     return false;
                 break;
             case 1:
-                if (root->left->pos.y > root->pos.y)
+                if (root->Left->Pos.y > root->Pos.y)
                     return false;
                 break;
             case 2:
-                if (root->left->pos.z > root->pos.z)
+                if (root->Left->Pos.z > root->Pos.z)
                     return false;
                 break;
         }
 
-    if (root->right != nullptr)
+    if (root->Right != nullptr)
         switch (root->SplitAxis) 
         {
             case 0:
-                if (root->right->pos.x <= root->pos.x)
+                if (root->Right->Pos.x <= root->Pos.x)
                     return false;
                 break;
             case 1:
-                if (root->right->pos.y <= root->pos.y)
+                if (root->Right->Pos.y <= root->Pos.y)
                     return false;
                 break;
             case 2:
-                if (root->right->pos.z <= root->pos.z)
+                if (root->Right->Pos.z <= root->Pos.z)
                     return false;
                 break;
         }
 
-    return validateKdTree(root->left, depth + 1) && validateKdTree(root->right, depth + 1);
+    return ValidateKdTree(root->Left, depth + 1) && ValidateKdTree(root->Right, depth + 1);
 }
 
-bool KDTree::isBalanced(KDNode* root)
+// This is kind of useless since our tree is intentionally
+// a little unbalanced but its worth keeping to ensure its not TOO unbalanced
+// for some reason in the future
+bool KDTree::IsBalanced(KDNode* root)
 {
     if (root == nullptr)
         return true;
 
-    int leftSize = calculateSize(root->left);
-    int rightSize = calculateSize(root->right);
+    int leftSize = calculateSize(root->Right);
+    int rightSize = calculateSize(root->Right);
 
     int threshold = 3; // Allow a difference of 3 nodes
 
@@ -304,7 +312,7 @@ bool KDTree::isBalanced(KDNode* root)
     if (s_MaxDisbalance < disbalance)
         s_MaxDisbalance = disbalance;
 
-    if (disbalance <= threshold && isBalanced(root->left) && isBalanced(root->right))
+    if (disbalance <= threshold && IsBalanced(root->Left) && IsBalanced(root->Right))
         return true;
 
     TraceLog(LOG_INFO, "Max disbalance: %d", s_MaxDisbalance);

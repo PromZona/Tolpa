@@ -35,7 +35,7 @@ void SceneManager::InitializeScene()
 
     if (!gameState.map.empty())
         gameState.map.clear();
-    
+
     sceneRenderer.InitializeCamera();
 
     ParseSceneModelInfo();
@@ -59,99 +59,100 @@ void SceneManager::LoadModels()
 {
     if (m_sceneFlags.NoModelsMode)
     {        
-        orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-        orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;
+        m_orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+        m_orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;
 
-        tribeModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-        tribeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+        m_tribeModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+        m_tribeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
 
-        humanModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-        humanModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = SKYBLUE;
+        m_humanModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+        m_humanModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = SKYBLUE;
 
-        cityModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-        cityModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
+        m_cityModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+        m_cityModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
 
-        mapModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 100, 100));
-        mapModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
+        m_mapModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 100, 100));
+        m_mapModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
         
-        navmeshModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 20, 20));
+        m_navmeshModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 20, 20));
     }
     else
     {
         if (m_sceneVariables.SceneModels.size() == m_sceneVariables.TotalModelCount)
         {
-            cityModel = LoadModel(m_sceneVariables.SceneModels[0].c_str());
-            humanModel = LoadModel(m_sceneVariables.SceneModels[1].c_str());
-            tribeModel = LoadModel(m_sceneVariables.SceneModels[2].c_str());
-            orcModel = LoadModel(m_sceneVariables.SceneModels[3].c_str());
-            mapModel = LoadModel(m_sceneVariables.SceneModels[4].c_str());
-            navmeshModel = LoadModel(m_sceneVariables.SceneModels[5].c_str());
+            m_cityModel = LoadModel(m_sceneVariables.SceneModels[0].c_str());
+            m_humanModel = LoadModel(m_sceneVariables.SceneModels[1].c_str());
+            m_tribeModel = LoadModel(m_sceneVariables.SceneModels[2].c_str());
+            m_orcModel = LoadModel(m_sceneVariables.SceneModels[3].c_str());
+            m_mapModel = LoadModel(m_sceneVariables.SceneModels[4].c_str());
+            m_navmeshModel = LoadModel(m_sceneVariables.SceneModels[5].c_str());
         }
         else
             TraceLog(LOG_WARNING, "Missing models");
 
-        if (!IsModelReady(humanModel))
+        // This condition means to check if LoadModel() failed and defaulted to cube mesh
+        if (m_humanModel.meshCount == 1 && m_humanModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load human model");
-            humanModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-            humanModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = SKYBLUE;
+            m_humanModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+            m_humanModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = SKYBLUE;
         }
 
-        if (!IsModelReady(cityModel))
+        if (m_cityModel.meshCount == 1 && m_cityModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load humanCity model");
-            cityModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-            cityModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
+            m_cityModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+            m_cityModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
         }
 
-        if (!IsModelReady(orcModel))
+        if (m_orcModel.meshCount == 1 && m_orcModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load orc model");
-            orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-            orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;
+            m_orcModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+            m_orcModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = LIME;
         }
 
-        if (!IsModelReady(tribeModel))
+        if (m_tribeModel.meshCount == 1 && m_tribeModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load orcTribe model");
-            tribeModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
-            tribeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+            m_tribeModel = LoadModelFromMesh(GenMeshCylinder(10.0f, 10.0f, 10));
+            m_tribeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
         }
 
-        if (!IsModelReady(mapModel))
+        if (m_mapModel.meshCount == 1 && m_mapModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load Map(terrain) model");
-            mapModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 100, 100));
-            mapModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
+            m_mapModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 100, 100));
+            m_mapModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
         }
 
         // Perhaps one day this will be generated automatically
-        if (!IsModelReady(navmeshModel))
+        if (m_navmeshModel.meshCount == 1 && m_navmeshModel.meshes[0].vertexCount == 24)
         {
             TraceLog(LOG_WARNING, "Failed to load NavigationMesh model");
-            navmeshModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 20, 20));
+            m_navmeshModel = LoadModelFromMesh(GenMeshPlane(500.0f, 500.0f, 20, 20));
         }
     }
 
     auto& navGrid = Game::Instance().GetNavGrid();
-	navGrid.InitializeNavigationGrid(navmeshModel);
+	navGrid.InitializeNavigationGrid(m_navmeshModel);
 
-    model_map.insert({ModelType::CITY, &cityModel});
-    model_map.insert({ModelType::HUMAN, &humanModel});
-    model_map.insert({ModelType::TRIBE, &tribeModel});
-    model_map.insert({ModelType::ORC, &orcModel});
-    model_map.insert({ModelType::MAP, &mapModel});
-    model_map.insert({ModelType::NAVMESH, &navmeshModel});
+    m_model_map.insert({ModelType::CITY, &m_cityModel});
+    m_model_map.insert({ModelType::HUMAN, &m_humanModel});
+    m_model_map.insert({ModelType::TRIBE, &m_tribeModel});
+    m_model_map.insert({ModelType::ORC, &m_orcModel});
+    m_model_map.insert({ModelType::MAP, &m_mapModel});
+    m_model_map.insert({ModelType::NAVMESH, &m_navmeshModel});
 
     // Map containing ForwardVetor and UpVector for each model type
-    for (auto& entry : model_map)
+    for (auto& entry : m_model_map)
     {
-        modelQuatMap[entry.first].forward = Vector3Normalize({ 
+        m_modelQuatMap[entry.first].Forward = Vector3Normalize({ 
             entry.second->transform.m2, 
             entry.second->transform.m6, 
             entry.second->transform.m10 });
 
-        modelQuatMap[entry.first].up = Vector3Normalize({ 
+        m_modelQuatMap[entry.first].Up = Vector3Normalize({ 
             entry.second->transform.m1, 
             entry.second->transform.m5, 
             entry.second->transform.m9 });
@@ -207,14 +208,14 @@ void SceneManager::ParseSceneModelInfo()
 
 void SceneManager::UnloadModels()
 {
-    model_map.clear();
+    m_model_map.clear();
 
-    UnloadModel(cityModel);
-    UnloadModel(humanModel);
-    UnloadModel(mapModel);
-    UnloadModel(navmeshModel);
-    UnloadModel(orcModel);
-    UnloadModel(tribeModel);
+    UnloadModel(m_cityModel);
+    UnloadModel(m_humanModel);
+    UnloadModel(m_mapModel);
+    UnloadModel(m_navmeshModel);
+    UnloadModel(m_orcModel);
+    UnloadModel(m_tribeModel);
 }
 
 SceneManager::~SceneManager()
@@ -224,5 +225,5 @@ SceneManager::~SceneManager()
 
 Model& SceneManager::GetModel(ModelType model_id)
 {
-    return *model_map[model_id];    
+    return *m_model_map[model_id];    
 }

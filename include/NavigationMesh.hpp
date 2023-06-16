@@ -24,19 +24,19 @@ float DistanceToNode(const Vector3& v1, const Vector3& v2);
 
 struct AStarNode
 {
-    Vector3 vertex;
-    float gScore;
-    float fScore;
+    Vector3 Vertex;
+    float G_Score;
+    float F_Score;
 
     AStarNode(const Vector3& _vector3, float _gScore, float _fScore)
-        : vertex(_vector3), gScore (_gScore), fScore (_fScore) {}
+        : Vertex(_vector3), G_Score (_gScore), F_Score (_fScore) {}
 
-    bool operator > (const AStarNode& other) const {return fScore > other.fScore;}
+    bool operator > (const AStarNode& other) const {return F_Score > other.F_Score;}
 };
 
 class NavMesh
 {
-    public:
+public:
 
     NavMesh();
     ~NavMesh();
@@ -51,23 +51,23 @@ class NavMesh
 
     std::vector<Vector3> FindPath(Vector3& start, Vector3& goal); // A* pathfinding
 
-    inline std::vector<Vector3>&  GetGraphNodes() {return graphNodes;}
-    inline Model& GetModel() {return navModel;}
-    inline KDTree& GetNavKDTree() {return kdTreeNavigationNodes;}
-    inline std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash>& GetNavConnectGraph(){return connectivityGraph;}
+    inline std::vector<Vector3>&  GetGraphNodes() {return m_graphNodes;}
+    inline Model& GetModel() {return m_navModel;}
+    inline KDTree& GetNavKDTree() {return m_kdTreeNavigationNodes;}
+    inline std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash>& GetNavConnectGraph(){return m_connectivityGraph;}
     inline Vector3& GetTestPoint(){return m_testPoint;}
 
-    private:
+private:
 
-    Model navModel;
-    Mesh navMesh;
+    Model m_navModel;
+    Mesh m_navMesh;
 
-    Vector3* vertices;
+    Vector3* m_vertices;
     Vector3 m_testPoint; // For nearest node neighbour testing
 
-    KDTree kdTreeNavigationNodes;
+    KDTree m_kdTreeNavigationNodes;
 
     // Stores every mesh triangle
-    std::vector<Vector3> graphNodes;
-    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> connectivityGraph;
+    std::vector<Vector3> m_graphNodes;
+    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> m_connectivityGraph;
 };

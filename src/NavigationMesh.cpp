@@ -4,32 +4,32 @@ NavMesh::NavMesh(){}
 
 NavMesh::~NavMesh()
 {
-    navMesh = {0};
-    UnloadModel(navModel);
+    m_navMesh = {0};
+    UnloadModel(m_navModel);
 }
 
 void NavMesh::ReInitializationCleanup()
 {
-    if (IsModelReady(navModel))
+    if (IsModelReady(m_navModel))
     {
-        UnloadModel(navModel);
+        UnloadModel(m_navModel);
         TraceLog(LOG_INFO, "Navigation Mesh:  Model Reloaded");
 
-        if (*kdTreeNavigationNodes.GetRoot() != nullptr)
+        if (*m_kdTreeNavigationNodes.GetRoot() != nullptr)
         {
-            kdTreeNavigationNodes.DeleteTree(*kdTreeNavigationNodes.GetRoot());
+            m_kdTreeNavigationNodes.DeleteTree(*m_kdTreeNavigationNodes.GetRoot());
             TraceLog(LOG_INFO, "Navigation Mesh:  KD-Tree Reloaded");
         }
 
-        if (!connectivityGraph.empty())
+        if (!m_connectivityGraph.empty())
         {
-            connectivityGraph.clear();
+            m_connectivityGraph.clear();
             TraceLog(LOG_INFO, "Navigation Mesh:  Connectivity Graph Reloaded");
         }
 
-        if (!graphNodes.empty())
+        if (!m_graphNodes.empty())
         {
-            graphNodes.clear();
+            m_graphNodes.clear();
             TraceLog(LOG_INFO, "Navigation Mesh:  Graph Nodes Reloaded");
         }
     }
@@ -39,11 +39,11 @@ void NavMesh::InitializeNavigationGrid(Model& navModel)
 {
     ReInitializationCleanup();
 
-    this->navModel = navModel;
+    this->m_navModel = navModel;
 
-    navMesh = navModel.meshes[0];
+    m_navMesh = navModel.meshes[0];
 
-    vertices = (Vector3*)(navMesh.vertices);
+    m_vertices = (Vector3*)(m_navMesh.vertices);
 
     int indice_index[3];
     Vector3 v[3];
@@ -54,24 +54,24 @@ void NavMesh::InitializeNavigationGrid(Model& navModel)
 
 void NavMesh::ConstructMeshGraph()
 {
-    for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
+    for (int i = 0; i < m_navMesh.triangleCount * 3; i += 3)
     {
-        Vector3 V1 = vertices[navMesh.indices[i]];
-        Vector3 V2 = vertices[navMesh.indices[i + 1]];
-        Vector3 V3 = vertices[navMesh.indices[i + 2]];
+        Vector3 V1 = m_vertices[m_navMesh.indices[i]];
+        Vector3 V2 = m_vertices[m_navMesh.indices[i + 1]];
+        Vector3 V3 = m_vertices[m_navMesh.indices[i + 2]];
 
         Vector3 mid = {
             (V1.x + V2.x + V3.x) / 3.0f,
             (V1.y + V2.y + V3.y) / 3.0f,
             (V1.z + V2.z + V3.z) / 3.0f};
 
-        graphNodes.push_back(mid);
+        m_graphNodes.push_back(mid);
 
-        for (int j = 0; j < navMesh.triangleCount * 3; j += 3)
+        for (int j = 0; j < m_navMesh.triangleCount * 3; j += 3)
         {
-            Vector3 nV1 = vertices[navMesh.indices[j]];
-            Vector3 nV2 = vertices[navMesh.indices[j + 1]];
-            Vector3 nV3 = vertices[navMesh.indices[j + 2]];
+            Vector3 nV1 = m_vertices[m_navMesh.indices[j]];
+            Vector3 nV2 = m_vertices[m_navMesh.indices[j + 1]];
+            Vector3 nV3 = m_vertices[m_navMesh.indices[j + 2]];
 
             int sharedVertices = 0;
 
@@ -90,20 +90,20 @@ void NavMesh::ConstructMeshGraph()
                                         (nV1.y + nV2.y + nV3.y) / 3.0f,
                                         (nV1.z + nV2.z + nV3.z) / 3.0f};
 
-                connectivityGraph[mid].push_back(neighbourMid);
+                m_connectivityGraph[mid].push_back(neighbourMid);
             }
         }
     }
 
-    KDNode** treeRoot = kdTreeNavigationNodes.GetRoot(); 
-    *treeRoot = kdTreeNavigationNodes.constructTree(graphNodes);
+    KDNode** treeRoot = m_kdTreeNavigationNodes.GetRoot(); 
+    *treeRoot = m_kdTreeNavigationNodes.ConstructTree(m_graphNodes);
 
-    if (kdTreeNavigationNodes.isBalanced(*treeRoot))
+    if (m_kdTreeNavigationNodes.IsBalanced(*treeRoot))
         TraceLog(LOG_INFO, "NavMesh kd-tree is balanced");
     else
         TraceLog(LOG_INFO, "NavMesh kd-tree is not balanced");
 
-    if (kdTreeNavigationNodes.validateKdTree(*treeRoot, 0))
+    if (m_kdTreeNavigationNodes.ValidateKdTree(*treeRoot, 0))
         TraceLog(LOG_INFO, "NavMesh kd-tree is valid");
     else
         TraceLog(LOG_INFO, "NavMesh kd-tree is not valid");
@@ -121,7 +121,8 @@ float DistanceToNode(const Vector3& v1, const Vector3& v2)
 std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 {
     // No start or goal nodes in graph
-    if (connectivityGraph.find(start) == connectivityGraph.end() || connectivityGraph.find(goal) == connectivityGraph.end())
+    if (m_connectivityGraph.find(start) == m_connectivityGraph.end() || 
+        m_connectivityGraph.find(goal) == m_connectivityGraph.end())
     {
         TraceLog(LOG_ERROR, "FindPath: START/TARGET NODE NOT FOUND");
         return {};
@@ -137,7 +138,7 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 
     std::unordered_map<Vector3, float, Vector3Hash> gScores;
 
-    for (const auto& pairs : connectivityGraph)
+    for (const auto& pairs : m_connectivityGraph)
     {
         Vector3 origin = pairs.first;
         gScores[origin] = std::numeric_limits<float>::infinity();
@@ -152,10 +153,10 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
         AStarNode current = openNodes.top();
         openNodes.pop();
 
-        if (current.vertex == goal)
+        if (current.Vertex == goal)
         {
             std::vector<Vector3> path;
-            Vector3 currentVertex = current.vertex;
+            Vector3 currentVertex = current.Vertex;
 
             while(currentVertex != start)
             {
@@ -169,9 +170,9 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
             return path;
         }
 
-        for (const Vector3& neighbour : connectivityGraph[current.vertex])
+        for (const Vector3& neighbour : m_connectivityGraph[current.Vertex])
         {
-            float tentativeScore = current.gScore + DistanceToNode(current.vertex, neighbour);
+            float tentativeScore = current.G_Score + DistanceToNode(current.Vertex, neighbour);
 
             if (tentativeScore < gScores[neighbour])
             {
@@ -180,7 +181,7 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 
                 openNodes.push(AStarNode(neighbour, tentativeScore, fScore));
 
-                cameFrom[neighbour] = current.vertex;
+                cameFrom[neighbour] = current.Vertex;
             }
         }
     }
@@ -191,7 +192,7 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 
 void NavMesh::DebugDrawNavMeshGraph()
 {
-    for (auto& pair : connectivityGraph)
+    for (auto& pair : m_connectivityGraph)
     {
         Vector3 elevation = {0.0f, 1.0f, 0.0f};
         for (int i = 0; i < pair.second.size(); i++)
@@ -203,20 +204,20 @@ void NavMesh::DebugDrawNavMeshGraph()
 void NavMesh::DebugDrawWireframe()
 {
     int indice_index[3];
-    for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
+    for (int i = 0; i < m_navMesh.triangleCount * 3; i += 3)
     {
-        indice_index[0] = navMesh.indices[i];
-        indice_index[1] = navMesh.indices[i + 1];
-        indice_index[2] = navMesh.indices[i + 2];
+        indice_index[0] = m_navMesh.indices[i];
+        indice_index[1] = m_navMesh.indices[i + 1];
+        indice_index[2] = m_navMesh.indices[i + 2];
 
         Vector3 elevation = {0.0f, 1.0f, 0.0f};
 
-        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
-                   Vector3Add(vertices[indice_index[1]], elevation), WHITE);
-        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
-                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
-        DrawLine3D(Vector3Add(vertices[indice_index[1]], elevation),
-                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[0]], elevation),
+                   Vector3Add(m_vertices[indice_index[1]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[0]], elevation),
+                   Vector3Add(m_vertices[indice_index[2]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[1]], elevation),
+                   Vector3Add(m_vertices[indice_index[2]], elevation), WHITE);
     }
 }
 
@@ -235,5 +236,5 @@ void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
 void NavMesh::DebugDrawNearestNeighbour(Camera* camera)
 {
     float dis = std::numeric_limits<float>::infinity();
-    Vector3 nearest = kdTreeNavigationNodes.findNearestNode(*kdTreeNavigationNodes.GetRoot(), m_testPoint, dis);
+    Vector3 nearest = m_kdTreeNavigationNodes.FindNearestNode(*m_kdTreeNavigationNodes.GetRoot(), m_testPoint, dis);
 }
