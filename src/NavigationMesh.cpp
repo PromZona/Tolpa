@@ -8,8 +8,37 @@ NavMesh::~NavMesh()
     UnloadModel(navModel);
 }
 
+void NavMesh::ReInitializationCleanup()
+{
+    if (IsModelReady(navModel))
+    {
+        UnloadModel(navModel);
+        TraceLog(LOG_INFO, "Navigation Mesh:  Model Reloaded");
+
+        if (*kdTreeNavigationNodes.GetRoot() != nullptr)
+        {
+            kdTreeNavigationNodes.DeleteTree(*kdTreeNavigationNodes.GetRoot());
+            TraceLog(LOG_INFO, "Navigation Mesh:  KD-Tree Reloaded");
+        }
+
+        if (!connectivityGraph.empty())
+        {
+            connectivityGraph.clear();
+            TraceLog(LOG_INFO, "Navigation Mesh:  Connectivity Graph Reloaded");
+        }
+
+        if (!graphNodes.empty())
+        {
+            graphNodes.clear();
+            TraceLog(LOG_INFO, "Navigation Mesh:  Graph Nodes Reloaded");
+        }
+    }
+}
+
 void NavMesh::InitializeNavigationGrid(Model& navModel)
 {
+    ReInitializationCleanup();
+
     this->navModel = navModel;
 
     navMesh = navModel.meshes[0];

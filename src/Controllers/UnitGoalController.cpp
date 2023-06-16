@@ -21,6 +21,7 @@ void UnitGoalController::Tick(float deltaTime)
 	auto& navGrid = Game::Instance().GetNavGrid();
 	auto& navGridTree = navGrid.GetNavKDTree();
 	auto& navGridGraph = navGrid.GetNavConnectGraph();
+	KDNode** treeRoot = navGridTree.GetRoot();
 
 	if (cities.empty())
 		return;
@@ -47,19 +48,20 @@ void UnitGoalController::Tick(float deltaTime)
 
 			if (!goalComp.IsActive)
 			{
+				float tmp = 0.0f;
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
 				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
-				//Vector3 startClosestNode = navGridTree.findNearestNode(transformComp.Position);
-				//Vector3 targetClosestNode = navGridTree.findNearestNode(cityPosition);
+				Vector3 startClosestNode = navGridTree.findNearestNode(*treeRoot, transformComp.Position, tmp);
+				Vector3 targetClosestNode = navGridTree.findNearestNode(*treeRoot, cityPosition, tmp);
 
-				//navGridGraph[startClosestNode].push_back(transformComp.Position);
-				//navGridGraph[targetClosestNode].push_back(transformComp.Position);
+				navGridGraph[startClosestNode].push_back(transformComp.Position);
+				navGridGraph[targetClosestNode].push_back(transformComp.Position);
 
 				goalComp.PathToGoal = navGrid.FindPath(transformComp.Position, cityPosition);
 
-				//navGridGraph[startClosestNode].pop_back();
-				//navGridGraph[targetClosestNode].pop_back();
+				navGridGraph[startClosestNode].pop_back();
+				navGridGraph[targetClosestNode].pop_back();
 
 				goalComp.steps = 0;
 				goalComp.GoalPosition = goalComp.PathToGoal[0];

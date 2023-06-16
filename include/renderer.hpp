@@ -37,6 +37,8 @@ struct RenderDebugVariables
     int KDTreeDepthDrawingDepth = 0;
     int KDTreeDepthDrawingStep = 0;
     int KDTreeDepthDrawingElevation = 0;
+
+    float LightRotationSpeed = 0.1f;
 };
 
 // GUI interaction for Debug Display
@@ -50,6 +52,8 @@ struct RenderFlagsGlobal
     bool drawDebugNavMeshKDTreeElevated;
     bool drawDebugTerrainWireframe;
     bool drawDebugNavMeshNearestPoint;
+    bool drawDebugModels;
+    bool rotateLight;
 };
 
 struct RenderFlagsUnits
@@ -89,6 +93,7 @@ public:
 
     // Renders terrain-related objects
     void RenderScene();
+    void RotateLight();
     // Location Entities
     
     void InitializeCamera();
@@ -97,6 +102,7 @@ public:
 
     inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
     inline RenderDebugVariables& GetDebugVariables() {return m_DebugVariables;}
+    inline Light& GetLight() {return m_light;}
 
     Camera& GetCamera();
 

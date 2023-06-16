@@ -36,6 +36,9 @@ void GUIManager::DrawHub()
 		return;
 	}
 
+	DrawSceneSettings();
+	ImGui::Separator();
+
 	if (ImGui::TreeNode("Render Settings"))
 	{
 		DrawRenderDebug();
@@ -51,6 +54,36 @@ void GUIManager::DrawHub()
 	ImGui::End();
 }
 
+void GUIManager::DrawSceneSettings()
+{
+	float spacing = ImGui::GetStyle().ItemSpacing.x; 
+
+	auto& sceneManager = Game::Instance().GetSceneManager();
+	auto& sceneFlags = sceneManager.GetSceneFlags();
+	auto& sceneVariables = sceneManager.GetSceneVariables();
+
+	ImGui::Text("Current scene: %d", sceneVariables.SceneNumber);
+	ImGui::SameLine(0, spacing);
+	ImGui::Text("Total scenes: %d", sceneVariables.TotalScenes);
+
+	if (ImGui::Button("Previous Scene") && sceneVariables.SceneNumber > 0)
+	{
+		sceneVariables.SceneNumber--;
+		sceneManager.InitializeScene();
+	}
+	ImGui::SameLine(0, spacing);
+
+	if (ImGui::Button("Next Scene") && sceneVariables.SceneNumber < sceneVariables.TotalScenes)
+	{
+		sceneVariables.SceneNumber++;
+		sceneManager.InitializeScene();
+	}
+	ImGui::SameLine(0, spacing);
+
+	if (ImGui::Checkbox("NoModels Mode", &sceneFlags.NoModelsMode))
+		sceneManager.InitializeScene();
+}
+
 void GUIManager::DrawRenderDebug()
 {
 	float spacing = ImGui::GetStyle().ItemSpacing.x; 
@@ -59,8 +92,32 @@ void GUIManager::DrawRenderDebug()
 	auto& testPoint = gameInstance.GetNavGrid().GetTestPoint();
 	auto& rendererGlobalFlags = gameInstance.GetRendererScene().GetFlags();
 	auto& rendererGlobalVariables = gameInstance.GetRendererScene().GetDebugVariables();
+	auto& sceneLight = gameInstance.GetRendererScene().GetLight();
 	
 	ImGui::SeparatorText("Scene Flags");
+	ImGui::Checkbox("Draw Models", &rendererGlobalFlags.drawDebugModels);
+	if (ImGui::Checkbox("Rotate Ligh Source", &rendererGlobalFlags.rotateLight))
+	{
+		if (sceneLight.position.x == 0.0f)
+			sceneLight.position.x = 400.0f;
+		else
+			sceneLight.position.x = 0.0f;
+	}
+	
+	if (rendererGlobalFlags.rotateLight)
+	{
+		ImGui::SliderFloat("Speed", &rendererGlobalVariables.LightRotationSpeed, 0.0f, 1.0f);
+
+		static ImVec4 colorPicked;
+		if (ImGui::ColorEdit4("Color: ", (float*)&colorPicked))
+		{
+			sceneLight.color.r = static_cast<unsigned char>(colorPicked.x * 255);
+			sceneLight.color.g = static_cast<unsigned char>(colorPicked.y * 255);
+			sceneLight.color.b = static_cast<unsigned char>(colorPicked.z * 255);
+			sceneLight.color.a = static_cast<unsigned char>(colorPicked.w * 255);
+		}
+	}
+
 	ImGui::Checkbox("NavMesh Wireframe", &rendererGlobalFlags.drawDebugNavMeshWireframe);
 	ImGui::Checkbox("NavMesh Midpoints", &rendererGlobalFlags.drawDebugNavMeshMiddlePoints);
 	ImGui::Checkbox("NavMesh Graph", &rendererGlobalFlags.drawDebugNavMeshGraph);

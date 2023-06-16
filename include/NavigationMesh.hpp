@@ -42,6 +42,7 @@ class NavMesh
     ~NavMesh();
 
     void InitializeNavigationGrid(Model& navModel);
+    void ReInitializationCleanup();
     void DebugDrawWireframe();
     void DebugDrawNavMeshGraph();
     void DebugDrawPath(std::vector<Vector3> path, int step);

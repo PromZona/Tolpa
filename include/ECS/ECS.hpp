@@ -15,6 +15,10 @@ public:
 	void DeleteEntity(const EntityId& entityId);
 	void PrintInfo();
 	void CheckEntity(const EntityId& entity);
+	
+	// Using this to delete all entities on the scene to load a new one
+	// Not sure if its practical, change later as you see fit
+	inline EntityId& GetAvailableEntities() {return m_availableEntityId;}
 
 	template<class T>
 	void AddComponent(const EntityId& entityId, T component)

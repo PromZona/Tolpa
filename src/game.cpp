@@ -117,21 +117,7 @@ void Game::InitializeControllers()
 
 void Game::InitializeScene()
 {
-    m_rendererScene.InitializeCamera();
-	m_sceneManager.LoadModels();
-	
-	auto& ecs = Game::Instance().GetECS();
-	auto map = ecs.CreateEntity();
-
-	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}, {0, 0, 0}, 0});
-	ecs.AddComponent<ModelComponent>(map, {ModelType::MAP, 1.0f});
-	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
-	ecs.AddComponent<TerrainComponent>(map, {0});
-
-	Game::Instance().State.map.push_back(map);
-
-	m_rendererScene.InitializeLighting();
-	m_rendererScene.ApplyLightingShaderToObjects();
+    m_sceneManager.InitializeScene();
 }
 
 ECS& Game::GetECS()
