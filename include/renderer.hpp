@@ -103,7 +103,6 @@ public:
     inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
     inline RenderDebugVariables& GetDebugVariables() {return m_DebugVariables;}
     inline Light& GetLight() {return m_light;}
-
     Camera& GetCamera();
 
 private:
