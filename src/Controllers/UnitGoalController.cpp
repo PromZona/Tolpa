@@ -48,22 +48,18 @@ void UnitGoalController::Tick(float deltaTime)
 
 			if (!goalComp.IsActive)
 			{
-				float dis = std::numeric_limits<float>::infinity();
 
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
 				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
+				float dis = std::numeric_limits<float>::infinity();
 				Vector3 startClosestNode = navGridTree.FindNearestNode(*treeRoot, transformComp.Position, dis);
-				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
-				navGridGraph[startClosestNode].push_back(transformComp.Position);
-				navGridGraph[targetClosestNode].push_back(cityPosition);
+				dis = std::numeric_limits<float>::infinity();
+				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
 				goalComp.PathToGoal = navGrid.FindPath(startClosestNode, targetClosestNode);
 				goalComp.PathToGoal.push_back(cityPosition);
-
-				navGridGraph[targetClosestNode].pop_back();
-				navGridGraph[startClosestNode].pop_back();
 
 				goalComp.steps = 0;
 				goalComp.GoalPosition = goalComp.PathToGoal[0];
