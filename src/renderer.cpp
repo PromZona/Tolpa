@@ -31,7 +31,7 @@ void SceneRenderer::InitializeCamera()
     m_camera.position = {400.0f, 400.0f, 400.0f};
     m_camera.target = {0.0f, 0.0f, 0.0f};
     m_camera.up = {0.0f, 1.0f, 0.0f};
-    m_camera.fovy = 45.0f;
+    m_camera.fovy = 90.0f;
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
@@ -137,6 +137,30 @@ void SceneRenderer::RotateLight()
     m_light.position.z = -m_light.position.x * sinTheta + m_light.position.z * cosTheta;
 }
 
+void SceneRenderer::RenderPlacingPreview()
+{
+    auto& hitPoint = m_meshPicker.GetCollisionPoint();
+    auto& sceneManager = Game::Instance().GetSceneManager();
+
+    float previewScale = 1.0f;
+    switch (m_gameplayVariables.previewModelType)
+    {
+        case ModelType::HUMAN:
+            previewScale = 0.1f;
+            break;
+        case ModelType::CITY:
+            previewScale = 1.0f;
+            break;
+        case ModelType::TRIBE:
+            previewScale = 1.0f;
+            break;
+        default:
+            break;
+    }
+
+    DrawModelWires(sceneManager.GetModel(m_gameplayVariables.previewModelType), hitPoint.point, previewScale, WHITE);    
+}
+
 // Scene-specific Renders
 // Camera updates
 // Light updates
@@ -178,6 +202,12 @@ void SceneRenderer::RenderScene()
             if (m_GlobalFlags.DrawDebugModels)
                 DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
         }
+    }
+
+    if (m_gameplayVariables.ShowPlacingPreview)
+    {
+        m_meshPicker.GetTerrainHit();
+        RenderPlacingPreview();
     }
 
     if (m_GlobalFlags.DrawDebugNavMeshMiddlePoints)

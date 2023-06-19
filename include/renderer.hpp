@@ -7,8 +7,11 @@
 #include "raymath.h"
 
 #include "ECS/System.hpp"
+#include "MeshPicking.hpp"
 
 #define MAX_LIGHTS 1         // Max dynamic lights supported by shader
+
+enum class ModelType;
 
 // Light data
 typedef struct {   
@@ -39,6 +42,12 @@ struct RenderDebugVariables
     int KDTreeDepthDrawingElevation = 0;
 
     float LightRotationSpeed = 0.1f;
+};
+
+struct RenderGameplayVariables
+{
+    ModelType previewModelType;
+    bool ShowPlacingPreview = false;
 };
 
 // GUI interaction for Debug Display
@@ -84,17 +93,14 @@ public:
     SceneRenderer();
     ~SceneRenderer();
 
-    // Send light properties to shader
-    // NOTE: Light shader locations should be available 
     void UpdateLightValues(Shader shader, Light light);
 
     // Create a light and get shader locations
     Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader);
 
-    // Renders terrain-related objects
     void RenderScene();
+    void RenderPlacingPreview();
     void RotateLight();
-    // Location Entities
     
     void InitializeCamera();
     void InitializeLighting();
@@ -102,10 +108,14 @@ public:
 
     inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
     inline RenderDebugVariables& GetDebugVariables() {return m_DebugVariables;}
+    inline RenderGameplayVariables& GetGameplayVariables() {return m_gameplayVariables;}
+    inline MeshPicker& GetMeshPicker() {return m_meshPicker;}
     inline Light& GetLight() {return m_light;}
     Camera& GetCamera();
 
 private:
+
+    MeshPicker m_meshPicker;
 
     Shader m_shader_light;
     int m_ambient_loc;
@@ -113,6 +123,7 @@ private:
     
     RenderFlagsGlobal m_GlobalFlags;
     RenderDebugVariables m_DebugVariables;
+    RenderGameplayVariables m_gameplayVariables;
 
     Camera m_camera;
 };

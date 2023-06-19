@@ -32,7 +32,7 @@ EntityId EntityFactory::CreateCity(Vector3 position)
 	auto city = ecs.CreateEntity();
 
 	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
-	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 0.3f});
+	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
 
 	ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"City"});
@@ -47,7 +47,7 @@ EntityId EntityFactory::CreateOrcsTribe(Vector3 position)
 	auto city = ecs.CreateEntity();
 
 	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
-	ecs.AddComponent<ModelComponent>(city, {ModelType::TRIBE, 0.3f});
+	ecs.AddComponent<ModelComponent>(city, {ModelType::TRIBE, 1.0f});
 
 	ecs.AddComponent<RenderComponent>(city, {PURPLE, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"Tribe"});

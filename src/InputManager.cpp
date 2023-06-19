@@ -44,7 +44,10 @@ InputManager::~InputManager() = default;
 
 void InputManager::Update()
 {
-	auto& cam = Game::Instance().GetRendererScene().GetCamera();
+	auto& sceneRenderer = Game::Instance().GetRendererScene();
+	auto& cam = sceneRenderer.GetCamera();
+	auto& sceneGameplayVariables = sceneRenderer.GetGameplayVariables();
+
 	int keyPressed = 0;
 
 	while ((keyPressed = GetKeyPressed()) != 0)
@@ -58,25 +61,22 @@ void InputManager::Update()
 
 		if (keyPressed == KEY_H)
 		{
-			//auto mousePos = GetMousePosition();
-			auto command = std::make_unique<CreateHumanCommand>(GetRandomLocation());
-			Game::Instance().GetCommandManager().AddCommand(std::move(command));
+			sceneGameplayVariables.ShowPlacingPreview = true;
+			sceneGameplayVariables.previewModelType = ModelType::HUMAN;
 			continue;
 		}
     
 		if (keyPressed == KEY_C)
 		{
-			//auto mousePos = GetMousePosition();
-			auto command = std::make_unique<CreateCityCommand>(Vector3Add(GetRandomLocation(), {-5.0f, 0.0f, -10.0f}));
-			Game::Instance().GetCommandManager().AddCommand(std::move(command));
+			sceneGameplayVariables.ShowPlacingPreview = true;
+			sceneGameplayVariables.previewModelType = ModelType::CITY;
 			continue;
 		}
 
 		if (keyPressed == KEY_T)
 		{
-			//auto mousePos = GetMousePosition();
-			auto command = std::make_unique<CreateOrcsTribeCommand>(Vector3Add(GetRandomLocation(), {5.0f, 0.0f, 10.0f}));
-			Game::Instance().GetCommandManager().AddCommand(std::move(command));
+			sceneGameplayVariables.ShowPlacingPreview = true;
+			sceneGameplayVariables.previewModelType = ModelType::TRIBE;
 			continue;
 		}
 
@@ -85,6 +85,44 @@ void InputManager::Update()
 			Game::Instance().GetECS().PrintInfo();
 		}
 	}
+
+	if (sceneGameplayVariables.ShowPlacingPreview)
+	{
+		auto& terrainPicker = sceneRenderer.GetMeshPicker();
+		if (terrainPicker.IsTerrainHit() && IsMouseButtonPressed(MouseButton::MOUSE_BUTTON_LEFT))
+		{
+			switch (sceneGameplayVariables.previewModelType)
+			{
+				case ModelType::HUMAN:
+				{
+					auto command = std::make_unique<CreateHumanCommand>(terrainPicker.GetCollisionPoint().point);
+					Game::Instance().GetCommandManager().AddCommand(std::move(command));
+					break;
+				}
+				case ModelType::CITY:
+				{
+					auto command = std::make_unique<CreateCityCommand>(terrainPicker.GetCollisionPoint().point);
+					Game::Instance().GetCommandManager().AddCommand(std::move(command));
+					break;
+				}
+				case ModelType::TRIBE:
+				{
+					auto command = std::make_unique<CreateOrcsTribeCommand>(terrainPicker.GetCollisionPoint().point);
+					Game::Instance().GetCommandManager().AddCommand(std::move(command));
+					break;
+				}
+				default:
+					TraceLog(LOG_ERROR, "Placing an entity failed");
+					break;
+			}
+
+			sceneGameplayVariables.ShowPlacingPreview = false;
+		}
+
+		if (IsMouseButtonPressed(MouseButton::MOUSE_BUTTON_RIGHT))
+			sceneGameplayVariables.ShowPlacingPreview = false;
+	}
+
 
 	Vector2 prevMousePosition = {0.0f, 0.0f};
 	Vector2 currPosition = {0.0f, 0.0f};
@@ -96,7 +134,7 @@ void InputManager::Update()
 	if (IsMouseButtonPressed(MouseButton::MOUSE_BUTTON_RIGHT))
 		prevMousePosition = GetMousePosition();
 
-	if (IsMouseButtonDown(MouseButton::MOUSE_BUTTON_RIGHT))
+	if (IsMouseButtonDown(MouseButton::MOUSE_BUTTON_RIGHT) && !sceneGameplayVariables.ShowPlacingPreview)
 	{
 		currPosition = {GetMousePosition().x - Game::Instance().ScreenWidth / 2,
 						GetMousePosition().y - Game::Instance().ScreenHeight / 2};
