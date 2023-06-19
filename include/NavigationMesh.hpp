@@ -66,6 +66,7 @@ public:
     void ConstructMeshGraph();
 
     std::vector<Vector3> FindPath(Vector3& start, Vector3& goal); // A* pathfinding
+    std::vector<Vector3> SmoothPath(const std::vector<Vector3>& path, int resolution); 
 
     inline std::vector<Vector3>&  GetGraphNodes() {return m_graphNodes;}
     inline Model& GetModel() {return m_navModel;}

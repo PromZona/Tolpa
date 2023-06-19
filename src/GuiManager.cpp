@@ -62,7 +62,7 @@ void GUIManager::DrawSceneSettings()
 	auto& sceneFlags = sceneManager.GetSceneFlags();
 	auto& sceneVariables = sceneManager.GetSceneVariables();
 
-	ImGui::Text("Current scene: %d", sceneVariables.SceneNumber);
+	ImGui::Text("Current scene: %d", sceneVariables.SceneNumber + 1);
 	ImGui::SameLine(0, spacing);
 	ImGui::Text("Total scenes: %d", sceneVariables.TotalScenes);
 

@@ -10,12 +10,12 @@ resources/3d_objects/city.glb
 resources/3d_objects/human.glb
 resources/3d_objects/tribe.glb
 resources/3d_objects/orc.glb
-resources/3d_objects/TolpaTerrain2.glb
-resources/3d_objects/NavigationMesh2.glb
+resources/3d_objects/TolpaTerrain3.glb
+resources/3d_objects/NavigationMesh3.glb
 scene2
 resources/3d_objects/city.glb
 resources/3d_objects/human.glb
 resources/3d_objects/tribe.glb
 resources/3d_objects/orc.glb
-resources/3d_objects/TolpaTerrain3.glb
-resources/3d_objects/NavigationMesh3.glb
+resources/3d_objects/TolpaTerrain2.glb
+resources/3d_objects/NavigationMesh2.glb

@@ -40,6 +40,7 @@ add_library(${PROJECT_NAME} STATIC
         SceneManager.cpp
         KDTree.cpp
         GuiManager.cpp
+        MeshPicking.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp
         Commands/CreateCityCommand.cpp

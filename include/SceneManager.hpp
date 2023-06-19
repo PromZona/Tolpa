@@ -60,6 +60,7 @@ private:
     std::unordered_map<ModelType, Model*> m_model_map;
     std::unordered_map<ModelType, ModelQuatVectors> m_modelQuatMap;
 
+
     Model m_cityModel;
     Model m_humanModel;
     Model m_tribeModel;

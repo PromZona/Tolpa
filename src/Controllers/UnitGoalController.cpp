@@ -59,7 +59,9 @@ void UnitGoalController::Tick(float deltaTime)
 				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
 				goalComp.PathToGoal = navGrid.FindPath(startClosestNode, targetClosestNode);
+				//goalComp.PathToGoal = navGrid.SmoothPath(goalComp.PathToGoal, 5);
 				goalComp.PathToGoal.push_back(cityPosition);
+
 
 				goalComp.steps = 0;
 				goalComp.GoalPosition = goalComp.PathToGoal[0];
