@@ -32,24 +32,39 @@ typedef enum {
     LIGHT_POINT
 } LightType;
 
+struct RenderDebugVariables
+{
+    int KDTreeDepthDrawingDepth = 0;
+    int KDTreeDepthDrawingStep = 0;
+    int KDTreeDepthDrawingElevation = 0;
+
+    float LightRotationSpeed = 0.1f;
+};
+
 // GUI interaction for Debug Display
 struct RenderFlagsGlobal
 {
-    bool drawDebugNavMeshWireframe;
-    bool drawDebugNavMeshGraph;
-    bool drawDebugNavMeshMiddlePoints;
-    bool drawDebugTerrainWireframe;
+    bool DrawDebugNavMeshWireframe;
+    bool DrawDebugNavMeshGraph;
+    bool DrawDebugNavMeshMiddlePoints;
+    bool DrawDebugNavMeshKDTree;
+    bool DrawDebugNavMeshKDTreeInverted;
+    bool DrawDebugNavMeshKDTreeElevated;
+    bool DrawDebugTerrainWireframe;
+    bool DrawDebugNavMeshNearestPoint;
+    bool DrawDebugModels;
+    bool RotateLight;
 };
 
 struct RenderFlagsUnits
 {
-    bool drawDebugPath;
-    bool drawDebugForwardVector;
+    bool DrawDebugPath;
+    bool DrawDebugForwardVector;
 };
 
 struct RenderFlagsLocations
 {
-    bool debug;
+    bool Debug;
 };
 
 static int lightsCount = 0;    // Current amount of created lights
@@ -78,6 +93,7 @@ public:
 
     // Renders terrain-related objects
     void RenderScene();
+    void RotateLight();
     // Location Entities
     
     void InitializeCamera();
@@ -85,7 +101,8 @@ public:
     void ApplyLightingShaderToObjects();
 
     inline RenderFlagsGlobal& GetFlags() {return m_GlobalFlags;}
-
+    inline RenderDebugVariables& GetDebugVariables() {return m_DebugVariables;}
+    inline Light& GetLight() {return m_light;}
     Camera& GetCamera();
 
 private:
@@ -93,7 +110,10 @@ private:
     Shader m_shader_light;
     int m_ambient_loc;
     Light m_light;
+    
     RenderFlagsGlobal m_GlobalFlags;
+    RenderDebugVariables m_DebugVariables;
+
     Camera m_camera;
 };
 

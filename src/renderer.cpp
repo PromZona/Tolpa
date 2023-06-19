@@ -26,6 +26,7 @@ GuiRenderer::~GuiRenderer(){}
 
 void SceneRenderer::InitializeCamera()
 {
+    TraceLog(LOG_INFO, "Initializing Camera...");
     m_camera = { 0 };
     m_camera.position = {400.0f, 400.0f, 400.0f};
     m_camera.target = {0.0f, 0.0f, 0.0f};
@@ -41,22 +42,28 @@ Camera& SceneRenderer::GetCamera()
 
 void SceneRenderer::InitializeLighting()
 {
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    if(!IsShaderReady(m_shader_light))
+    {
+        TraceLog(LOG_INFO, "Loading Shader...");
+        SetConfigFlags(FLAG_MSAA_4X_HINT);
+        m_shader_light = LoadShader("../resources/shaders/lighting.vs",
+                                    "../resources/shaders/lighting.fs");
 
-    m_shader_light = LoadShader("../resources/shaders/lighting.vs",
-                                "../resources/shaders/lighting.fs");
+        m_shader_light.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(m_shader_light, "viewPos");
+        m_ambient_loc = GetShaderLocation(m_shader_light, "ambient");
+        
+        float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+        SetShaderValue(m_shader_light, m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
 
-    m_shader_light.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(m_shader_light, "viewPos");
-    m_ambient_loc = GetShaderLocation(m_shader_light, "ambient");
-    
-    float temp[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    SetShaderValue(m_shader_light, m_ambient_loc, temp, SHADER_UNIFORM_VEC4);
-
-    m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), WHITE, m_shader_light);
+        m_light = CreateLight(LIGHT_POINT, {0, 150, 0}, Vector3Zero(), WHITE, m_shader_light);
+    }
+    else
+        TraceLog(LOG_INFO, "Shader already loaded...");
 }
-
 void SceneRenderer::ApplyLightingShaderToObjects()
 {
+    TraceLog(LOG_INFO, "Applying shader to scene models...");
+
     auto& sceneManager = Game::Instance().GetSceneManager();
 
     auto& model_map = sceneManager.GetTypeToModelMap();
@@ -69,6 +76,7 @@ void SceneRenderer::ApplyLightingShaderToObjects()
 
 Light SceneRenderer::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
 {
+    TraceLog(LOG_INFO, "Creating light...");
     Light light = { 0 };
 
     light.enabled = true;
@@ -115,6 +123,20 @@ void SceneRenderer::UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.colorLoc, color, SHADER_UNIFORM_VEC4);
 }
 
+void SceneRenderer::RotateLight()
+{
+    // Convert the angle from degrees to radians
+    double radians = m_DebugVariables.LightRotationSpeed * PI / 180.0;
+
+    // Rotation matrix around the Y-axis
+    double cosTheta = cos(radians);
+    double sinTheta = sin(radians);
+
+    m_light.position.x = m_light.position.x * cosTheta + m_light.position.z * sinTheta;
+    m_light.position.y = m_light.position.y;
+    m_light.position.z = -m_light.position.x * sinTheta + m_light.position.z * cosTheta;
+}
+
 // Scene-specific Renders
 // Camera updates
 // Light updates
@@ -147,30 +169,56 @@ void SceneRenderer::RenderScene()
         {
             Model currentModel = SceneManager.GetModel(models[i].model_id);
 
-            if (models[i].model_id == ModelType::MAP && m_GlobalFlags.drawDebugTerrainWireframe)
+            if (models[i].model_id == ModelType::MAP && m_GlobalFlags.DrawDebugTerrainWireframe)
             {
                 DrawModelWires(currentModel, transforms[i].Position, models[i].scale, WHITE);
                 continue;
             }
 
-            DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
+            if (m_GlobalFlags.DrawDebugModels)
+                DrawModel(currentModel, transforms[i].Position, models[i].scale, WHITE);
         }
     }
 
-    if (m_GlobalFlags.drawDebugNavMeshMiddlePoints)
+    if (m_GlobalFlags.DrawDebugNavMeshMiddlePoints)
     {
-        auto& middleMesh = NavGrid.GetTriangles();
+        auto& navGraphNodes = NavGrid.GetGraphNodes();
 
-        for (int i = 0; i < middleMesh.size(); i++)
-            DrawPoint3D(middleMesh[i].middlePoint, GREEN);
+        for (int i = 0; i < navGraphNodes.size(); i++)
+            DrawPoint3D(navGraphNodes[i], GREEN);
     }
 
-    auto& navGridModel = NavGrid.GetModel();
-
-    if (m_GlobalFlags.drawDebugNavMeshGraph)
+    if (m_GlobalFlags.DrawDebugNavMeshGraph)
         NavGrid.DebugDrawNavMeshGraph();
-    if (m_GlobalFlags.drawDebugNavMeshWireframe)
+
+    if (m_GlobalFlags.DrawDebugNavMeshWireframe)
         NavGrid.DebugDrawWireframe();
+
+    if (m_GlobalFlags.DrawDebugNavMeshKDTree)
+    {
+        auto& kd_tree = NavGrid.GetNavKDTree();
+
+        if (m_GlobalFlags.DrawDebugNavMeshKDTreeInverted)
+            kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
+            m_DebugVariables.KDTreeDepthDrawingDepth,
+            m_GlobalFlags.DrawDebugNavMeshKDTreeInverted,
+            m_GlobalFlags.DrawDebugNavMeshKDTreeElevated);
+        else
+            kd_tree.DebugDrawTreeByDepth(*kd_tree.GetRoot(), 
+            m_DebugVariables.KDTreeDepthDrawingDepth, 0,
+            m_GlobalFlags.DrawDebugNavMeshKDTreeElevated);
+    }
+
+    if (m_GlobalFlags.DrawDebugNavMeshNearestPoint)
+    {
+        auto& testPoint = NavGrid.GetTestPoint();        
+        DrawSphereWires(testPoint, 5.0f, 10, 10, ORANGE);
+
+        NavGrid.DebugDrawNearestNeighbour(&m_camera);
+    }
+    
+    if (m_GlobalFlags.RotateLight)
+        RotateLight();
 
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 }
@@ -201,7 +249,7 @@ void UnitRenderer::RenderUnits()
             Model currentModel = SceneManager.GetModel(c_models[i].model_id);
             DrawModel(currentModel, c_transforms[i].Position, c_models[i].scale, WHITE);
 
-            if (m_UnitFlags.drawDebugPath)
+            if (m_UnitFlags.DrawDebugPath)
                 NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
         }
     }

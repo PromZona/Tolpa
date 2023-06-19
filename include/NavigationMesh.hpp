@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include "KDTree.hpp"
 #include "stdio.h"
 #include <cmath>
 #include <unordered_map>
@@ -19,14 +20,6 @@ struct Vector3Hash {
     }
 };
 
-inline bool operator==(const Vector3& v1, const Vector3& v2) {
-    return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z);
-};
-
-inline bool operator!=(const Vector3& v1, const Vector3& v2) {
-    return (v1.x != v2.x) || (v1.y != v2.y) || (v1.z != v2.z);
-};
-
 struct TriangleMesh
 {
     Vector3 vertices[3];
@@ -42,47 +35,55 @@ struct TriangleMesh
     }
 
 };
-
 float DistanceToNode(const Vector3& v1, const Vector3& v2);
 
 struct AStarNode
 {
-    Vector3 vertex;
-    float gScore;
-    float fScore;
+    Vector3 Vertex;
+    float G_Score;
+    float F_Score;
 
     AStarNode(const Vector3& _vector3, float _gScore, float _fScore)
-        : vertex(_vector3), gScore (_gScore), fScore (_fScore) {}
+        : Vertex(_vector3), G_Score (_gScore), F_Score (_fScore) {}
 
-    bool operator > (const AStarNode& other) const {return fScore > other.fScore;}
+    bool operator > (const AStarNode& other) const {return F_Score > other.F_Score;}
 };
 
 class NavMesh
 {
-    public:
+public:
 
     NavMesh();
     ~NavMesh();
 
     void InitializeNavigationGrid(Model& navModel);
+
+    void ReInitializationCleanup();
     void DebugDrawWireframe();
     void DebugDrawNavMeshGraph();
     void DebugDrawPath(std::vector<Vector3> path, int step);
+    void DebugDrawNearestNeighbour(Camera* camera);
     void ConstructMeshGraph();
-    // A*
-    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal);
 
-    inline std::vector<TriangleMesh>&  GetTriangles() {return navMeshTriVec;}
-    inline Model& GetModel() {return navModel;}
+    std::vector<Vector3> FindPath(Vector3& start, Vector3& goal); // A* pathfinding
 
-    private:
+    inline std::vector<Vector3>&  GetGraphNodes() {return m_graphNodes;}
+    inline Model& GetModel() {return m_navModel;}
+    inline KDTree& GetNavKDTree() {return m_kdTreeNavigationNodes;}
+    inline std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash>& GetNavConnectGraph(){return m_connectivityGraph;}
+    inline Vector3& GetTestPoint(){return m_testPoint;}
 
-    Model navModel;
-    Mesh navMesh;
+private:
 
-    Vector3* vertices;
+    Model m_navModel;
+    Mesh m_navMesh;
+
+    Vector3* m_vertices;
+    Vector3 m_testPoint; // For nearest node neighbour testing
+
+    KDTree m_kdTreeNavigationNodes;
 
     // Stores every mesh triangle
-    std::vector<TriangleMesh> navMeshTriVec;
-    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> connectivityGraph;
+    std::vector<Vector3> m_graphNodes;
+    std::unordered_map<Vector3, std::vector<Vector3>, Vector3Hash> m_connectivityGraph;
 };

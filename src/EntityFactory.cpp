@@ -18,7 +18,7 @@ EntityId EntityFactory::CreateHuman(Vector3 position)
 
     ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
-	ecs.AddComponent<ModelComponent>(unit, {ModelType::HUMAN, 0.3f});
+	ecs.AddComponent<ModelComponent>(unit, {ModelType::HUMAN, 0.1f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
 	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 
@@ -32,7 +32,8 @@ EntityId EntityFactory::CreateCity(Vector3 position)
 	auto city = ecs.CreateEntity();
 
 	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
-	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
+	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 0.3f});
+
 	ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"City"});
 
@@ -46,7 +47,8 @@ EntityId EntityFactory::CreateOrcsTribe(Vector3 position)
 	auto city = ecs.CreateEntity();
 
 	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
-	ecs.AddComponent<ModelComponent>(city, {ModelType::TRIBE, 1.0f});
+	ecs.AddComponent<ModelComponent>(city, {ModelType::TRIBE, 0.3f});
+
 	ecs.AddComponent<RenderComponent>(city, {PURPLE, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"Tribe"});
 
@@ -61,7 +63,8 @@ EntityId EntityFactory::CreateOrc(Vector3 position)
 	
 	ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
-	ecs.AddComponent<ModelComponent>(unit, {ModelType::ORC, 0.3f});
+	ecs.AddComponent<ModelComponent>(unit, {ModelType::ORC, 0.1f});
+
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
 	ecs.AddComponent<GoalComponent>(unit, {{0, 0, 0}, {}, false, 0});
 

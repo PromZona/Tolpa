@@ -4,72 +4,84 @@ NavMesh::NavMesh(){}
 
 NavMesh::~NavMesh()
 {
-    navMesh = {0};
-    navMeshTriVec.clear();
-    UnloadModel(navModel);
+    m_navMesh = {0};
+    UnloadModel(m_navModel);
+}
+
+void NavMesh::ReInitializationCleanup()
+{
+    if (IsModelReady(m_navModel))
+    {
+        UnloadModel(m_navModel);
+        TraceLog(LOG_INFO, "Navigation Mesh:  Model Reloaded");
+
+        if (*m_kdTreeNavigationNodes.GetRoot() != nullptr)
+        {
+            m_kdTreeNavigationNodes.DeleteTree(*m_kdTreeNavigationNodes.GetRoot());
+            TraceLog(LOG_INFO, "Navigation Mesh:  KD-Tree Reloaded");
+        }
+
+        if (!m_connectivityGraph.empty())
+        {
+            m_connectivityGraph.clear();
+            TraceLog(LOG_INFO, "Navigation Mesh:  Connectivity Graph Reloaded");
+        }
+
+        if (!m_graphNodes.empty())
+        {
+            m_graphNodes.clear();
+            TraceLog(LOG_INFO, "Navigation Mesh:  Graph Nodes Reloaded");
+        }
+    }
 }
 
 void NavMesh::InitializeNavigationGrid(Model& navModel)
 {
-    printf("Initializing NavGrid\n");
-    this->navModel = navModel;
+    ReInitializationCleanup();
 
-    navMesh = navModel.meshes[0];
+    this->m_navModel = navModel;
 
-    printf("NavMesh vertice count: %d\n", this->navModel.meshes[0].vertexCount);
-    printf("NavMesh triangle count: %d\n", this->navModel.meshes[0].triangleCount);
+    m_navMesh = navModel.meshes[0];
 
-    vertices = (Vector3*)(navMesh.vertices);
+    m_vertices = (Vector3*)(m_navMesh.vertices);
 
     int indice_index[3];
     Vector3 v[3];
     Vector3 mid;
 
-    // should be optimized later (maybe merged into ConstructMeshGraph entirely)
-    for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
-    {
-        indice_index[0] = navMesh.indices[i];
-        indice_index[1] = navMesh.indices[i + 1];
-        indice_index[2] = navMesh.indices[i + 2];
-
-        v[0] = vertices[indice_index[0]];
-        v[1] = vertices[indice_index[1]];
-        v[2] = vertices[indice_index[2]];
-
-        mid = {(v[0].x + v[1].x + v[2].x) / 3.0f,
-               (v[0].y + v[1].y + v[2].y) / 3.0f,
-               (v[0].z + v[1].z + v[2].z) / 3.0f};
-
-        navMeshTriVec.push_back(TriangleMesh(v, mid));
-    }
-
-    printf("Constructing NavGraph\n");
-
     ConstructMeshGraph();
-
-    printf("Nav Mesh done\n");
-
 }
 
 void NavMesh::ConstructMeshGraph()
 {
-    for (int i = 0; i < navMeshTriVec.size(); i++)
+    for (int i = 0; i < m_navMesh.triangleCount * 3; i += 3)
     {
-        for (int j = 0; j < navMesh.triangleCount * 3; j += 3)
+        Vector3 V1 = m_vertices[m_navMesh.indices[i]];
+        Vector3 V2 = m_vertices[m_navMesh.indices[i + 1]];
+        Vector3 V3 = m_vertices[m_navMesh.indices[i + 2]];
+
+        Vector3 mid = {
+            (V1.x + V2.x + V3.x) / 3.0f,
+            (V1.y + V2.y + V3.y) / 3.0f,
+            (V1.z + V2.z + V3.z) / 3.0f};
+
+        m_graphNodes.push_back(mid);
+
+        for (int j = 0; j < m_navMesh.triangleCount * 3; j += 3)
         {
-            Vector3 nV1 = vertices[navMesh.indices[j]];
-            Vector3 nV2 = vertices[navMesh.indices[j + 1]];
-            Vector3 nV3 = vertices[navMesh.indices[j + 2]];
+            Vector3 nV1 = m_vertices[m_navMesh.indices[j]];
+            Vector3 nV2 = m_vertices[m_navMesh.indices[j + 1]];
+            Vector3 nV3 = m_vertices[m_navMesh.indices[j + 2]];
 
             int sharedVertices = 0;
 
-            if (navMeshTriVec[i].vertices[0] == nV1 || navMeshTriVec[i].vertices[1] == nV2 || navMeshTriVec[i].vertices[2] == nV3) 
+            if (V1 == nV1 || V2 == nV2 || V3 == nV3) 
                 sharedVertices++;
 
-            if (navMeshTriVec[i].vertices[1] == nV1 || navMeshTriVec[i].vertices[2] == nV2 || navMeshTriVec[i].vertices[0] == nV3) 
+            if (V2 == nV1 || V3 == nV2 || V1 == nV3) 
                 sharedVertices++;
 
-            if (navMeshTriVec[i].vertices[2] == nV1 || navMeshTriVec[i].vertices[0] == nV2 || navMeshTriVec[i].vertices[1] == nV3) 
+            if (V3 == nV1 || V1 == nV2 || V2 == nV3) 
                 sharedVertices++;
 
             if (sharedVertices >= 2) 
@@ -78,10 +90,23 @@ void NavMesh::ConstructMeshGraph()
                                         (nV1.y + nV2.y + nV3.y) / 3.0f,
                                         (nV1.z + nV2.z + nV3.z) / 3.0f};
 
-                connectivityGraph[navMeshTriVec[i].middlePoint].push_back(neighbourMid);
+                m_connectivityGraph[mid].push_back(neighbourMid);
             }
         }
     }
+
+    KDNode** treeRoot = m_kdTreeNavigationNodes.GetRoot(); 
+    *treeRoot = m_kdTreeNavigationNodes.ConstructTree(m_graphNodes);
+
+    if (m_kdTreeNavigationNodes.IsBalanced(*treeRoot))
+        TraceLog(LOG_INFO, "NavMesh kd-tree is balanced");
+    else
+        TraceLog(LOG_INFO, "NavMesh kd-tree is not balanced");
+
+    if (m_kdTreeNavigationNodes.ValidateKdTree(*treeRoot, 0))
+        TraceLog(LOG_INFO, "NavMesh kd-tree is valid");
+    else
+        TraceLog(LOG_INFO, "NavMesh kd-tree is not valid");
 }
 
 float DistanceToNode(const Vector3& v1, const Vector3& v2)
@@ -96,9 +121,10 @@ float DistanceToNode(const Vector3& v1, const Vector3& v2)
 std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 {
     // No start or goal nodes in graph
-    if (connectivityGraph.find(start) == connectivityGraph.end() || connectivityGraph.find(goal) == connectivityGraph.end())
+    if (m_connectivityGraph.find(start) == m_connectivityGraph.end() || 
+        m_connectivityGraph.find(goal) == m_connectivityGraph.end())
     {
-        printf("start/end nodes not found\n");
+        TraceLog(LOG_ERROR, "FindPath: START/TARGET NODE NOT FOUND");
         return {};
     }
     auto heuristic = [&](const Vector3& v) {
@@ -112,7 +138,7 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 
     std::unordered_map<Vector3, float, Vector3Hash> gScores;
 
-    for (const auto& pairs : connectivityGraph)
+    for (const auto& pairs : m_connectivityGraph)
     {
         Vector3 origin = pairs.first;
         gScores[origin] = std::numeric_limits<float>::infinity();
@@ -127,10 +153,10 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
         AStarNode current = openNodes.top();
         openNodes.pop();
 
-        if (current.vertex == goal)
+        if (current.Vertex == goal)
         {
             std::vector<Vector3> path;
-            Vector3 currentVertex = current.vertex;
+            Vector3 currentVertex = current.Vertex;
 
             while(currentVertex != start)
             {
@@ -144,9 +170,9 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
             return path;
         }
 
-        for (const Vector3& neighbour : connectivityGraph[current.vertex])
+        for (const Vector3& neighbour : m_connectivityGraph[current.Vertex])
         {
-            float tentativeScore = current.gScore + DistanceToNode(current.vertex, neighbour);
+            float tentativeScore = current.G_Score + DistanceToNode(current.Vertex, neighbour);
 
             if (tentativeScore < gScores[neighbour])
             {
@@ -155,47 +181,43 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
 
                 openNodes.push(AStarNode(neighbour, tentativeScore, fScore));
 
-                cameFrom[neighbour] = current.vertex;
+                cameFrom[neighbour] = current.Vertex;
             }
         }
     }
 
-    printf("No path found\n");
+    TraceLog(LOG_ERROR, "FindPath: NO PATH FOUND");
     return {};
 }
 
-// Needs to be VERY OPTIMIZED
-// this is terrible on performance
 void NavMesh::DebugDrawNavMeshGraph()
 {
-    for (int i = 0; i < navMeshTriVec.size(); i++)
+    for (auto& pair : m_connectivityGraph)
     {
-        for (int j = 0; j < connectivityGraph[navMeshTriVec[i].middlePoint].size(); j++)
-        {
-            Vector3 elevation = {0.0f, 1.0f, 0.0f};
-            DrawLine3D(Vector3Add(navMeshTriVec[i].middlePoint, elevation),
-                       Vector3Add(connectivityGraph[navMeshTriVec[i].middlePoint][j], elevation), RED);
-        }
+        Vector3 elevation = {0.0f, 1.0f, 0.0f};
+        for (int i = 0; i < pair.second.size(); i++)
+        DrawLine3D(Vector3Add(pair.first, elevation),
+                    Vector3Add(pair.second[i], elevation), RED);
     }
 }
 
 void NavMesh::DebugDrawWireframe()
 {
     int indice_index[3];
-    for (int i = 0; i < navMesh.triangleCount * 3; i += 3)
+    for (int i = 0; i < m_navMesh.triangleCount * 3; i += 3)
     {
-        indice_index[0] = navMesh.indices[i];
-        indice_index[1] = navMesh.indices[i + 1];
-        indice_index[2] = navMesh.indices[i + 2];
+        indice_index[0] = m_navMesh.indices[i];
+        indice_index[1] = m_navMesh.indices[i + 1];
+        indice_index[2] = m_navMesh.indices[i + 2];
 
         Vector3 elevation = {0.0f, 1.0f, 0.0f};
 
-        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
-                   Vector3Add(vertices[indice_index[1]], elevation), WHITE);
-        DrawLine3D(Vector3Add(vertices[indice_index[0]], elevation),
-                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
-        DrawLine3D(Vector3Add(vertices[indice_index[1]], elevation),
-                   Vector3Add(vertices[indice_index[2]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[0]], elevation),
+                   Vector3Add(m_vertices[indice_index[1]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[0]], elevation),
+                   Vector3Add(m_vertices[indice_index[2]], elevation), WHITE);
+        DrawLine3D(Vector3Add(m_vertices[indice_index[1]], elevation),
+                   Vector3Add(m_vertices[indice_index[2]], elevation), WHITE);
     }
 }
 
@@ -208,4 +230,11 @@ void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
         DrawCube(Vector3Add(path[i], elevation), 1.0f, 1.0f, 1.0f, GREEN);
         DrawLine3D(Vector3Add(path[i], elevation), Vector3Add(path[i + 1], elevation), GREEN);
     }
+}
+
+#include <string>
+void NavMesh::DebugDrawNearestNeighbour(Camera* camera)
+{
+    float dis = std::numeric_limits<float>::infinity();
+    Vector3 nearest = m_kdTreeNavigationNodes.FindNearestNode(*m_kdTreeNavigationNodes.GetRoot(), m_testPoint, dis);
 }
