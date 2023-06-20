@@ -269,7 +269,7 @@ std::tuple<Vector3, float> GetRotationTowardsPoint(Vector3 forward, Vector3 up, 
     rotationAxis.x = 0.0f;
     rotationAxis.z = 0.0f;
 
-    return std::make_tuple(rotationAxis, angleDegrees);
+    return std::make_tuple(rotationAxis, angleDegrees);        
 }
 
 // EntityUnit-Specific Renders
