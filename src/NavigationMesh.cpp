@@ -190,25 +190,17 @@ std::vector<Vector3> NavMesh::FindPath(Vector3& start, Vector3& goal)
     return {};
 }
 
-// Calculate the position of a point on a Bezier curve segment
-// t - interpolation factor, determines the position along the curve segment
-// p0 -> p4 - control points that define the curve segment
-// p0, p3 - start/end points
-// p1, p2 - intermediate control points
-Vector3 BezierPoint(float t, const Vector3& p0, const Vector3& p1, 
-                             const Vector3& p2, const Vector3& p3) 
+Vector3 QuadraticInterpolation(const Vector3& p0, const Vector3& p1, const Vector3& p2, float t) 
 {
-    float u = 1 - t;
-    float tt = t * t;
-    float uu = u * u;
-    float uuu = uu * u;
-    float ttt = tt * t;
+    float tSquared = t * t;
+    float oneMinusT = 1.0f - t;
+    float oneMinusTSquared = oneMinusT * oneMinusT;
 
-    Vector3 p;
-    p.x = uuu * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + ttt * p3.x;
-    p.y = uuu * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + ttt * p3.y;
-    p.z = uuu * p0.z + 3 * uu * t * p1.z + 3 * u * tt * p2.z + ttt * p3.z;
-    return p;
+    float x = (oneMinusTSquared * p0.x) + (2.0f * oneMinusT * t * p1.x) + (tSquared * p2.x);
+    float y = (oneMinusTSquared * p0.y) + (2.0f * oneMinusT * t * p1.y) + (tSquared * p2.y);
+    float z = (oneMinusTSquared * p0.z) + (2.0f * oneMinusT * t * p1.z) + (tSquared * p2.z);
+
+    return { x, y, z };
 }
 
 std::vector<Vector3> NavMesh::SmoothPath(const std::vector<Vector3>& path, int resolution) 
@@ -218,26 +210,28 @@ std::vector<Vector3> NavMesh::SmoothPath(const std::vector<Vector3>& path, int r
     if (path.size() < 3)
         return path;
 
-    smoothedPath.push_back(path[0]);
-
-    for (size_t i = 0; i < path.size() - 3; i++) 
+    for (size_t i = 0; i < path.size() - 2; i += 2) 
     {
         Vector3 p0 = path[i];
-        Vector3 p1 = path[i + 2];
-        Vector3 p2 = path[i + 3];
+        Vector3 p1 = path[i + 1];
+        Vector3 p2 = path[i + 2];
 
-        Vector3 control1 = { (p0.x + p1.x) / 2, (p0.y + p1.y) / 2, (p0.z + p1.z) / 2 };
-        Vector3 control2 = { (p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2 };
-
-        for (int j = 0; j < resolution; j++) 
+        for (int j = 0; j <= resolution; j++) 
         {
-            float t = static_cast<float>(j) / (resolution - 1);
-            Vector3 point = BezierPoint(t, p0, control1, control2, p2);
+            float t = static_cast<float>(j) / resolution;
+            Vector3 point = QuadraticInterpolation(p0, p1, p2, t);
             smoothedPath.push_back(point);
         }
     }
 
-    smoothedPath.push_back(path[path.size() - 1]);
+    size_t lastPointIndex = path.size() - 1;
+    if (path.size() % 2 == 0) 
+    {
+        smoothedPath.push_back(path[lastPointIndex - 1]);
+        smoothedPath.push_back(path[lastPointIndex]);
+    }
+    else
+        smoothedPath.push_back(path[lastPointIndex]);
 
     return smoothedPath;
 }

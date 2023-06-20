@@ -43,12 +43,13 @@ void UnitGoalController::Tick(float deltaTime)
 			auto& transformComp = trans[i];
 
 			if (goalComp.IsActive)
-				if (goalComp.steps == goalComp.PathToGoal.size())
+			{
+				if (Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 0.5f)
 					goalComp.IsActive = false;
+			}
 
 			if (!goalComp.IsActive)
 			{
-
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
 				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
@@ -59,8 +60,10 @@ void UnitGoalController::Tick(float deltaTime)
 				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
 				goalComp.PathToGoal = navGrid.FindPath(startClosestNode, targetClosestNode);
-				//goalComp.PathToGoal = navGrid.SmoothPath(goalComp.PathToGoal, 5);
 				goalComp.PathToGoal.push_back(cityPosition);
+
+				goalComp.PathToGoal = navGrid.SmoothPath(goalComp.PathToGoal, 5);
+				
 				goalComp.steps = 0;
 				goalComp.GoalPosition = goalComp.PathToGoal[0];
 				goalComp.IsActive = true;
@@ -71,7 +74,19 @@ void UnitGoalController::Tick(float deltaTime)
 				{
 					transformComp.Position = goalComp.GoalPosition;
 					goalComp.steps++;
+
+					// If distance to city is closer than the next point in path
+					if (Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 
+						Vector3Distance(goalComp.GoalPosition, goalComp.PathToGoal[goalComp.steps]))
+					{
+						// skip the rest of the steps and go directly to the city
+						goalComp.steps = goalComp.PathToGoal.size() - 1;
+						// This check occurs every time unit reaches next goal point in the path
+						// it should not be too costly on performance but potentially a candidate for optimization
+					}
+
 					goalComp.GoalPosition = goalComp.PathToGoal[goalComp.steps];
+
 				}
 
 				movementComp.Direction = Vector3Normalize(Vector3Subtract(goalComp.GoalPosition, 
