@@ -70,7 +70,8 @@ void SceneRenderer::ApplyLightingShaderToObjects()
 
     for (auto& entry : model_map)
     {
-        model_map[entry.first]->materials[0].shader = m_shader_light;
+        for (int i = 0; i < model_map[entry.first]->materialCount; i++)
+            model_map[entry.first]->materials[i].shader = m_shader_light;
     }
 }
 
@@ -253,6 +254,24 @@ void SceneRenderer::RenderScene()
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 }
 
+// rotation axis and angle for model to face the destination point
+std::tuple<Vector3, float> GetRotationTowardsPoint(Vector3 forward, Vector3 up, Vector3 position, Vector3 destination)
+{
+    Vector3 desiredForward = Vector3Normalize(Vector3Subtract(destination, position));
+
+    Vector3 rotationAxis = Vector3CrossProduct(forward, desiredForward);
+    rotationAxis = Vector3Normalize(rotationAxis);
+
+    float angle = acos(Vector3DotProduct(forward, desiredForward));
+    float angleDegrees = angle * (180.0f / PI);
+
+    // Model will only rotate around Y axis, otherwise it will go crazy on steep surface
+    rotationAxis.x = 0.0f;
+    rotationAxis.z = 0.0f;
+
+    return std::make_tuple(rotationAxis, angleDegrees);
+}
+
 // EntityUnit-Specific Renders
 // Unit model rendering
 // Path drawing
@@ -277,7 +296,15 @@ void UnitRenderer::RenderUnits()
         for (std::size_t i = 0; i < size; i++)
         {
             Model currentModel = SceneManager.GetModel(c_models[i].model_id);
-            DrawModel(currentModel, c_transforms[i].Position, c_models[i].scale, WHITE);
+            Vector3 modelForwardVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Forward;
+            Vector3 modelUpVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Up;
+
+            std::tuple rotationInfo = GetRotationTowardsPoint(modelForwardVector, modelUpVector, 
+                                                              c_transforms[i].Position, c_goals[i].PathToGoal[c_goals[i].steps]);
+
+            Vector3 scaleVector = {1.0f * c_models[i].scale, 1.0f * c_models[i].scale, 1.0f * c_models[i].scale};
+            DrawModelEx(currentModel, c_transforms[i].Position, std::get<0>(rotationInfo), 
+                                                                std::get<1>(rotationInfo), scaleVector, WHITE);
 
             if (m_UnitFlags.DrawDebugPath)
                 NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
