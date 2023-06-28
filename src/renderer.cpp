@@ -269,7 +269,15 @@ std::tuple<Vector3, float> GetRotationTowardsPoint(Vector3 forward, Vector3 up, 
     rotationAxis.x = 0.0f;
     rotationAxis.z = 0.0f;
 
+    if (rotationAxis.y < 0)
+        angleDegrees = -angleDegrees;
+
     return std::make_tuple(rotationAxis, angleDegrees);        
+}
+
+void ModelRotationTick(float& angle, float& tempo)
+{
+    angle += tempo;
 }
 
 // EntityUnit-Specific Renders
@@ -296,15 +304,49 @@ void UnitRenderer::RenderUnits()
         for (std::size_t i = 0; i < size; i++)
         {
             Model currentModel = SceneManager.GetModel(c_models[i].model_id);
+
             Vector3 modelForwardVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Forward;
             Vector3 modelUpVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Up;
 
             std::tuple rotationInfo = GetRotationTowardsPoint(modelForwardVector, modelUpVector, 
-                                                              c_transforms[i].Position, c_goals[i].PathToGoal[c_goals[i].steps]);
+                                                            c_transforms[i].Position, c_goals[i].PathToGoal[c_goals[i].steps]);
 
-            Vector3 scaleVector = {1.0f * c_models[i].scale, 1.0f * c_models[i].scale, 1.0f * c_models[i].scale};
-            DrawModelEx(currentModel, c_transforms[i].Position, std::get<0>(rotationInfo), 
-                                                                std::get<1>(rotationInfo), scaleVector, WHITE);
+            Vector3 rotationAxis = std::get<0>(rotationInfo);
+            float rotationAngle = std::get<1>(rotationInfo);;
+
+            c_transforms[i].TargetAngle = rotationAngle;
+
+            c_transforms[i].AngleGrowth = abs(c_transforms[i].RotationAngle - rotationAngle) / 10;
+
+            if (rotationAngle < c_transforms[i].RotationAngle)
+                c_transforms[i].AngleGrowth = -c_transforms[i].AngleGrowth;
+
+            c_transforms[i].RotationAngle += c_transforms[i].AngleGrowth;
+
+            if (c_transforms[i].AngleGrowth > 0)
+            {
+                if (c_transforms[i].RotationAngle > c_transforms[i].TargetAngle)
+                {
+                    c_transforms[i].RotationAngle = c_transforms[i].TargetAngle;
+                    c_transforms[i].AngleGrowth = 0.0f;
+                }
+            }
+            else if (c_transforms[i].AngleGrowth < 0)
+            {
+                if (c_transforms[i].RotationAngle < c_transforms[i].TargetAngle)
+                {
+                    c_transforms[i].RotationAngle = c_transforms[i].TargetAngle;
+                    c_transforms[i].AngleGrowth = 0.0f;
+                }
+            }
+            
+            c_transforms[i].RotationAxis = {0, 1, 0};
+
+            Vector3 scaleVector = {c_models[i].scale, c_models[i].scale, c_models[i].scale};
+            DrawModelEx(currentModel, c_transforms[i].Position, c_transforms[i].RotationAxis, 
+                                                                c_transforms[i].RotationAngle, scaleVector, WHITE);
+
+            c_transforms[i].RotationSwitchFrameDelay++;
 
             if (m_UnitFlags.DrawDebugPath)
                 NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
@@ -348,5 +390,4 @@ void GuiRenderer::RenderGUI()
     DrawText("[H] - Create Human", 10, 85, 20, DARKGRAY);
     DrawText("[T] - Create Tribe", 10, 110, 20, DARKGRAY);
     DrawText("[O] - Create Orc", 10, 135, 20, DARKGRAY);
-
 }

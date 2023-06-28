@@ -76,7 +76,8 @@ void UnitGoalController::Tick(float deltaTime)
 					goalComp.steps++;
 
 					// If distance to city is closer than the next point in path
-					if (Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 
+					if (goalComp.steps < goalComp.PathToGoal.size() - 1 &&
+						Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 
 						Vector3Distance(goalComp.GoalPosition, goalComp.PathToGoal[goalComp.steps]))
 					{
 						// skip the rest of the steps and go directly to the city
