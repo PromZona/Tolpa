@@ -39,7 +39,7 @@ public:
 	GameState State;
 
 	const int ScreenWidth = 1600;
-	const int ScreenHeight = 1400;
+	const int ScreenHeight = 1000;
 
 private:
 	Game();

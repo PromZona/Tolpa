@@ -61,7 +61,7 @@ struct RenderFlagsGlobal
     bool DrawDebugNavMeshKDTreeElevated;
     bool DrawDebugTerrainWireframe;
     bool DrawDebugNavMeshNearestPoint;
-    bool DrawDebugModels;
+    bool DrawDebugModels = true;
     bool RotateLight;
 };
 
@@ -77,14 +77,6 @@ struct RenderFlagsLocations
 };
 
 static int lightsCount = 0;    // Current amount of created lights
-
-struct MeshCursorCollisionDetector
-{
-    // Picking ray
-    Ray m_ray = {0};
-    RayCollision m_collision;
-    RayCollision m_mesh_hit_info;
-};
 
 class SceneRenderer : public System
 {
@@ -111,7 +103,7 @@ public:
     inline RenderGameplayVariables& GetGameplayVariables() {return m_gameplayVariables;}
     inline MeshPicker& GetMeshPicker() {return m_meshPicker;}
     inline Light& GetLight() {return m_light;}
-    Camera& GetCamera();
+    inline Camera& GetCamera() {return m_camera;}
 
 private:
 

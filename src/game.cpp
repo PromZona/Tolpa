@@ -9,6 +9,7 @@
 #include "Components/ModelComponent.hpp"
 #include "Components/LocationComponent.hpp"
 #include "Components/TerrainComponent.hpp"
+#include "Components/RotationComponent.hpp"
 
 Game& Game::m_instance = Game::Instance();
 
@@ -89,6 +90,7 @@ void Game::InitializeRenderers()
 	m_ECS.RegisterComponentInSystem<TerrainComponent>(m_rendererScene);
 
 	m_ECS.RegisterComponentInSystem<TransformComponent>(m_rendererUnits);
+	m_ECS.RegisterComponentInSystem<RotationComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<RenderComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<ModelComponent>(m_rendererUnits);
 	m_ECS.RegisterComponentInSystem<MovementComponent>(m_rendererUnits);
