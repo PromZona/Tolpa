@@ -7,6 +7,7 @@
 #include "Components/RenderComponent.hpp"
 #include "Components/ModelComponent.hpp"
 #include "Components/LocationComponent.hpp"
+#include "Components/RotationComponent.hpp"
 
 #include "game.hpp"
 #include "Components/GoalComponent.hpp"
@@ -16,7 +17,8 @@ EntityId EntityFactory::CreateHuman(Vector3 position)
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 
-    ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
+    ecs.AddComponent<TransformComponent>(unit, {position});
+	ecs.AddComponent<RotationComponent>(unit, {Vector3Zero(), 0.0f, 0.0f, 0.0f, 5});
 	ecs.AddComponent<RenderComponent>(unit, {GREEN, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::HUMAN, 0.1f});
 	ecs.AddComponent<MovementComponent>(unit, {{0, 0, 0}, 20.0f});
@@ -31,9 +33,8 @@ EntityId EntityFactory::CreateCity(Vector3 position)
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
+	ecs.AddComponent<TransformComponent>(city, {position});
 	ecs.AddComponent<ModelComponent>(city, {ModelType::CITY, 1.0f});
-
 	ecs.AddComponent<RenderComponent>(city, {RED, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"City"});
 
@@ -46,9 +47,8 @@ EntityId EntityFactory::CreateOrcsTribe(Vector3 position)
 	auto& ecs = Game::Instance().GetECS();
 	auto city = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(city, {{position}, {0, 0, 0}, 0});
+	ecs.AddComponent<TransformComponent>(city, {position});
 	ecs.AddComponent<ModelComponent>(city, {ModelType::TRIBE, 1.0f});
-
 	ecs.AddComponent<RenderComponent>(city, {PURPLE, 8.0f});
 	ecs.AddComponent<LocationComponent>(city, {"Tribe"});
 
@@ -61,7 +61,8 @@ EntityId EntityFactory::CreateOrc(Vector3 position)
 	auto& ecs = Game::Instance().GetECS();
 	auto unit = ecs.CreateEntity();
 	
-	ecs.AddComponent<TransformComponent>(unit, {{position}, {0, 0, 0}, 0});
+	ecs.AddComponent<TransformComponent>(unit, {position});
+	ecs.AddComponent<RotationComponent>(unit, {Vector3Zero(), 0.0f, 0.0f, 0.0f, 5});
 	ecs.AddComponent<RenderComponent>(unit, {BLACK, 4.0f});
 	ecs.AddComponent<ModelComponent>(unit, {ModelType::ORC, 0.1f});
 

@@ -12,6 +12,10 @@
 SceneManager::SceneManager()
 {}
 
+// @note 1) Loads scene and all models associated with it
+// @note 2) Called on launch and when changing to another scene
+// @warning Doesn't work properly yet for loading another scene
+// @warning Since there is no function to delete and clean all entities in ECS (todo?)
 void SceneManager::InitializeScene()
 {
     auto& sceneRenderer = Game::Instance().GetRendererScene();
@@ -44,7 +48,7 @@ void SceneManager::InitializeScene()
     // add terrain entity
 	auto map = ecs.CreateEntity();
 
-	ecs.AddComponent<TransformComponent>(map, {{0, 0, 0}, {0, 0, 0}, 0});
+	ecs.AddComponent<TransformComponent>(map, {Vector3Zero()});
 	ecs.AddComponent<ModelComponent>(map, {ModelType::MAP, 1.0f});
 	ecs.AddComponent<RenderComponent>(map, {RED, 8.0f});
 	ecs.AddComponent<TerrainComponent>(map, {0});
@@ -55,6 +59,8 @@ void SceneManager::InitializeScene()
 	sceneRenderer.ApplyLightingShaderToObjects();
 }
 
+// @note Loads models from files
+// @note If models are not loaded for some reason switches to primitives
 void SceneManager::LoadModels()
 {
     if (m_sceneFlags.NoModelsMode)
@@ -159,6 +165,7 @@ void SceneManager::LoadModels()
     }
 }
 
+// @note Parses scenes info from file
 void SceneManager::ParseSceneModelInfo()
 {
     std::fstream file("../resources/Scenes/SceneInfo.txt");

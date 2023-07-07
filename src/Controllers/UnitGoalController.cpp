@@ -44,6 +44,7 @@ void UnitGoalController::Tick(float deltaTime)
 
 			if (goalComp.IsActive)
 			{
+				// Goal reached check
 				if (Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 0.5f)
 					goalComp.IsActive = false;
 			}
@@ -53,18 +54,28 @@ void UnitGoalController::Tick(float deltaTime)
 				EntityId cityId = cities[GetRandomValue(0, cities.size() - 1)];
 				Vector3 cityPosition = ecs.GetComponent<TransformComponent>(cityId)->Position;
 
+				// For finding the closest node we do first comparison agains infinite distance
 				float dis = std::numeric_limits<float>::infinity();
+
+				// Find nearest node to the unit position
 				Vector3 startClosestNode = navGridTree.FindNearestNode(*treeRoot, transformComp.Position, dis);
 
+				// reset
 				dis = std::numeric_limits<float>::infinity();
+
+				// Find nearest node to destination (hardcoded cityPosition, can by anything)
 				Vector3 targetClosestNode = navGridTree.FindNearestNode(*treeRoot, cityPosition, dis);
 
+				// Build path between these two closest nodes
 				goalComp.PathToGoal = navGrid.FindPath(startClosestNode, targetClosestNode);
+				// Add destination itself to path as final point
 				goalComp.PathToGoal.push_back(cityPosition);
-
+				// Smooth path (5 is the amount of interpolation steps between each two points)
 				goalComp.PathToGoal = navGrid.SmoothPath(goalComp.PathToGoal, 5);
 				
+				// Set current step in path to 0, meaning startClosestNode
 				goalComp.steps = 0;
+				// startClosestNode position as goal
 				goalComp.GoalPosition = goalComp.PathToGoal[0];
 				goalComp.IsActive = true;
 			}
@@ -72,11 +83,23 @@ void UnitGoalController::Tick(float deltaTime)
 			{
 				if (Vector3Distance(goalComp.GoalPosition, transformComp.Position) < 0.5f)
 				{
+					// aligning current position to be exactly on the node
 					transformComp.Position = goalComp.GoalPosition;
+					// next destination in path step
 					goalComp.steps++;
 
-					// If distance to city is closer than the next point in path
-					if (Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 
+					// ---------------------------------------------------------------------------------------------------
+					// ---------------------------- MAY HAVE SOME IMPACT ON PERFORMANCE ----------------------------------
+
+					// It may be dumb but I thought to check if the rest of the path from current reached node is farther than
+					// direct path to destination. It may be costly and units coud clip through terrain (solvable?) but
+					// (theoretically) it could improve units movement visually
+					// again, this would cost some performance so try it after some measurement system is ready?
+
+					// This is snippet of this idea. Works great in some cases, but i still wonder about performance
+					// If distance to city is closer than the next point in path 
+					if (goalComp.steps < goalComp.PathToGoal.size() - 1 &&
+						Vector3Distance(transformComp.Position, goalComp.PathToGoal[goalComp.PathToGoal.size() - 1]) < 
 						Vector3Distance(goalComp.GoalPosition, goalComp.PathToGoal[goalComp.steps]))
 					{
 						// skip the rest of the steps and go directly to the city
@@ -85,6 +108,10 @@ void UnitGoalController::Tick(float deltaTime)
 						// it should not be too costly on performance but potentially a candidate for optimization
 					}
 
+					// ---------------------------------------------------------------------------------------------------
+					// ---------------------------------------------------------------------------------------------------
+
+					// Set next goal in path
 					goalComp.GoalPosition = goalComp.PathToGoal[goalComp.steps];
 
 				}

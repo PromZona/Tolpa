@@ -123,7 +123,6 @@ void InputManager::Update()
 			sceneGameplayVariables.ShowPlacingPreview = false;
 	}
 
-
 	Vector2 prevMousePosition = {0.0f, 0.0f};
 	Vector2 currPosition = {0.0f, 0.0f};
 	Vector2 mouseDelta = {0.0f, 0.0f};
@@ -153,6 +152,6 @@ void InputManager::Update()
 	float zoomStrength = 7.0f;
 	if (wheel != 0)
 	{
-		UpdateCameraPro(&cam, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, -wheel * zoomStrength);
+		UpdateCameraPro(&cam, Vector3Zero(), Vector3Zero(), -wheel * zoomStrength);
 	}
 }

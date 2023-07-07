@@ -30,7 +30,8 @@ bool MeshPicker::GetTerrainHit()
             if (meshHitInfo.hit)
             {
                 // Save the closest hit mesh
-                if ((!m_collision.hit) || (m_collision.distance > meshHitInfo.distance)) m_collision = meshHitInfo;
+                if ((!m_collision.hit) || (m_collision.distance > meshHitInfo.distance)) 
+                    m_collision = meshHitInfo;
                 
                 break;  // Stop once one mesh collision is detected, the colliding mesh is m
             }

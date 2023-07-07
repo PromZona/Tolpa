@@ -7,6 +7,7 @@
 #include "Components/MovementComponent.hpp"
 #include "Components/LocationComponent.hpp"
 #include "Components/TerrainComponent.hpp"
+#include "Components/RotationComponent.hpp"
 
 #include "game.hpp"
 #include "rlgl.h"
@@ -20,26 +21,36 @@ SceneRenderer::~SceneRenderer()
 {
     UnloadShader(m_shader_light);
 }
+
 UnitRenderer::~UnitRenderer(){}
 LocationRenderer::~LocationRenderer(){}
 GuiRenderer::~GuiRenderer(){}
 
+// ------------------------------------------------------------------------
+// ----------- SUPPORT FUNCTIONS DECLARATION ------------------------------
+
+void UnitRotationTick(RotationComponent& unitRotation);
+float GetRotationTowardsPoint(Vector3 forward, Vector3 position, Vector3 destination);
+float GetAngleDiff(float current, float target);
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+// @note Initial Camera settings
 void SceneRenderer::InitializeCamera()
 {
     TraceLog(LOG_INFO, "Initializing Camera...");
     m_camera = { 0 };
-    m_camera.position = {400.0f, 400.0f, 400.0f};
+    m_camera.position = {200.0f, 200.0f, 200.0f};
     m_camera.target = {0.0f, 0.0f, 0.0f};
     m_camera.up = {0.0f, 1.0f, 0.0f};
     m_camera.fovy = 90.0f;
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
-Camera& SceneRenderer::GetCamera()
-{
-    return m_camera;
-}
-
+// @note 1) Loading vertex/fragment shaders from files
+// @note 2) Setting their initial values and ConfigFlags
+// @note 3) Creating ambient light point on the scene
 void SceneRenderer::InitializeLighting()
 {
     if(!IsShaderReady(m_shader_light))
@@ -60,6 +71,9 @@ void SceneRenderer::InitializeLighting()
     else
         TraceLog(LOG_INFO, "Shader already loaded...");
 }
+
+// @note Applying ambient lighting shaders to all 3d models loaded in Scene Manager
+// @warning Currently applies shader to ALL models (may not be desired later) 
 void SceneRenderer::ApplyLightingShaderToObjects()
 {
     TraceLog(LOG_INFO, "Applying shader to scene models...");
@@ -68,6 +82,8 @@ void SceneRenderer::ApplyLightingShaderToObjects()
 
     auto& model_map = sceneManager.GetTypeToModelMap();
 
+    // Cycling through the whole map and applying shader to every entry
+    // Meaning EVERY 3d model will be influenced by the lighting point
     for (auto& entry : model_map)
     {
         for (int i = 0; i < model_map[entry.first]->materialCount; i++)
@@ -78,8 +94,8 @@ void SceneRenderer::ApplyLightingShaderToObjects()
 Light SceneRenderer::CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
 {
     TraceLog(LOG_INFO, "Creating light...");
-    Light light = { 0 };
 
+    Light light = { 0 };
     light.enabled = true;
     light.type = type;
     light.position = position;
@@ -124,6 +140,8 @@ void SceneRenderer::UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.colorLoc, color, SHADER_UNIFORM_VEC4);
 }
 
+// @note Simple Debug function to demonstrate that light point is actually working.
+// @note It just rotates the light point around the scene.
 void SceneRenderer::RotateLight()
 {
     // Convert the angle from degrees to radians
@@ -138,6 +156,8 @@ void SceneRenderer::RotateLight()
     m_light.position.z = -m_light.position.x * sinTheta + m_light.position.z * cosTheta;
 }
 
+// @note Renders wireframe of the object
+// @note Used when placing anything into the scene with a mouse
 void SceneRenderer::RenderPlacingPreview()
 {
     auto& hitPoint = m_meshPicker.GetCollisionPoint();
@@ -147,6 +167,7 @@ void SceneRenderer::RenderPlacingPreview()
     switch (m_gameplayVariables.previewModelType)
     {
         case ModelType::HUMAN:
+            // This should be 1.0f but current human model is way too big so fix later?
             previewScale = 0.1f;
             break;
         case ModelType::CITY:
@@ -162,10 +183,12 @@ void SceneRenderer::RenderPlacingPreview()
     DrawModelWires(sceneManager.GetModel(m_gameplayVariables.previewModelType), hitPoint.point, previewScale, WHITE);    
 }
 
-// Scene-specific Renders
-// Camera updates
-// Light updates
-// Terrain rendering
+// @note 1) Scene-specific Renders
+// @note 2) Camera updates
+// @note 3) Shader updates
+// @note 4) Terrain rendering
+// @note 5) Gameplay information rendering
+// @note 6) Debug information rendering
 void SceneRenderer::RenderScene()
 {
     auto& ecs = Game::Instance().GetECS();
@@ -173,6 +196,9 @@ void SceneRenderer::RenderScene()
     auto& NavGrid = Game::Instance().GetNavGrid();
 	auto archetypes = ecs.GetRequiredArchetypes(Archetype);
     
+    // ------------------------------------------------------------------------
+    // ----------------- RENDERING SHADERS ------------------------------------
+
     float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
     SetShaderValue(m_shader_light, m_shader_light.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
 
@@ -180,6 +206,9 @@ void SceneRenderer::RenderScene()
         m_light.enabled = !m_light.enabled;
 
     UpdateLightValues(m_shader_light, m_light);
+
+    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     for (auto& archetype : archetypes)
     {
@@ -205,11 +234,17 @@ void SceneRenderer::RenderScene()
         }
     }
 
+    // ------------------------------------------------------------------------
+    // --------------- RENDERING GAMEPLAY-NEEDED INFORMATION ------------------
+
     if (m_gameplayVariables.ShowPlacingPreview)
     {
         m_meshPicker.GetTerrainHit();
         RenderPlacingPreview();
     }
+
+    // ------------------------------------------------------------------------
+    // -------------- RENDERING VARIOUS OPTIONAL INFORMATION ------------------
 
     if (m_GlobalFlags.DrawDebugNavMeshMiddlePoints)
     {
@@ -251,11 +286,18 @@ void SceneRenderer::RenderScene()
     if (m_GlobalFlags.RotateLight)
         RotateLight();
 
+    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
+    // Draws a small sphere where the light point is
     DrawSphereEx(m_light.position, 0.5f, 8, 8, m_light.color);
 }
 
-// rotation axis and angle for model to face the destination point
-std::tuple<Vector3, float> GetRotationTowardsPoint(Vector3 forward, Vector3 up, Vector3 position, Vector3 destination)
+// @param [forward] Forward vector of unit's 3d model
+// @param [position] Unit position from transform component
+// @param [destination] What point this unit should be facing
+// @returns Rotation angle needed to face the [destination] point
+float GetRotationTowardsPoint(Vector3 forward, Vector3 position, Vector3 destination)
 {
     Vector3 desiredForward = Vector3Normalize(Vector3Subtract(destination, position));
 
@@ -265,17 +307,50 @@ std::tuple<Vector3, float> GetRotationTowardsPoint(Vector3 forward, Vector3 up, 
     float angle = acos(Vector3DotProduct(forward, desiredForward));
     float angleDegrees = angle * (180.0f / PI);
 
-    // Model will only rotate around Y axis, otherwise it will go crazy on steep surface
-    rotationAxis.x = 0.0f;
-    rotationAxis.z = 0.0f;
+    if (rotationAxis.y < 0)
+        angleDegrees = -angleDegrees;
 
-    return std::make_tuple(rotationAxis, angleDegrees);        
+    return angleDegrees;        
 }
 
-// EntityUnit-Specific Renders
-// Unit model rendering
-// Path drawing
-// Model Rotation (TODO)
+// @param [current] current unit rotation angle
+// @param [target] target unit rotation angle
+// @param [diff] difference between these angles
+float GetAngleDiff(float current, float target)
+{
+    float diff = fmodf((current - target + 180), 360.0f) - 180;
+    return diff < -180 ? -(diff + 360) : -diff; 
+}
+
+// @note Called every frame to smoothly update unit's angle 
+// @note Smoothness depends on RotationComponents parameters
+// @param [unitRotation] RotationComponent of rotating entity
+void UnitRotationTick(RotationComponent& unitRotation)
+{
+    // Should be turned into a conditional (TODO?)
+    unitRotation.AngleGrowth = GetAngleDiff(unitRotation.CurrentAngle, unitRotation.TargetAngle) / unitRotation.FramesToRotate;
+
+    // Smooth rotation
+    unitRotation.CurrentAngle += unitRotation.AngleGrowth;
+
+    // Block rotation beyond target (will spin infinitely otherwise)
+    if (unitRotation.AngleGrowth < 0)
+    {
+        if (unitRotation.CurrentAngle < unitRotation.TargetAngle)
+            unitRotation.CurrentAngle = unitRotation.TargetAngle;
+    }
+    else
+        if (unitRotation.CurrentAngle > unitRotation.TargetAngle)
+            unitRotation.CurrentAngle = unitRotation.TargetAngle;
+    
+    // Rotation axis is always Y only, otherwise units go crazy on steep surfaces
+    unitRotation.RotationAxis = {0, 1, 0};
+}
+
+// @note 1) EntityUnit-Specific Renders
+// @note 2) Unit model rendering
+// @note 3) Path drawing
+// @note 4) Model Rotation
 void UnitRenderer::RenderUnits()
 {
     auto& ecs = Game::Instance().GetECS();
@@ -286,6 +361,7 @@ void UnitRenderer::RenderUnits()
     for (auto& archetype : archetypes)
     {
         auto& c_transforms = archetype->GetComponents<TransformComponent>();
+        auto& c_rotation = archetype->GetComponents<RotationComponent>();
         auto& c_renders = archetype->GetComponents<RenderComponent>();
         auto& c_models = archetype->GetComponents<ModelComponent>();
         auto& c_goals = archetype->GetComponents<GoalComponent>();
@@ -295,16 +371,21 @@ void UnitRenderer::RenderUnits()
 
         for (std::size_t i = 0; i < size; i++)
         {
-            Model currentModel = SceneManager.GetModel(c_models[i].model_id);
+            // --------------------------------------------------------------------------
+            // ---------------------- This could? be further optimised later ------------
+            RotationComponent& unitRotation = c_rotation[i];
             Vector3 modelForwardVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Forward;
-            Vector3 modelUpVector = SceneManager.GetModelQuaterionVectors(c_models[i].model_id).Up;
 
-            std::tuple rotationInfo = GetRotationTowardsPoint(modelForwardVector, modelUpVector, 
-                                                              c_transforms[i].Position, c_goals[i].PathToGoal[c_goals[i].steps]);
+            unitRotation.TargetAngle = GetRotationTowardsPoint(modelForwardVector, c_transforms[i].Position, c_goals[i].PathToGoal[c_goals[i].steps]);
 
-            Vector3 scaleVector = {1.0f * c_models[i].scale, 1.0f * c_models[i].scale, 1.0f * c_models[i].scale};
-            DrawModelEx(currentModel, c_transforms[i].Position, std::get<0>(rotationInfo), 
-                                                                std::get<1>(rotationInfo), scaleVector, WHITE);
+            UnitRotationTick(unitRotation);
+            // --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
+
+            Model currentModel = SceneManager.GetModel(c_models[i].model_id);
+            Vector3 scaleVector = {c_models[i].scale, c_models[i].scale, c_models[i].scale};
+            DrawModelEx(currentModel, c_transforms[i].Position, unitRotation.RotationAxis, 
+                                                                unitRotation.CurrentAngle, scaleVector, WHITE);
 
             if (m_UnitFlags.DrawDebugPath)
                 NavGrid.DebugDrawPath(c_goals[i].PathToGoal, c_goals[i].steps);
@@ -312,8 +393,9 @@ void UnitRenderer::RenderUnits()
     }
 }
 
-// Location-Specific Renders
-// Location model rendering
+// @note Renders every location unit (city, tribe etc.)
+// @note 1) Location-Specific Renders
+// @note 2) Location model rendering
 void LocationRenderer::RenderLocations()
 {
     auto& ecs = Game::Instance().GetECS();
@@ -338,7 +420,11 @@ void LocationRenderer::RenderLocations()
     }
 }
 
-// Everything that needs to be rendered in 2d
+// @warning This way is essential
+// @note Renders everything that needs to be rendered in 2D
+// @note Meaning outside of Begin3DMode/End3DMode 
+// @note 1) User Interface
+// @note 2) Coming soon?
 void GuiRenderer::RenderGUI()
 {
     Game::Instance().GetGUI().DrawGUI();
@@ -348,5 +434,4 @@ void GuiRenderer::RenderGUI()
     DrawText("[H] - Create Human", 10, 85, 20, DARKGRAY);
     DrawText("[T] - Create Tribe", 10, 110, 20, DARKGRAY);
     DrawText("[O] - Create Orc", 10, 135, 20, DARKGRAY);
-
 }
