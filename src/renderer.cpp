@@ -277,8 +277,12 @@ void SceneRenderer::RenderScene()
 
     if (m_GlobalFlags.DrawDebugNavMeshNearestPoint)
     {
-        auto& testPoint = NavGrid.GetTestPoint();        
-        DrawSphereWires(testPoint, 5.0f, 10, 10, ORANGE);
+        // otherwise it will scan for hit twice, very expensive on performance
+        // this whole mesh picker actually needs a whole other solution to be honest
+        if (!m_gameplayVariables.ShowPlacingPreview)
+            m_meshPicker.GetTerrainHit();
+            
+        DrawSphereWires(m_meshPicker.GetCollisionPoint().point, 2.0f, 10, 10, ORANGE);
 
         NavGrid.DebugDrawNearestNeighbour(&m_camera);
     }

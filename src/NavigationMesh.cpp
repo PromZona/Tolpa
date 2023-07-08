@@ -84,7 +84,7 @@ void NavMesh::ConstructMeshGraph()
             if (V3 == nV1 || V1 == nV2 || V2 == nV3) 
                 sharedVertices++;
 
-            if (sharedVertices >= 2) 
+            if (sharedVertices == 2) 
             {
                 Vector3 neighbourMid = {(nV1.x + nV2.x + nV3.x) / 3.0f,
                                         (nV1.y + nV2.y + nV3.y) / 3.0f,
@@ -278,9 +278,17 @@ void NavMesh::DebugDrawPath(std::vector<Vector3> path, int step)
     }
 }
 
-#include <string>
+#include "game.hpp"
 void NavMesh::DebugDrawNearestNeighbour(Camera* camera)
 {
+    auto& terrainPicker = Game::Instance().GetRendererScene().GetMeshPicker();
     float dis = std::numeric_limits<float>::infinity();
-    Vector3 nearest = m_kdTreeNavigationNodes.FindNearestNode(*m_kdTreeNavigationNodes.GetRoot(), m_testPoint, dis);
+
+    auto& hitPoint = terrainPicker.GetCollisionPoint();
+    if (terrainPicker.IsTerrainHit())
+    {
+        Vector3 nearest = m_kdTreeNavigationNodes.FindNearestNode(*m_kdTreeNavigationNodes.GetRoot(), hitPoint.point, dis);
+        DrawLine3D(hitPoint.point, nearest, MAGENTA);
+        DrawCubeWires(nearest, 2.0f, 2.0f, 2.0f, GREEN);
+    }
 }
