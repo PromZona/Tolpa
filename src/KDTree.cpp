@@ -57,10 +57,6 @@ bool ComparePointsInDimensions(Vector3 p1, Vector3 p2, int axis)
 }
 
 // This ensures that right side will always have strictly higher points
-// And left lesser or equal, im not sure if this is useful in any way
-// but it appeals to the common design of the k-d tree
-// also makes tree disbalanced but not too much to have serious effects
-// also kind of makes data more predictable so thats it i guess
 int SelectLastEqualPoint(std::vector<Vector3>& nodePoints, int axis, int index)
 {
     if (index + 1 == nodePoints.size())
@@ -113,9 +109,6 @@ int FindMedianIndex(std::vector<Vector3>& nodePoints, int axis)
     return medianPointIndex;
 }
 
-// this is somewhat unnecessary?? (might find some use later though)
-// it leaves the original set of points as it is, unsorted
-// and allows to store tree points inside tree class (?????)
 KDNode* KDTree::ConstructTree(std::vector<Vector3>& nodePoints)
 {
     this->m_nodePoints = nodePoints;
@@ -157,12 +150,6 @@ Vector3 KDTree::FindNearestNode(KDNode* root, Vector3 target, float& distance)
     if (root == nullptr)
         return s_nearest;
 
-    if (Vector3Distance(root->Pos, target) <= distance)
-    {
-        distance = Vector3Distance(root->Pos, target);
-        s_nearest = root->Pos;
-    }
-
     switch(root->SplitAxis)
     {
         case 0:
@@ -188,7 +175,57 @@ Vector3 KDTree::FindNearestNode(KDNode* root, Vector3 target, float& distance)
             break;
     }
 
-    DrawLine3D(target, s_nearest, MAGENTA);
+    // This is first called upon reaching a leaf node of the tree
+    // And then for every node as the recursion unwinds
+    // Selecting current best if the distance is minimal
+    // but...
+    if (Vector3Distance(root->Pos, target) <= distance)
+    {
+        distance = Vector3Distance(root->Pos, target);
+        s_nearest = root->Pos;
+    }
+
+    // ...there could be (potentially) a closer node on the other side of the splitting plance
+    // that we didnt check at all, so we have to see if we should look at it as well
+    // example:  A.......B..|..C
+    // where A is current best, B is target, | is splitting plane and C is the actual best
+    // C falls out of our initial search because its on the other side of the split
+
+    // Comparison to see whether the distance between the splitting coordinate of the search point
+    // and the current node is lesser than the distance (overall coordinate) from the search point to current best
+    switch (root->SplitAxis)
+    {
+        case 0:
+            if (distance < Vector3Distance({root->Pos.x, 0.0f, 0.0f}, target))
+            {
+                // There could be a closer point on the other side of the splitting plane, need to check it out
+                // Meaning go into another branch (left -> right and vice versa)
+                if (target.x <= root->Pos.x)
+                    s_nearest = FindNearestNode(root->Right, target, distance); // They are reversed
+                else
+                    s_nearest = FindNearestNode(root->Left, target, distance); // They are reversed
+            }
+            break;
+        case 1:
+            if (distance < Vector3Distance({0.0f, root->Pos.y, 0.0f}, target))
+            {
+                if (target.y <= root->Pos.y)
+                    s_nearest = FindNearestNode(root->Right, target, distance);
+                else
+                    s_nearest = FindNearestNode(root->Left, target, distance);
+            }
+            break;
+        case 2:
+            if (distance < Vector3Distance({0.0f, 0.0f, root->Pos.z}, target))
+            {
+                if (target.z <= root->Pos.z)
+                    s_nearest = FindNearestNode(root->Right, target, distance);
+                else
+                    s_nearest = FindNearestNode(root->Left, target, distance);
+            }
+            break;
+    }
+
     return s_nearest;
 }
 
@@ -292,9 +329,6 @@ bool KDTree::ValidateKdTree(KDNode* root, int depth = 0)
     return ValidateKdTree(root->Left, depth + 1) && ValidateKdTree(root->Right, depth + 1);
 }
 
-// This is kind of useless since our tree is intentionally
-// a little unbalanced but its worth keeping to ensure its not TOO unbalanced
-// for some reason in the future
 bool KDTree::IsBalanced(KDNode* root)
 {
     if (root == nullptr)
