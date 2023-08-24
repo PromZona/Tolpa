@@ -3,10 +3,10 @@
 
 CreateCityCommand::CreateCityCommand()
 {
-	m_Position = {0, 0};
+	m_Position = {0, 0, 0};
 }
 
-CreateCityCommand::CreateCityCommand(Vector2 position)
+CreateCityCommand::CreateCityCommand(Vector3 position)
 {
 	m_Position = position;
 }

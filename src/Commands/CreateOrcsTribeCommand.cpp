@@ -3,10 +3,10 @@
 
 CreateOrcsTribeCommand::CreateOrcsTribeCommand()
 {
-	m_Position = {0, 0};
+	m_Position = {0, 0, 0};
 }
 
-CreateOrcsTribeCommand::CreateOrcsTribeCommand(Vector2 position)
+CreateOrcsTribeCommand::CreateOrcsTribeCommand(Vector3 position)
 {
 	m_Position = position;
 }

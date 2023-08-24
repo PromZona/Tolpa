@@ -10,6 +10,18 @@ cmake-build-release
 
 # vs code
 .vscode
+.vs
 
 # JetBrains
 .idea
+
+# build directory
+build/
+
+# resources (can be too big)
+*.glb
+*.obj
+*.mtl
+*.jpg
+*.png
+*.vox

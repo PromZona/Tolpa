@@ -35,10 +35,14 @@ add_library(${PROJECT_NAME} STATIC
         game.cpp
         EntityFactory.cpp
         InputManager.cpp
-        renderer.cpp
+        NavigationMesh.cpp
+        Renderer.cpp
+        SceneManager.cpp
+        KDTree.cpp
         UI/GuiManager.cpp
         UI/ConsoleGui.cpp
         Logger/Logger.cpp
+        MeshPicking.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp
         Commands/CreateCityCommand.cpp

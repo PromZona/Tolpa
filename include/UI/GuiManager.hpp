@@ -18,9 +18,14 @@ public:
 	void SwitchConsoleWindow();
 	void SwitchECSWindow();
 private:
+	void DrawHub();
 	void DrawECS();
+	void DrawSceneSettings();
+	void DrawRenderDebug();
 	void HandleComponent(std::type_index type, EntityId entity);
 	bool m_showEcsWindow = false;
 
 	ConsoleGui m_ConsoleGui;
+	bool ShowRenderSettings = false;
+	bool ShowECSSettings = false;
 };

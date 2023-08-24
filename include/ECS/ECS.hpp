@@ -15,7 +15,7 @@ public:
 	void DeleteEntity(const EntityId& entityId);
 	void PrintInfo();
 	void CheckEntity(const EntityId& entity);
-
+	
 	template<class T>
 	void AddComponent(const EntityId& entityId, T component)
 	{
