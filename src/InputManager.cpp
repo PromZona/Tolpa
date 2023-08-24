@@ -92,7 +92,7 @@ void InputManager::Update()
 
 		if (keyPressed == KEY_ONE)
 		{
-			Game::Instance().GetGUI().SwitchECSWindow();
+			Game::Instance().GetGUI().SwitchHubWindow();
 		}
 	}
 

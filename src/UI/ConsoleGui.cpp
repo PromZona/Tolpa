@@ -164,12 +164,12 @@ void ConsoleGui::SendCommand(const char* commandInput)
 
 	if (command == "CreateHuman")
 	{
-		float x, y;
+		float x, y, z;
 		std::unique_ptr<CreateHumanCommand> commandPtr;
-		if (!(commandStream >> x >> y))
+		if (!(commandStream >> x >> y >> z))
 			commandPtr = std::make_unique<CreateHumanCommand>();
 		else
-			commandPtr = std::make_unique<CreateHumanCommand>(Vector2 {x, y});
+			commandPtr = std::make_unique<CreateHumanCommand>(Vector3 {x, y, z});
 		Game::Instance().GetCommandManager().AddCommand(std::move(commandPtr));
 	}
 	else if (command == "CreateOrc")

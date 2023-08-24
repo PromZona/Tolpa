@@ -19,6 +19,7 @@ void GUIManager::DrawGUI()
 	rlImGuiBegin();
 
 	DrawHub();
+	m_ConsoleGui.Draw();
 	rlImGuiEnd();
 }
 
@@ -29,11 +30,11 @@ void GUIManager::Init()
 
 void GUIManager::DrawHub()
 {
-	if (!m_showEcsWindow)
+	if (!m_showHub)
 		return;
 
 	ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("GUI Manager", &m_showEcsWindow))
+	if (!ImGui::Begin("GUI Manager", &m_showHub))
 	{
 		ImGui::End();
 		return;
@@ -53,8 +54,6 @@ void GUIManager::DrawHub()
 		DrawECS();
 		ImGui::TreePop();
 	}
-
-	m_ConsoleGui.Draw();
 
 	ImGui::End();
 }
@@ -272,8 +271,8 @@ void GUIManager::SwitchConsoleWindow()
 	m_ConsoleGui.ShowOrHide();
 }
 
-void GUIManager::SwitchECSWindow()
+void GUIManager::SwitchHubWindow()
 {
-	m_showEcsWindow = !m_showEcsWindow;
+	m_showHub = !m_showHub;
 }
 
