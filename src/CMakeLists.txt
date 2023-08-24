@@ -39,7 +39,9 @@ add_library(${PROJECT_NAME} STATIC
         Renderer.cpp
         SceneManager.cpp
         KDTree.cpp
-        GuiManager.cpp
+        UI/GuiManager.cpp
+        UI/ConsoleGui.cpp
+        Logger/Logger.cpp
         MeshPicking.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp

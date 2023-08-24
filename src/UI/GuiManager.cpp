@@ -1,4 +1,4 @@
-#include "GuiManager.hpp"
+#include "UI/GuiManager.hpp"
 
 #include <algorithm>
 #include <string>
@@ -11,7 +11,7 @@
 #include "Components/GoalComponent.hpp"
 #include "Components/RenderComponent.hpp"
 
-GUIManager::GUIManager() = default;
+GUIManager::GUIManager() : m_ConsoleGui() {}
 GUIManager::~GUIManager() = default;
 
 void GUIManager::DrawGUI()
@@ -19,6 +19,7 @@ void GUIManager::DrawGUI()
 	rlImGuiBegin();
 
 	DrawHub();
+	m_ConsoleGui.Draw();
 	rlImGuiEnd();
 }
 
@@ -29,8 +30,11 @@ void GUIManager::Init()
 
 void GUIManager::DrawHub()
 {
+	if (!m_showHub)
+		return;
+
 	ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("GUI Manager", &m_showEcsWindow))
+	if (!ImGui::Begin("GUI Manager", &m_showHub))
 	{
 		ImGui::End();
 		return;
@@ -256,7 +260,19 @@ void GUIManager::HandleComponent(std::type_index type, EntityId entity)
 		ImGui::TreePop();
 	}
 }
+
 void GUIManager::Shutdown()
 {
 	rlImGuiShutdown();
 }
+
+void GUIManager::SwitchConsoleWindow()
+{
+	m_ConsoleGui.ShowOrHide();
+}
+
+void GUIManager::SwitchHubWindow()
+{
+	m_showHub = !m_showHub;
+}
+
