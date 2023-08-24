@@ -36,7 +36,8 @@ add_library(${PROJECT_NAME} STATIC
         EntityFactory.cpp
         InputManager.cpp
         renderer.cpp
-        GuiManager.cpp
+        UI/GuiManager.cpp
+        UI/ConsoleGui.cpp
         Logger/Logger.cpp
         Commands/CommandManager.cpp
         Commands/CreateHumanCommand.cpp

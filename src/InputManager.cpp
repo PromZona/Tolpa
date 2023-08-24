@@ -55,5 +55,15 @@ void InputManager::Update()
 		{
 			Game::Instance().GetECS().PrintInfo();
 		}
+
+		if (keyPressed == KEY_GRAVE)
+		{
+			Game::Instance().GetGUI().SwitchConsoleWindow();
+		}
+
+		if (keyPressed == KEY_ONE)
+		{
+			Game::Instance().GetGUI().SwitchECSWindow();
+		}
 	}
 }

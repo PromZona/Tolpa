@@ -8,7 +8,7 @@
 #include "InputManager.hpp"
 #include "Controllers/IController.hpp"
 #include "GameState.h"
-#include "GuiManager.hpp"
+#include "UI/GuiManager.hpp"
 #include "Commands/CommandManager.hpp"
 
 class Game
